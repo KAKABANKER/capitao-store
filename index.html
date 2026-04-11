@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAIR BOLSONARO</title>
-    <!-- Google Fonts: Jost e Playfair Display para uma estética elegante e profissional -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (free) para ícones limpos -->
+    <title>Capitão Store | Loja Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -17,127 +15,193 @@
 
         body {
             font-family: 'Jost', sans-serif;
-            background-color: #fefcf5;
+            background: #fefcf5;
             color: #1a1a1a;
             overflow-x: hidden;
         }
 
-        /* Tipografia elegante */
-        h1, h2, h3, h4, .font-secondary {
-            font-family: 'Playfair Display', serif;
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #eae6de; }
+        ::-webkit-scrollbar-thumb { background: #b68b40; border-radius: 10px; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
+        /* Container */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
 
-        /* ========== HEADER PROFISSIONAL ========== */
+        /* Top Bar */
         .top-bar {
-            background-color: #1e2a2e;
+            background: #1e2a2e;
             color: #e9c46a;
             text-align: center;
-            padding: 10px 0;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
+            padding: 12px 0;
+            font-size: 13px;
+            letter-spacing: 1px;
         }
 
+        /* Header */
         .main-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 32px;
-            background-color: #ffffff;
+            background: white;
             border-bottom: 1px solid #eae6de;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
+            z-index: 100;
         }
 
         .logo h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             color: #2c3e2f;
+            font-family: 'Playfair Display', serif;
         }
         .logo span {
-            font-size: 0.8rem;
-            font-weight: 400;
+            font-size: 0.7rem;
             color: #b68b40;
             display: block;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 32px;
-        }
+        .nav-links { display: flex; gap: 32px; }
         .nav-links a {
             text-decoration: none;
-            font-weight: 500;
             color: #2d3e2b;
+            font-weight: 500;
             transition: 0.2s;
-            font-size: 1rem;
         }
-        .nav-links a:hover {
-            color: #b68b40;
-        }
+        .nav-links a:hover { color: #b68b40; }
 
-        .header-icons {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
+        .header-icons { display: flex; gap: 24px; align-items: center; }
         .header-icons i {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
             color: #2d3e2b;
             transition: 0.2s;
         }
-        .cart-icon {
-            position: relative;
-        }
+        .cart-icon { position: relative; cursor: pointer; }
         .cart-count {
             position: absolute;
             top: -10px;
             right: -12px;
-            background-color: #b68b40;
+            background: #b68b40;
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: bold;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
         }
 
-        /* ========== HERO SECTION (ESTÉTICA PREMIUM) ========== */
-        .hero {
-            background: linear-gradient(120deg, #f5f0e6 0%, #fff8ef 100%);
-            padding: 60px 32px;
-            text-align: center;
-            border-bottom: 1px solid #e9e2d4;
+        /* Hero com Carrossel */
+        .hero-carousel {
+            position: relative;
+            height: 550px;
+            overflow: hidden;
         }
-        .hero h2 {
-            font-size: 3.2rem;
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+        }
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .carousel-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+        }
+        .carousel-content {
+            position: absolute;
+            bottom: 80px;
+            left: 10%;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            max-width: 500px;
+        }
+        .carousel-content h2 {
+            font-size: 3rem;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 16px;
+        }
+        .carousel-content p { font-size: 1.1rem; margin-bottom: 24px; }
+        .carousel-btn {
+            background: #b68b40;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
             font-weight: 600;
-            color: #2c3e2f;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .hero p {
-            font-size: 1.2rem;
-            color: #5c5b4b;
-            max-width: 600px;
-            margin: 16px auto 0;
+        .carousel-btn:hover { background: #2c3e2f; }
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
         }
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dot.active { background: #b68b40; width: 24px; border-radius: 10px; }
 
-        /* ========== PRODUTOS EM GRADE ========== */
+        /* Categorias */
+        .categories {
+            padding: 60px 0;
+            background: white;
+        }
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 24px;
+            text-align: center;
+        }
+        .category-item {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .category-item:hover { transform: translateY(-5px); }
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            background: #f5f0e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 2rem;
+            color: #b68b40;
+        }
+        .category-item span { font-weight: 500; color: #2c3e2f; }
+
+        /* Produtos */
         .products-section {
-            padding: 60px 32px;
+            padding: 60px 0;
+            background: #fefcf5;
         }
         .section-title {
             text-align: center;
@@ -147,68 +211,55 @@
             font-size: 2.2rem;
             font-weight: 600;
             color: #2c3e2f;
-            position: relative;
-            display: inline-block;
+            font-family: 'Playfair Display', serif;
         }
-        .section-title h3:after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 2px;
-            background-color: #b68b40;
+        .section-title p {
+            color: #8a8f8a;
+            margin-top: 8px;
         }
 
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 40px;
-            max-width: 1300px;
-            margin: 0 auto;
+            gap: 32px;
         }
 
         .product-card {
-            background: #ffffff;
+            background: white;
             border-radius: 20px;
             overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
             border: 1px solid #f0ede5;
+            cursor: pointer;
         }
         .product-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
             border-color: #e2d9cc;
         }
         .product-img {
-            height: 320px;
+            height: 280px;
             background-size: cover;
             background-position: center;
-            background-color: #f8f6f0;
             transition: transform 0.4s;
         }
-        .product-card:hover .product-img {
-            transform: scale(1.02);
-        }
-        .product-info {
-            padding: 20px 20px 24px;
-        }
+        .product-card:hover .product-img { transform: scale(1.03); }
+        .product-info { padding: 20px; }
         .product-title {
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 8px;
             color: #2c3e2f;
         }
         .product-price {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #b68b40;
-            margin: 12px 0;
+            margin: 10px 0;
         }
         .old-price {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #9b9b8a;
             text-decoration: line-through;
             margin-right: 8px;
@@ -218,11 +269,10 @@
             background: #2c3e2f;
             color: white;
             border: none;
-            padding: 12px 0;
+            padding: 12px;
             width: 100%;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
@@ -230,55 +280,96 @@
             justify-content: center;
             gap: 8px;
         }
-        .btn-add:hover {
+        .btn-add:hover { background: #b68b40; }
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #1e2a2e, #2c3e2f);
+            padding: 60px 32px;
+            text-align: center;
+            color: white;
+        }
+        .newsletter h3 { font-size: 1.8rem; font-family: 'Playfair Display', serif; margin-bottom: 16px; }
+        .newsletter p { margin-bottom: 24px; opacity: 0.8; }
+        .newsletter-form { display: flex; justify-content: center; gap: 12px; max-width: 500px; margin: 0 auto; }
+        .newsletter-form input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+        }
+        .newsletter-form button {
             background: #b68b40;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        /* ========== CARRINHO LATERAL (SIDECART) ========== */
+        /* Footer */
+        footer {
+            background: #0f140f;
+            color: #8a8f8a;
+            padding: 48px 32px 24px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer-col h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .footer-col p { margin-bottom: 12px; font-size: 0.85rem; }
+        .footer-col i { margin-right: 8px; color: #b68b40; }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 40px;
+            border-top: 1px solid #1e241e;
+            font-size: 0.75rem;
+        }
+
+        /* Carrinho Lateral */
         .side-cart {
             position: fixed;
             top: 0;
             right: -450px;
             width: 450px;
             height: 100%;
-            background-color: #ffffff;
+            background: white;
+            z-index: 1000;
+            transition: 0.3s;
             box-shadow: -5px 0 30px rgba(0,0,0,0.1);
-            z-index: 1100;
-            transition: right 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            display: flex;
-            flex-direction: column;
-            font-family: 'Jost', sans-serif;
         }
-        .side-cart.open {
-            right: 0;
-        }
+        .side-cart.open { right: 0; }
         .cart-header {
-            padding: 28px 24px;
-            border-bottom: 1px solid #ece6dc;
+            padding: 24px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .cart-header h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
+        .cart-header h3 { font-size: 1.3rem; color: #2c3e2f; }
         .close-cart {
             background: none;
             border: none;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: #5e5b4c;
+            color: #999;
         }
-        .cart-items {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
+        .cart-items { padding: 20px; max-height: 60%; overflow-y: auto; }
         .cart-item {
             display: flex;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 1px solid #f0ebe2;
         }
@@ -286,21 +377,11 @@
             width: 70px;
             height: 70px;
             background-size: cover;
-            background-position: center;
             border-radius: 12px;
-            background-color: #f3efe7;
         }
-        .cart-item-details {
-            flex: 1;
-        }
-        .cart-item-title {
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        .cart-item-price {
-            color: #b68b40;
-            font-weight: 500;
-        }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; color: #2c3e2f; }
+        .cart-item-price { color: #b68b40; font-weight: 500; }
         .cart-item-quantity {
             display: flex;
             align-items: center;
@@ -314,27 +395,21 @@
             height: 26px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-        }
-        .remove-item {
-            background: none;
-            border: none;
-            color: #9c8e78;
-            cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 8px;
         }
         .cart-footer {
             padding: 24px;
-            border-top: 2px solid #ece6dc;
-            background: #fefcf9;
+            border-top: 1px solid #eee;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
         }
         .cart-total {
             display: flex;
             justify-content: space-between;
             font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .btn-checkout {
             background: #b68b40;
@@ -343,18 +418,8 @@
             border: none;
             color: white;
             font-weight: bold;
-            font-size: 1rem;
             border-radius: 40px;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-checkout:hover {
-            background: #2c3e2f;
-        }
-        .empty-cart {
-            text-align: center;
-            padding: 40px 20px;
-            color: #9b8f7a;
         }
         .cart-overlay {
             position: fixed;
@@ -362,52 +427,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 1050;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
         }
-        .cart-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
+        .cart-overlay.active { display: block; }
 
+        @media (max-width: 1024px) {
+            .categories-grid { grid-template-columns: repeat(3, 1fr); }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 768px) {
-            .side-cart { width: 100%; right: -100%; }
-            .main-header { flex-wrap: wrap; gap: 15px; }
             .nav-links { display: none; }
-            .hero h2 { font-size: 2rem; }
-            .products-grid { gap: 20px; }
-        }
-
-        footer {
-            background: #1e2a2e;
-            color: #dcd7cc;
-            text-align: center;
-            padding: 32px;
-            margin-top: 40px;
-            font-size: 0.9rem;
+            .hero-carousel { height: 400px; }
+            .carousel-content h2 { font-size: 1.8rem; }
+            .categories-grid { grid-template-columns: repeat(2, 1fr); }
+            .side-cart { width: 100%; right: -100%; }
         }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <span>🇧🇷 ENTREGA GRÁTIS PARA COMPRAS ACIMA DE R$250 | CAMISETAS PERSONALIZADAS</span>
+    🇧🇷 FREIGHT FREE FOR PURCHASES OVER R$250 | OFFICIAL STORE
 </div>
 
 <header class="main-header">
     <div class="logo">
-        <h1>CAPITÃO BOLSONARO</h1>
-        <span>LOJA OFICIAL • VALORES PATRIÓTICOS</span>
+        <h1>CAPITÃO STORE</h1>
+        <span>OFFICIAL • PATRIOTIC VALUES</span>
     </div>
     <div class="nav-links">
-        <a href="#">INÍCIO</a>
-        <a href="#">CAMISETAS</a>
-        <a href="#">BONÉS</a>
-        <a href="#">CANECAS</a>
-        <a href="#">ACESSÓRIOS</a>
+        <a href="#">HOME</a>
+        <a href="#">T-SHIRTS</a>
+        <a href="#">HATS</a>
+        <a href="#">MUGS</a>
+        <a href="#">ACCESSORIES</a>
     </div>
     <div class="header-icons">
         <i class="far fa-user"></i>
@@ -419,254 +474,279 @@
     </div>
 </header>
 
-<section class="hero">
-    <h2>Vista seu patriotismo</h2>
-    <p>Camisetas, bonés e acessórios com estilo e qualidade. Mostre seu orgulho pelo Brasil.</p>
-</section>
-
-<section class="products-section">
-    <div class="section-title">
-        <h3>Produtos em Destaque</h3>
+<!-- Carrossel Hero -->
+<div class="hero-carousel">
+    <div class="carousel-slides" id="carouselSlides">
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1600');">
+            <div class="carousel-content">
+                <h2>Patriotic Collection</h2>
+                <p>Wear the colors of Brazil with pride and style</p>
+                <button class="carousel-btn">SHOP NOW →</button>
+            </div>
+        </div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600');">
+            <div class="carousel-content">
+                <h2>Limited Edition</h2>
+                <p>Exclusive products for true patriots</p>
+                <button class="carousel-btn">DISCOVER →</button>
+            </div>
+        </div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=1600');">
+            <div class="carousel-content">
+                <h2>Free Shipping</h2>
+                <p>On orders over R$250 throughout Brazil</p>
+                <button class="carousel-btn">LEARN MORE →</button>
+            </div>
+        </div>
     </div>
-    <div class="products-grid" id="productsGrid"></div>
+    <div class="carousel-dots" id="carouselDots"></div>
+</div>
+
+<!-- Categorias -->
+<section class="categories">
+    <div class="container">
+        <div class="categories-grid">
+            <div class="category-item"><div class="category-icon"><i class="fas fa-tshirt"></i></div><span>T-Shirts</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-hat-cowboy"></i></div><span>Hats</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-mug-hot"></i></div><span>Mugs</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-user-tie"></i></div><span>Accessories</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-flag-checkered"></i></div><span>Flags</span></div>
+        </div>
+    </div>
 </section>
 
+<!-- Produtos -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-title">
+            <h3>Featured Products</h3>
+            <p>Discover our exclusive collection of patriotic products</p>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter">
+    <h3>Subscribe to our newsletter</h3>
+    <p>Receive exclusive offers and news about new products</p>
+    <div class="newsletter-form">
+        <input type="email" placeholder="Your email">
+        <button>SUBSCRIBE</button>
+    </div>
+</section>
+
+<!-- Footer -->
 <footer>
-    <p>© 2025 Jair Bolsonaro - Loja independente. Todos os direitos reservados. Brasil acima de tudo, Deus acima de todos.</p>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>CAPITÃO STORE</h4>
+            <p><i class="fas fa-map-marker-alt"></i> Brasília, Brazil</p>
+            <p><i class="fas fa-phone"></i> +55 (61) 9999-9999</p>
+            <p><i class="fas fa-envelope"></i> contato@capitaostore.com</p>
+        </div>
+        <div class="footer-col">
+            <h4>Information</h4>
+            <p>About Us</p>
+            <p>Terms of Use</p>
+            <p>Privacy Policy</p>
+            <p>Exchanges and Returns</p>
+        </div>
+        <div class="footer-col">
+            <h4>Help</h4>
+            <p>FAQ</p>
+            <p>Shipping Tracking</p>
+            <p>Payment Methods</p>
+            <p>Customer Service</p>
+        </div>
+        <div class="footer-col">
+            <h4>Follow Us</h4>
+            <p><i class="fab fa-instagram"></i> Instagram</p>
+            <p><i class="fab fa-facebook"></i> Facebook</p>
+            <p><i class="fab fa-twitter"></i> Twitter</p>
+            <p><i class="fab fa-youtube"></i> YouTube</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 CAPITÃO STORE - All rights reserved. Brazil above all, God above all.</p>
+    </div>
 </footer>
 
-<!-- CARRINHO LATERAL -->
+<!-- Carrinho Lateral -->
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="side-cart" id="sideCart">
     <div class="cart-header">
-        <h3>Seu Carrinho</h3>
-        <button class="close-cart" id="closeCartBtn"><i class="fas fa-times"></i></button>
+        <h3>Your Cart</h3>
+        <button class="close-cart" id="closeCartBtn">×</button>
     </div>
-    <div class="cart-items" id="cartItemsContainer">
-        <div class="empty-cart">Seu carrinho está vazio.</div>
-    </div>
+    <div class="cart-items" id="cartItems"></div>
     <div class="cart-footer">
-        <div class="cart-total">
-            <span>Total:</span>
-            <span id="cartTotalPrice">R$ 0,00</span>
-        </div>
-        <button class="btn-checkout" id="checkoutBtn">FINALIZAR COMPRA →</button>
-        <p style="font-size: 12px; margin-top: 12px; text-align: center;">Pagamento seguro | Parcelamento em até 12x</p>
+        <div class="cart-total">Total: <span id="cartTotal">R$ 0,00</span></div>
+        <button class="btn-checkout" id="checkoutBtn">CHECKOUT →</button>
     </div>
 </div>
-<!-- TODO O SEU HTML CONTINUA IGUAL ATÉ O FINAL, SÓ MUDA O SCRIPT -->
 
 <script>
-    // ========== CONFIGURAÇÃO ==========
-    const API_URL = window.location.origin;
-    let products = [];
-    let cart = JSON.parse(localStorage.getItem('patriotCart')) || [];
-    let visitorId = localStorage.getItem('visitor_id');
+    // ========== 20 PRODUTOS COMPLETOS ==========
+    const produtos = [
+        { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas" },
+        { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONE+PRETO", categoria: "Bonés" },
+        { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff4e6/8b6b3d?text=CANECA", categoria: "Canecas" },
+        { id: 4, nome: "Moletom Canguru Premium", preco: 179.90, preco_antigo: 249.90, imagem: "https://placehold.co/600x800/e9e0d3/8b6b3d?text=MOLETOM", categoria: "Moletons" },
+        { id: 5, nome: "Regata Dry Fit Brasil", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/f2ede2/8b6b3d?text=REGATA", categoria: "Regatas" },
+        { id: 6, nome: "Camiseta Deus Acima de Todos", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/fcf7ef/8b6b3d?text=CAMISETA+BRANCA", categoria: "Camisetas" },
+        { id: 7, nome: "Bandeira do Brasil 1,5m", preco: 79.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BANDEIRA", categoria: "Bandeiras" },
+        { id: 8, nome: "Adesivo Kit 10 unid", preco: 29.90, preco_antigo: 49.90, imagem: "https://placehold.co/600x800/f5efe5/8b6b3d?text=ADESIVO", categoria: "Adesivos" },
+        { id: 9, nome: "Chaveiro Personalizado", preco: 19.90, preco_antigo: 29.90, imagem: "https://placehold.co/600x800/fff0e0/8b6b3d?text=CHAVEIRO", categoria: "Acessórios" },
+        { id: 10, nome: "Camiseta Força Verde", preco: 89.90, preco_antigo: 119.90, imagem: "https://placehold.co/600x800/eaefe5/8b6b3d?text=FORCA+VERDE", categoria: "Camisetas" },
+        { id: 11, nome: "Boné Tático Militar", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/ddd5c5/8b6b3d?text=BONE+TATICO", categoria: "Bonés" },
+        { id: 12, nome: "Caneca Selo Nacional", preco: 49.90, preco_antigo: 69.90, imagem: "https://placehold.co/600x800/f8f0e0/8b6b3d?text=CANECA+SELO", categoria: "Canecas" },
+        { id: 13, nome: "Moletom Brasil Flag", preco: 199.90, preco_antigo: 279.90, imagem: "https://placehold.co/600x800/e5dccd/8b6b3d?text=MOLETOM+BANDEIRA", categoria: "Moletons" },
+        { id: 14, nome: "Regata Camuflada", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/f2ece0/8b6b3d?text=REGATA+CAMUFLADA", categoria: "Regatas" },
+        { id: 15, nome: "Camiseta Exército BR", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/f5ede0/8b6b3d?text=EXERCITO+BR", categoria: "Camisetas" },
+        { id: 16, nome: "Boné Preto Dourado", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BONE+DOURADO", categoria: "Bonés" },
+        { id: 17, nome: "Caneca Patriota", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff5e8/8b6b3d?text=CANECA+PATRIOTA", categoria: "Canecas" },
+        { id: 18, nome: "Kit 3 Adesivos", preco: 19.90, preco_antigo: 39.90, imagem: "https://placehold.co/600x800/faf2e5/8b6b3d?text=KIT+ADESIVOS", categoria: "Adesivos" },
+        { id: 19, nome: "Pulseira Patriotismo", preco: 14.90, preco_antigo: 24.90, imagem: "https://placehold.co/600x800/f0e8d8/8b6b3d?text=PULSEIRA", categoria: "Acessórios" },
+        { id: 20, nome: "Camiseta Eu Apoio", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f8efe0/8b6b3d?text=EU+APOIO", categoria: "Camisetas" }
+    ];
 
-    // Gerar ID único do visitante
-    if (!visitorId) {
-        visitorId = 'vis_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('visitor_id', visitorId);
-        
-        // Registrar visitante no backend
-        fetch(`${API_URL}/api/visitante`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                visitor_id: visitorId,
-                ip: '',
-                user_agent: navigator.userAgent,
-                origem: document.referrer || 'direct'
-            })
-        });
-    }
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
-    // ========== BUSCAR PRODUTOS DO BANCO ==========
-    async function carregarProdutos() {
-        try {
-            const response = await fetch(`${API_URL}/api/produtos`);
-            const data = await response.json();
-            if (data.success && data.produtos.length > 0) {
-                products = data.produtos;
-            } else {
-                // Fallback para produtos padrão
-                products = [
-                    { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas" },
-                    { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONÉ+PRETO", categoria: "Bonés" },
-                    { id: 3, nome: "Regata Dry Fit Brasil", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/f2ede2/8b6b3d?text=REGATA+AZUL", categoria: "Camisetas" },
-                    { id: 4, nome: "Caneca 'Ordem e Progresso'", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff4e6/8b6b3d?text=CANECA", categoria: "Canecas" },
-                    { id: 5, nome: "Moletom Canguru 2026", preco: 179.90, preco_antigo: 249.90, imagem: "https://placehold.co/600x800/e9e0d3/8b6b3d?text=MOLETOM", categoria: "Moletons" },
-                    { id: 6, nome: "Camiseta 'Deus Acima de Todos'", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/fcf7ef/8b6b3d?text=CAMISETA+BRANCA", categoria: "Camisetas" }
-                ];
-            }
-            renderProducts();
-        } catch (error) {
-            console.error('Erro ao carregar produtos:', error);
-            // Fallback
-            products = produtosPadrao;
-            renderProducts();
-        }
-    }
-
-    function renderProducts() {
+    // Renderizar produtos
+    function renderizarProdutos() {
         const grid = document.getElementById('productsGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <div class="product-img" style="background-image: url('${product.imagem || product.image}');"></div>
+        grid.innerHTML = produtos.map(p => `
+            <div class="product-card">
+                <div class="product-img" style="background-image: url('${p.imagem}')"></div>
                 <div class="product-info">
-                    <div class="product-title">${product.nome || product.name}</div>
+                    <div class="product-title">${p.nome}</div>
                     <div class="product-price">
-                        ${product.preco_antigo ? `<span class="old-price">R$ ${(product.preco_antigo).toFixed(2)}</span>` : ''}
-                        <span>R$ ${(product.preco).toFixed(2)}</span>
+                        ${p.preco_antigo ? `<span class="old-price">R$ ${p.preco_antigo.toFixed(2)}</span>` : ''}
+                        R$ ${p.preco.toFixed(2)}
                     </div>
-                    <button class="btn-add" data-id="${product.id}">
-                        <i class="fas fa-shopping-bag"></i> ADICIONAR AO CARRINHO
+                    <button class="btn-add" onclick="adicionarAoCarrinho(${p.id})">
+                        <i class="fas fa-shopping-bag"></i> ADD TO CART
                     </button>
                 </div>
-            `;
-            grid.appendChild(card);
-        });
-
-        document.querySelectorAll('.btn-add').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = parseInt(btn.dataset.id);
-                addToCart(id);
-            });
-        });
+            </div>
+        `).join('');
     }
 
-    // ========== FUNÇÕES DO CARRINHO (MANTIDAS IGUAIS) ==========
-    function saveCart() {
-        localStorage.setItem('patriotCart', JSON.stringify(cart));
-        updateCartUI();
-        updateCartIconCount();
-    }
-
-    function updateCartIconCount() {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        document.getElementById('cartCount').innerText = totalItems;
-    }
-
-    function addToCart(productId) {
-        const product = products.find(p => p.id === productId);
-        if (!product) return;
-        const existing = cart.find(item => item.id === productId);
-        if (existing) {
-            existing.quantity += 1;
+    // Funções do carrinho
+    function adicionarAoCarrinho(id) {
+        const produto = produtos.find(p => p.id === id);
+        const existente = carrinho.find(item => item.id === id);
+        if (existente) {
+            existente.quantidade++;
         } else {
-            cart.push({ 
-                id: product.id, 
-                name: product.nome || product.name, 
-                price: product.preco, 
-                image: product.imagem || product.image,
-                quantity: 1 
-            });
+            carrinho.push({ ...produto, quantidade: 1 });
         }
-        saveCart();
-        openCartSide();
+        salvarCarrinho();
+        abrirCarrinho();
     }
 
-    function removeItem(productId) {
-        cart = cart.filter(item => item.id !== productId);
-        saveCart();
+    function salvarCarrinho() {
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        atualizarCarrinhoUI();
     }
 
-    function updateQuantity(productId, delta) {
-        const item = cart.find(i => i.id === productId);
-        if (item) {
-            const newQty = item.quantity + delta;
-            if (newQty <= 0) {
-                removeItem(productId);
-            } else {
-                item.quantity = newQty;
-                saveCart();
-            }
-        }
-    }
-
-    function updateCartUI() {
-        const container = document.getElementById('cartItemsContainer');
-        const totalSpan = document.getElementById('cartTotalPrice');
-        if (!container) return;
-
-        if (cart.length === 0) {
-            container.innerHTML = '<div class="empty-cart">Seu carrinho está vazio.</div>';
-            totalSpan.innerText = 'R$ 0,00';
+    function atualizarCarrinhoUI() {
+        const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
+        document.getElementById('cartCount').innerText = totalItens;
+        
+        const container = document.getElementById('cartItems');
+        if (carrinho.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Your cart is empty</p>';
+            document.getElementById('cartTotal').innerText = 'R$ 0,00';
             return;
         }
-
+        
         let total = 0;
-        let html = '';
-        cart.forEach(item => {
-            const itemTotal = item.price * item.quantity;
-            total += itemTotal;
-            html += `
+        container.innerHTML = carrinho.map((item, idx) => {
+            total += item.preco * item.quantidade;
+            return `
                 <div class="cart-item">
-                    <div class="cart-item-img" style="background-image: url('${item.image}'); background-size: cover;"></div>
+                    <div class="cart-item-img" style="background-image: url('${item.imagem}')"></div>
                     <div class="cart-item-details">
-                        <div class="cart-item-title">${item.name}</div>
-                        <div class="cart-item-price">R$ ${item.price.toFixed(2)}</div>
+                        <div class="cart-item-title">${item.nome}</div>
+                        <div class="cart-item-price">R$ ${item.preco.toFixed(2)}</div>
                         <div class="cart-item-quantity">
-                            <button class="qty-btn" data-id="${item.id}" data-delta="-1">−</button>
-                            <span>${item.quantity}</span>
-                            <button class="qty-btn" data-id="${item.id}" data-delta="1">+</button>
-                            <button class="remove-item" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                            <button class="qty-btn" onclick="alterarQuantidade(${idx}, -1)">-</button>
+                            <span>${item.quantidade}</span>
+                            <button class="qty-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
                         </div>
                     </div>
                 </div>
             `;
-        });
-        container.innerHTML = html;
-        totalSpan.innerText = `R$ ${total.toFixed(2)}`;
-
-        document.querySelectorAll('.qty-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = parseInt(btn.dataset.id);
-                const delta = parseInt(btn.dataset.delta);
-                updateQuantity(id, delta);
-            });
-        });
-        document.querySelectorAll('.remove-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = parseInt(btn.dataset.id);
-                removeItem(id);
-            });
-        });
+        }).join('');
+        document.getElementById('cartTotal').innerText = `R$ ${total.toFixed(2)}`;
     }
 
-    // ========== CHECKOUT ==========
-    async function handleCheckout() {
-        if (cart.length === 0) {
-            alert("Seu carrinho está vazio. Adicione produtos para finalizar a compra.");
-            return;
+    function alterarQuantidade(idx, delta) {
+        carrinho[idx].quantidade += delta;
+        if (carrinho[idx].quantidade <= 0) {
+            carrinho.splice(idx, 1);
         }
-        
-        // Redirecionar para página de checkout
-        localStorage.setItem('checkout_cart', JSON.stringify(cart));
-        window.location.href = '/checkout.html';
+        salvarCarrinho();
     }
 
-    // ========== CARRINHO LATERAL ==========
-    const sideCart = document.getElementById('sideCart');
-    const overlay = document.getElementById('cartOverlay');
-    function openCartSide() { sideCart.classList.add('open'); overlay.classList.add('active'); }
-    function closeCartSide() { sideCart.classList.remove('open'); overlay.classList.remove('active'); }
+    // Carrinho lateral
+    function abrirCarrinho() {
+        document.getElementById('sideCart').classList.add('open');
+        document.getElementById('cartOverlay').classList.add('active');
+    }
+    function fecharCarrinho() {
+        document.getElementById('sideCart').classList.remove('open');
+        document.getElementById('cartOverlay').classList.remove('active');
+    }
 
-    // ========== INICIALIZAÇÃO ==========
-    document.addEventListener('DOMContentLoaded', () => {
-        carregarProdutos();
-        updateCartUI();
-        updateCartIconCount();
-
-        document.getElementById('cartIcon')?.addEventListener('click', openCartSide);
-        document.getElementById('closeCartBtn')?.addEventListener('click', closeCartSide);
-        overlay?.addEventListener('click', closeCartSide);
-        document.getElementById('checkoutBtn')?.addEventListener('click', handleCheckout);
-    });
+    // Carrossel
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dotsContainer = document.getElementById('carouselDots');
+    
+    function criarDots() {
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => irParaSlide(i);
+            dotsContainer.appendChild(dot);
+        });
+    }
+    
+    function irParaSlide(index) {
+        currentSlide = index;
+        const offset = -index * 100;
+        document.querySelector('.carousel-slides').style.transform = `translateX(${offset}%)`;
+        document.querySelectorAll('.dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+    
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        irParaSlide(currentSlide);
+    }
+    
+    // Eventos
+    document.getElementById('cartIcon').onclick = abrirCarrinho;
+    document.getElementById('closeCartBtn').onclick = fecharCarrinho;
+    document.getElementById('cartOverlay').onclick = fecharCarrinho;
+    document.getElementById('checkoutBtn').onclick = () => {
+        if (carrinho.length === 0) return alert('Cart is empty');
+        localStorage.setItem('checkout_carrinho', JSON.stringify(carrinho));
+        window.location.href = '/checkout.html';
+    };
+    
+    // Auto slide
+    setInterval(nextSlide, 5000);
+    
+    // Inicializar
+    renderizarProdutos();
+    atualizarCarrinhoUI();
+    criarDots();
 </script>
 </body>
 </html>
