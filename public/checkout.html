@@ -64,11 +64,12 @@
             background: linear-gradient(135deg, #f8f6f0, #f0ebe2);
             border-radius: 20px;
         }
-        .pix-placeholder {
-            background: #1a1a1a; color: #b68b40; padding: 30px;
-            border-radius: 16px; font-size: 1rem; margin: 20px 0;
-            font-family: monospace;
+        .btn-gerar-pix {
+            background: #2c3e2f; color: white; border: none;
+            padding: 14px 28px; border-radius: 40px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; margin-top: 10px;
         }
+        .btn-gerar-pix:hover { background: #b68b40; transform: translateY(-2px); }
 
         .resumo-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
         .resumo-total { font-size: 1.4rem; font-weight: 700; text-align: right; margin: 20px 0; color: #b68b40; }
@@ -118,7 +119,6 @@
         }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .pix-modal-content i { font-size: 56px; color: #2e7d32; margin-bottom: 16px; }
-        .pix-qr { background: white; padding: 16px; border-radius: 20px; margin: 20px auto; display: inline-block; }
         .pix-code-text {
             background: #f5f0e6; padding: 16px; border-radius: 16px;
             font-family: monospace; font-size: 11px; word-break: break-all;
@@ -171,9 +171,14 @@
                 
                 <div id="payment-pix" class="payment-content active">
                     <div class="pix-area">
-                        <div class="pix-placeholder" id="pixPlaceholder">
+                        <div id="pixStatusArea">
                             <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                            Preencha seus dados para gerar o PIX
+                            <p>Preencha seus dados e clique no botão abaixo para gerar o PIX</p>
+                            <button class="btn-gerar-pix" id="gerarPixBtn">💰 GERAR PIX</button>
+                        </div>
+                        <div id="pixGeradoArea" style="display: none;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; color: #2e7d32; margin-bottom: 10px;"></i>
+                            <p>PIX gerado! Clique em "FINALIZAR PEDIDO" para concluir</p>
                         </div>
                     </div>
                 </div>
@@ -208,11 +213,10 @@
     <div class="pix-modal-content">
         <i class="fas fa-qrcode"></i>
         <h2 style="color:#2c3e2f; margin:16px 0;">Pagamento PIX</h2>
-        <p style="color:#8a8f8a;">Escaneie o QR Code abaixo ou copie o código</p>
-        <div class="pix-qr" id="pixQrImage"></div>
+        <p style="color:#8a8f8a;">Copie o código abaixo e pague no seu banco</p>
         <div class="pix-code-text" id="pixCodeText"></div>
         <button class="btn-copiar" onclick="copiarPixCode()">📋 Copiar código PIX</button>
-        <p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado automaticamente</p>
+        <p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado</p>
         <button class="btn-finalizar" onclick="fecharPixModal()" style="margin-top:20px;">Voltar à loja</button>
     </div>
 </div>
@@ -224,6 +228,8 @@
     let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     let total = 0;
     let cepTimeout;
+    let pixGerado = false;
+    let pixCodeGerado = null;
 
     function detectCardBrand(cardNumber) {
         const clean = cardNumber.replace(/\s/g, '');
@@ -256,7 +262,6 @@
     async function buscarCepAutomatico() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
         if (cep.length !== 8) return;
-        
         try {
             const res = await fetch(`/api/cep/${cep}`);
             const data = await res.json();
@@ -267,6 +272,36 @@
                 document.getElementById('uf').value = data.uf || '';
             }
         } catch (error) { console.log('Erro ao buscar CEP'); }
+    }
+
+    // Gerar PIX separadamente
+    async function gerarPix() {
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        
+        if (!nome || !email || !cpf) {
+            alert('Preencha nome, email e CPF antes de gerar o PIX');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/gerar-pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ total: total, pedido_id: 'temp' })
+            });
+            const data = await res.json();
+            if (data.success && data.payment) {
+                pixGerado = true;
+                pixCodeGerado = data.payment.pix_qr_code;
+                document.getElementById('pixStatusArea').style.display = 'none';
+                document.getElementById('pixGeradoArea').style.display = 'block';
+                alert('PIX gerado com sucesso! Agora finalize o pedido.');
+            }
+        } catch (error) {
+            alert('Erro ao gerar PIX. Tente novamente.');
+        }
     }
 
     function copiarPixCode() {
@@ -298,6 +333,12 @@
         }
         
         const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
+        
+        if (paymentMethod === 'pix' && !pixGerado) {
+            alert('Clique em "GERAR PIX" antes de finalizar o pedido');
+            return;
+        }
+        
         let cardData = null;
         
         if (paymentMethod === 'card') {
@@ -349,14 +390,10 @@
                 localStorage.removeItem('carrinho');
                 localStorage.removeItem('checkout_carrinho');
                 
-                if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code_base64) {
+                if (paymentMethod === 'pix' && pixCodeGerado) {
                     document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                    document.getElementById('pixQrImage').innerHTML = `<img src="data:image/png;base64,${result.payment.pix_qr_code_base64}" style="width:180px;height:180px;">`;
-                    document.getElementById('pixCodeText').innerText = result.payment.pix_qr_code || '';
+                    document.getElementById('pixCodeText').innerText = pixCodeGerado;
                     document.getElementById('pixModal').style.display = 'flex';
-                } else if (paymentMethod === 'pix') {
-                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                    document.getElementById('successOverlay').style.display = 'flex';
                 } else {
                     document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
                     document.getElementById('successOverlay').style.display = 'flex';
@@ -415,6 +452,7 @@
         };
     });
     
+    document.getElementById('gerarPixBtn').onclick = gerarPix;
     document.getElementById('finalizarBtn').onclick = finalizarPedido;
     document.getElementById('successOverlay').onclick = (e) => { if (e.target === document.getElementById('successOverlay')) window.location.href = '/'; };
     
