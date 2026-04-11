@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capitão Store | Produtos de Qualidade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: #fefcf5;
+            color: #1a1a1a;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Header */
+        .top-bar {
+            background-color: #1e2a2e;
+            color: #e9c46a;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            background: white;
+            border-bottom: 1px solid #eae6de;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo h1 { font-size: 1.8rem; color: #2c3e2f; }
+        .logo span { font-size: 0.8rem; color: #b68b40; display: block; }
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a { text-decoration: none; color: #2d3e2b; font-weight: 500; }
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.3rem;
+        }
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -12px;
+            background: #b68b40;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Hero */
+        .hero {
+            background: linear-gradient(120deg, #f5f0e6 0%, #fff8ef 100%);
+            padding: 60px 32px;
+            text-align: center;
+        }
+        .hero h2 { font-size: 3rem; color: #2c3e2f; }
+        
+        /* Produtos */
+        .products-section { padding: 60px 32px; }
+        .section-title { text-align: center; margin-bottom: 48px; }
+        .section-title h3 { font-size: 2.2rem; color: #2c3e2f; }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img { height: 320px; background-size: cover; background-position: center; }
+        .product-info { padding: 20px; }
+        .product-title { font-weight: 600; font-size: 1.2rem; }
+        .product-price { font-size: 1.4rem; font-weight: 700; color: #b68b40; margin: 10px 0; }
+        .old-price { font-size: 0.9rem; color: #999; text-decoration: line-through; margin-right: 8px; }
+        .btn-add {
+            background: #2c3e2f;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-add:hover { background: #b68b40; }
+        
+        /* Carrinho lateral */
+        .side-cart {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            transition: 0.3s;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+        }
+        .side-cart.open { right: 0; }
+        .cart-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .cart-items { padding: 20px; max-height: 60%; overflow-y: auto; }
+        .cart-footer { padding: 20px; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; }
+        .cart-total { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; }
+        .btn-checkout {
+            background: #b68b40;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .cart-overlay.active { display: block; }
+        
+        footer {
+            background: #1e2a2e;
+            color: #dcd7cc;
+            text-align: center;
+            padding: 32px;
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h2 { font-size: 2rem; }
+            .side-cart { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">🇧🇷 ENTREGA GRÁTIS PARA COMPRAS ACIMA DE R$250 | CAMISETAS PERSONALIZADAS</div>
+
+<header class="main-header">
+    <div class="logo">
+        <h1>CAPITÃO BOLSONARO</h1>
+        <span>LOJA OFICIAL • VALORES PATRIÓTICOS</span>
+    </div>
+    <div class="nav-links">
+        <a href="#">INÍCIO</a>
+        <a href="#">CAMISETAS</a>
+        <a href="#">BONÉS</a>
+        <a href="#">CANECAS</a>
+    </div>
+    <div class="cart-icon" id="cartIcon">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count" id="cartCount">0</span>
+    </div>
+</header>
+
+<section class="hero">
+    <h2>Vista seu patriotismo</h2>
+    <p>Camisetas, bonés e acessórios com estilo e qualidade. Mostre seu orgulho pelo Brasil.</p>
+</section>
+
+<section class="products-section">
+    <div class="section-title"><h3>Produtos em Destaque</h3></div>
+    <div class="products-grid" id="productsGrid"></div>
+</section>
+
+<footer>
+    <p>© 2025 Capitão Store - Brasil acima de tudo, Deus acima de todos.</p>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="side-cart" id="sideCart">
+    <div class="cart-header">
+        <h3>Seu Carrinho</h3>
+        <button class="close-cart" id="closeCartBtn" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+        <div class="cart-total">Total: <span id="cartTotal">R$ 0,00</span></div>
+        <button class="btn-checkout" id="checkoutBtn">FINALIZAR COMPRA →</button>
+    </div>
+</div>
+
+<script>
+    let produtos = [];
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+    async function carregarProdutos() {
+        const res = await fetch('/api/produtos');
+        const data = await res.json();
+        if (data.success) produtos = data.produtos;
+        renderizarProdutos();
+    }
+
+    function renderizarProdutos() {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = produtos.map(p => `
+            <div class="product-card">
+                <div class="product-img" style="background-image: url('${p.imagem}')"></div>
+                <div class="product-info">
+                    <div class="product-title">${p.nome}</div>
+                    <div class="product-price">
+                        ${p.preco_antigo ? `<span class="old-price">R$ ${p.preco_antigo.toFixed(2)}</span>` : ''}
+                        R$ ${p.preco.toFixed(2)}
+                    </div>
+                    <button class="btn-add" onclick="addAoCarrinho(${p.id})">ADICIONAR AO CARRINHO</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addAoCarrinho(id) {
+        const produto = produtos.find(p => p.id === id);
+        const existente = carrinho.find(item => item.id === id);
+        if (existente) existente.quantidade++;
+        else carrinho.push({ ...produto, quantidade: 1 });
+        atualizarCarrinho();
+    }
+
+    function atualizarCarrinho() {
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
+        document.getElementById('cartCount').innerText = totalItens;
+        
+        const container = document.getElementById('cartItems');
+        if (carrinho.length === 0) {
+            container.innerHTML = '<p>Carrinho vazio</p>';
+            document.getElementById('cartTotal').innerText = 'R$ 0,00';
+            return;
+        }
+        
+        let total = 0;
+        container.innerHTML = carrinho.map((item, idx) => {
+            total += item.preco * item.quantidade;
+            return `
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div style="width:60px;height:60px;background:#f0ede5;border-radius:10px;"></div>
+                    <div style="flex:1">
+                        <div><strong>${item.nome}</strong></div>
+                        <div>R$ ${item.preco.toFixed(2)}</div>
+                        <div>
+                            <button onclick="alterarQtd(${idx}, -1)">-</button>
+                            ${item.quantidade}
+                            <button onclick="alterarQtd(${idx}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('cartTotal').innerText = `R$ ${total.toFixed(2)}`;
+    }
+
+    function alterarQtd(idx, delta) {
+        carrinho[idx].quantidade += delta;
+        if (carrinho[idx].quantidade <= 0) carrinho.splice(idx, 1);
+        atualizarCarrinho();
+    }
+
+    document.getElementById('cartIcon').onclick = () => {
+        document.getElementById('sideCart').classList.add('open');
+        document.getElementById('cartOverlay').classList.add('active');
+    };
+    document.getElementById('closeCartBtn').onclick = () => {
+        document.getElementById('sideCart').classList.remove('open');
+        document.getElementById('cartOverlay').classList.remove('active');
+    };
+    document.getElementById('checkoutBtn').onclick = () => {
+        if (carrinho.length === 0) return alert('Carrinho vazio');
+        localStorage.setItem('checkout_carrinho', JSON.stringify(carrinho));
+        window.location.href = '/checkout.html';
+    };
+
+    carregarProdutos();
+    atualizarCarrinho();
+</script>
+</body>
+</html>
