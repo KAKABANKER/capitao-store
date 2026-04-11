@@ -25,7 +25,6 @@ let visitantes = [];
 let carrinhosAbandonados = [];
 let pixKey = '';
 
-// ========== FUNÇÕES AUXILIARES ==========
 function getClientIp(req) {
     return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || req.connection.remoteAddress || 'unknown';
 }
@@ -135,11 +134,15 @@ app.post('/api/pedido', async (req, res) => {
     }
     
     const pedido = { 
-        ...req.body, pedido_id: pedidoId, ip_cliente: ip, user_agent: userAgent,
+        ...req.body, 
+        pedido_id: pedidoId, 
+        ip_cliente: ip, 
+        user_agent: userAgent,
         payment_id: paymentResult?.id || null,
         payment_qr_code: paymentResult?.pix_qr_code || null,
         payment_qr_code_base64: paymentResult?.pix_qr_code_base64 || null,
-        payment_status: paymentResult?.status || 'pendente',
+        payment_status: paymentResult?.status || 'aguardando_pagamento',
+        status: 'analise',
         created_at: new Date().toISOString() 
     };
     pedidos.unshift(pedido);
@@ -186,8 +189,21 @@ app.post('/api/webhook/plumify', async (req, res) => {
     console.log('Webhook recebido:', req.body);
     const { transaction_id, status } = req.body;
     const pedido = pedidos.find(p => p.payment_id === transaction_id);
-    if (pedido) pedido.payment_status = status;
+    if (pedido) {
+        pedido.payment_status = status;
+        if (status === 'paid') pedido.status = 'aprovado';
+    }
     res.json({ success: true });
+});
+
+// Rota para consultar status do pedido
+app.get('/api/pedido/:id', (req, res) => {
+    const pedido = pedidos.find(p => p.pedido_id === req.params.id);
+    if (pedido) {
+        res.json({ success: true, pedido });
+    } else {
+        res.json({ success: false, error: 'Pedido não encontrado' });
+    }
 });
 
 // ========== ROTAS ADMIN ==========
@@ -239,5 +255,6 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Admin: http://localhost:${PORT}/admin`);
     console.log(`Login: kakabanker / 77991958@Abc`);
 });

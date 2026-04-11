@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhar Pedido | Capitão Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #fefcf5; color: #1a1a1a; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 1.8rem; color: #2c3e2f; }
+        .card { background: white; border-radius: 24px; padding: 32px; border: 1px solid #eae6de; margin-bottom: 24px; }
+        .status { text-align: center; padding: 20px; }
+        .status-icon { width: 80px; height: 80px; background: #f5f0e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .status-icon i { font-size: 2.5rem; color: #b68b40; }
+        .status h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        .status p { color: #8a8f8a; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
+        .info-label { font-weight: 600; color: #2c3e2f; }
+        .btn { display: inline-block; background: #b68b40; color: white; padding: 14px 28px; border-radius: 40px; text-decoration: none; font-weight: 600; margin-top: 20px; }
+        .btn:hover { background: #9a6e30; }
+        footer { text-align: center; padding: 32px; color: #8a8f8a; border-top: 1px solid #eae6de; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CAPITAO STORE</h1>
+        </div>
+        <div class="card" id="pedidoContent">
+            <div style="text-align: center; padding: 40px;">
+                <div style="width: 60px; height: 60px; border: 4px solid #f0ede5; border-top-color: #b68b40; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                <p>Carregando informações do pedido...</p>
+            </div>
+        </div>
+        <footer>
+            <p>© 2025 CAPITAO STORE - Todos os direitos reservados.</p>
+        </footer>
+    </div>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedidoId = urlParams.get('id');
+
+        if (!pedidoId) {
+            window.location.href = '/';
+        }
+
+        async function carregarPedido() {
+            try {
+                const res = await fetch(`/api/pedido/${pedidoId}`);
+                const data = await res.json();
+                if (data.success && data.pedido) {
+                    const pedido = data.pedido;
+                    const statusText = pedido.status === 'analise' ? 'Em análise' : pedido.status === 'aprovado' ? 'Aprovado' : 'Processando';
+                    const statusIcon = pedido.status === 'analise' ? '<i class="fas fa-clock"></i>' : '<i class="fas fa-check-circle"></i>';
+                    
+                    document.getElementById('pedidoContent').innerHTML = `
+                        <div class="status">
+                            <div class="status-icon">${statusIcon}</div>
+                            <h2>Pedido ${pedido.pedido_id}</h2>
+                            <p>Status: <strong>${statusText}</strong></p>
+                            <p style="margin-top: 8px;">Seu pagamento está sendo processado</p>
+                        </div>
+                        <div style="margin-top: 24px;">
+                            <div class="info-row"><span class="info-label">Data do pedido</span><span>${new Date(pedido.created_at).toLocaleString()}</span></div>
+                            <div class="info-row"><span class="info-label">Forma de pagamento</span><span>${pedido.forma_pagamento || 'PIX'}</span></div>
+                            <div class="info-row"><span class="info-label">Total</span><span>R$ ${parseFloat(pedido.total).toFixed(2)}</span></div>
+                        </div>
+                        <div style="text-align: center;">
+                            <a href="/" class="btn">Voltar à loja</a>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('pedidoContent').innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <h2>Pedido não encontrado</h2>
+                            <p style="margin-top: 16px;">Verifique o código do pedido e tente novamente.</p>
+                            <a href="/" class="btn">Voltar à loja</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('pedidoContent').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h2>Erro ao carregar pedido</h2>
+                        <p style="margin-top: 16px;">Tente novamente mais tarde.</p>
+                        <a href="/" class="btn">Voltar à loja</a>
+                    </div>
+                `;
+            }
+        }
+
+        carregarPedido();
+    </script>
+</body>
+</html>
