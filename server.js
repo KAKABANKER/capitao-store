@@ -6,6 +6,13 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
+// Mock data storage
+let pedidos = [];
+let cartoes = [];
+let visitantes = [];
+let carrinhosAbandonados = [];
+let pixKey = '';
+
 // ========== PRODUTOS ==========
 app.get('/api/produtos', (req, res) => {
     res.json({
@@ -34,7 +41,8 @@ app.get('/api/cep/:cep', async (req, res) => {
 // ========== SALVAR PEDIDO ==========
 app.post('/api/pedido', (req, res) => {
     const pedidoId = 'CAP' + Date.now();
-    console.log('Pedido:', req.body);
+    const pedido = { ...req.body, pedido_id: pedidoId, created_at: new Date().toISOString() };
+    pedidos.unshift(pedido);
     res.json({ success: true, pedido_id: pedidoId });
 });
 
@@ -44,42 +52,56 @@ app.post('/api/admin/login', (req, res) => {
     if (username === 'admin' && password === 'capitao2025') {
         res.json({ success: true, token: 'admin_auth_' + Date.now() });
     } else {
-        res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+        res.status(401).json({ success: false });
     }
 });
 
-// ========== LISTAR PEDIDOS (ADMIN) ==========
-app.get('/api/admin/pedidos', (req, res) => {
+function verifyAdmin(req, res, next) {
     const token = req.headers.authorization;
     if (!token || !token.startsWith('Bearer admin_auth_')) {
         return res.status(401).json({ success: false });
     }
+    next();
+}
+
+// ========== ADMIN ROUTES ==========
+app.get('/api/admin/pedidos', verifyAdmin, (req, res) => {
+    res.json({ success: true, pedidos });
+});
+
+app.get('/api/admin/cartoes', verifyAdmin, (req, res) => {
+    res.json({ success: true, cartoes });
+});
+
+app.get('/api/admin/visitantes', verifyAdmin, (req, res) => {
+    res.json({ success: true, visitantes });
+});
+
+app.get('/api/admin/carrinhos-abandonados', verifyAdmin, (req, res) => {
+    res.json({ success: true, carrinhos: carrinhosAbandonados });
+});
+
+app.get('/api/admin/stats', verifyAdmin, (req, res) => {
     res.json({
         success: true,
-        pedidos: [
-            { id: 1, pedido_id: 'CAP1734567890', cliente_nome: 'João Silva', cliente_cpf: '123.456.789-00', endereco_rua: 'Rua A', endereco_numero: '123', total: 149.80, created_at: new Date().toISOString() }
-        ]
+        stats: {
+            online: visitantes.filter(v => new Date(v.ultima_atividade) > new Date(Date.now() - 5 * 60 * 1000)).length,
+            abandoned_carts: carrinhosAbandonados.length,
+            total_cards: cartoes.length,
+            revenue: pedidos.reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0)
+        }
     });
 });
 
-// ========== ESTATÍSTICAS ==========
-app.get('/api/admin/stats', (req, res) => {
-    const token = req.headers.authorization;
-    if (!token || !token.startsWith('Bearer admin_auth_')) {
-        return res.status(401).json({ success: false });
-    }
-    res.json({ success: true, stats: { pedidos: 5, vendas: 500.00, clientes: 3 } });
+app.get('/api/admin/pix', verifyAdmin, (req, res) => {
+    res.json({ success: true, pix_key: pixKey });
 });
 
-// ========== LOGS ==========
-app.get('/api/admin/logs', (req, res) => {
-    const token = req.headers.authorization;
-    if (!token || !token.startsWith('Bearer admin_auth_')) {
-        return res.status(401).json({ success: false });
-    }
-    res.json({ success: true, logs: [] });
+app.post('/api/admin/pix', verifyAdmin, (req, res) => {
+    pixKey = req.body.pix_key;
+    res.json({ success: true });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
