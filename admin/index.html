@@ -1602,16 +1602,16 @@
 <div class="black-hole"></div>
 
 <!-- LOGIN SCREEN -->
-       <div id="loginScreen" class="login-overlay">
-      <div class="login-card">
-       <h2>ACCESS CONSOLE</h2>
-       <p>Restricted administrative area</p>
-       <input type="password" id="loginPass" placeholder="Password">
-         <button class="login-btn" onclick="fazerLogin()">AUTHENTICATE →</button>
+ <div id="loginScreen" class="login-overlay">
+    <div class="login-card">
+        <h2>ACCESS CONSOLE</h2>
+        <p>Restricted administrative area</p>
+        <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button class="login-btn" onclick="fazerLogin()">AUTHENTICATE →</button>
         <div id="loginError" class="login-error">Invalid credentials. Access denied.</div>
-     </div>
+    </div>
 </div>
-
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel">
     <div class="admin-container">
