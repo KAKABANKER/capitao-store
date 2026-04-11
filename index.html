@@ -7,28 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Jost', sans-serif;
             background: #fefcf5;
             color: #1a1a1a;
             overflow-x: hidden;
         }
-
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #eae6de; }
         ::-webkit-scrollbar-thumb { background: #b68b40; border-radius: 10px; }
-
-        /* Container */
         .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
-
-        /* Top Bar */
         .top-bar {
             background: #1e2a2e;
             color: #e9c46a;
@@ -37,8 +26,6 @@
             font-size: 13px;
             letter-spacing: 1px;
         }
-
-        /* Header */
         .main-header {
             display: flex;
             justify-content: space-between;
@@ -50,7 +37,6 @@
             top: 0;
             z-index: 100;
         }
-
         .logo h1 {
             font-size: 1.6rem;
             font-weight: 700;
@@ -63,7 +49,6 @@
             display: block;
             letter-spacing: 2px;
         }
-
         .nav-links { display: flex; gap: 32px; }
         .nav-links a {
             text-decoration: none;
@@ -72,7 +57,6 @@
             transition: 0.2s;
         }
         .nav-links a:hover { color: #b68b40; }
-
         .header-icons { display: flex; gap: 24px; align-items: center; }
         .header-icons i {
             font-size: 1.2rem;
@@ -96,8 +80,6 @@
             justify-content: center;
             border-radius: 50%;
         }
-
-        /* Hero com Carrossel */
         .hero-carousel {
             position: relative;
             height: 550px;
@@ -122,7 +104,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+            background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
         }
         .carousel-content {
             position: absolute;
@@ -167,8 +149,6 @@
             transition: 0.2s;
         }
         .dot.active { background: #b68b40; width: 24px; border-radius: 10px; }
-
-        /* Categorias */
         .categories {
             padding: 60px 0;
             background: white;
@@ -197,8 +177,6 @@
             color: #b68b40;
         }
         .category-item span { font-weight: 500; color: #2c3e2f; }
-
-        /* Produtos */
         .products-section {
             padding: 60px 0;
             background: #fefcf5;
@@ -217,13 +195,11 @@
             color: #8a8f8a;
             margin-top: 8px;
         }
-
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 32px;
         }
-
         .product-card {
             background: white;
             border-radius: 20px;
@@ -281,8 +257,6 @@
             gap: 8px;
         }
         .btn-add:hover { background: #b68b40; }
-
-        /* Newsletter */
         .newsletter {
             background: linear-gradient(135deg, #1e2a2e, #2c3e2f);
             padding: 60px 32px;
@@ -308,8 +282,6 @@
             font-weight: 600;
             cursor: pointer;
         }
-
-        /* Footer */
         footer {
             background: #0f140f;
             color: #8a8f8a;
@@ -336,8 +308,6 @@
             border-top: 1px solid #1e241e;
             font-size: 0.75rem;
         }
-
-        /* Carrinho Lateral */
         .side-cart {
             position: fixed;
             top: 0;
@@ -432,7 +402,6 @@
             display: none;
         }
         .cart-overlay.active { display: block; }
-
         @media (max-width: 1024px) {
             .categories-grid { grid-template-columns: repeat(3, 1fr); }
             .footer-grid { grid-template-columns: repeat(2, 1fr); }
@@ -449,20 +418,20 @@
 <body>
 
 <div class="top-bar">
-    🇧🇷 FREIGHT FREE FOR PURCHASES OVER R$250 | OFFICIAL STORE
+    🇧🇷 FRETE GRÁTIS PARA COMPRAS ACIMA DE R$250 | LOJA OFICIAL
 </div>
 
 <header class="main-header">
     <div class="logo">
         <h1>CAPITÃO STORE</h1>
-        <span>OFFICIAL • PATRIOTIC VALUES</span>
+        <span>OFICIAL • VALORES PATRIÓTICOS</span>
     </div>
     <div class="nav-links">
-        <a href="#">HOME</a>
-        <a href="#">T-SHIRTS</a>
-        <a href="#">HATS</a>
-        <a href="#">MUGS</a>
-        <a href="#">ACCESSORIES</a>
+        <a href="#">INÍCIO</a>
+        <a href="#">CAMISETAS</a>
+        <a href="#">BONÉS</a>
+        <a href="#">CANECAS</a>
+        <a href="#">ACESSÓRIOS</a>
     </div>
     <div class="header-icons">
         <i class="far fa-user"></i>
@@ -474,28 +443,28 @@
     </div>
 </header>
 
-<!-- Carrossel Hero -->
+<!-- Carrossel Hero com imagens do Bolsonaro -->
 <div class="hero-carousel">
     <div class="carousel-slides" id="carouselSlides">
-        <div class="carousel-slide" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW5Nd5q7kW4td6fNJ8aSX1QD2gLD7JbAYQEA&s');">
+        <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Bolsonaro1.jpg'); background-size: cover; background-position: center;">
             <div class="carousel-content">
-                <h2>Patriotic Collection</h2>
-                <p>Wear the colors of Brazil with pride and style</p>
-                <button class="carousel-btn">SHOP NOW →</button>
+                <h2>Coleção Patriótica</h2>
+                <p>Vista as cores do Brasil com orgulho e estilo</p>
+                <button class="carousel-btn">COMPRAR AGORA →</button>
             </div>
         </div>
-        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600');">
+        <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Bolsonaro2.jpg'); background-size: cover; background-position: center;">
             <div class="carousel-content">
-                <h2>Limited Edition</h2>
-                <p>Exclusive products for true patriots</p>
-                <button class="carousel-btn">DISCOVER →</button>
+                <h2>Edição Limitada</h2>
+                <p>Produtos exclusivos para verdadeiros patriotas</p>
+                <button class="carousel-btn">DESCUBRA →</button>
             </div>
         </div>
-        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=1600');">
+        <div class="carousel-slide" style="background-image: url('https://i.imgur.com/Bolsonaro3.jpg'); background-size: cover; background-position: center;">
             <div class="carousel-content">
-                <h2>Free Shipping</h2>
-                <p>On orders over R$250 throughout Brazil</p>
-                <button class="carousel-btn">LEARN MORE →</button>
+                <h2>Frete Grátis</h2>
+                <p>Para pedidos acima de R$250 em todo Brasil</p>
+                <button class="carousel-btn">SAIBA MAIS →</button>
             </div>
         </div>
     </div>
@@ -506,21 +475,21 @@
 <section class="categories">
     <div class="container">
         <div class="categories-grid">
-            <div class="category-item"><div class="category-icon"><i class="fas fa-tshirt"></i></div><span>T-Shirts</span></div>
-            <div class="category-item"><div class="category-icon"><i class="fas fa-hat-cowboy"></i></div><span>Hats</span></div>
-            <div class="category-item"><div class="category-icon"><i class="fas fa-mug-hot"></i></div><span>Mugs</span></div>
-            <div class="category-item"><div class="category-icon"><i class="fas fa-user-tie"></i></div><span>Accessories</span></div>
-            <div class="category-item"><div class="category-icon"><i class="fas fa-flag-checkered"></i></div><span>Flags</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-tshirt"></i></div><span>Camisetas</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-hat-cowboy"></i></div><span>Bonés</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-mug-hot"></i></div><span>Canecas</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-user-tie"></i></div><span>Acessórios</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-flag-checkered"></i></div><span>Bandeiras</span></div>
         </div>
     </div>
 </section>
 
-<!-- Produtos -->
+<!-- Produtos (buscando do backend) -->
 <section class="products-section">
     <div class="container">
         <div class="section-title">
-            <h3>Featured Products</h3>
-            <p>Discover our exclusive collection of patriotic products</p>
+            <h3>Produtos em Destaque</h3>
+            <p>Descubra nossa coleção exclusiva de produtos patrióticos</p>
         </div>
         <div class="products-grid" id="productsGrid"></div>
     </div>
@@ -528,11 +497,11 @@
 
 <!-- Newsletter -->
 <section class="newsletter">
-    <h3>Subscribe to our newsletter</h3>
-    <p>Receive exclusive offers and news about new products</p>
+    <h3>Assine nossa newsletter</h3>
+    <p>Receba ofertas exclusivas e novidades sobre novos produtos</p>
     <div class="newsletter-form">
-        <input type="email" placeholder="Your email">
-        <button>SUBSCRIBE</button>
+        <input type="email" placeholder="Seu email">
+        <button>INSCREVER-SE</button>
     </div>
 </section>
 
@@ -541,26 +510,26 @@
     <div class="footer-grid">
         <div class="footer-col">
             <h4>CAPITÃO STORE</h4>
-            <p><i class="fas fa-map-marker-alt"></i> Brasília, Brazil</p>
+            <p><i class="fas fa-map-marker-alt"></i> Brasília, Brasil</p>
             <p><i class="fas fa-phone"></i> +55 (61) 9999-9999</p>
             <p><i class="fas fa-envelope"></i> contato@capitaostore.com</p>
         </div>
         <div class="footer-col">
-            <h4>Information</h4>
-            <p>About Us</p>
-            <p>Terms of Use</p>
-            <p>Privacy Policy</p>
-            <p>Exchanges and Returns</p>
+            <h4>Informações</h4>
+            <p>Sobre Nós</p>
+            <p>Termos de Uso</p>
+            <p>Política de Privacidade</p>
+            <p>Trocas e Devoluções</p>
         </div>
         <div class="footer-col">
-            <h4>Help</h4>
-            <p>FAQ</p>
-            <p>Shipping Tracking</p>
-            <p>Payment Methods</p>
-            <p>Customer Service</p>
+            <h4>Ajuda</h4>
+            <p>Perguntas Frequentes</p>
+            <p>Rastrear Pedido</p>
+            <p>Formas de Pagamento</p>
+            <p>Atendimento ao Cliente</p>
         </div>
         <div class="footer-col">
-            <h4>Follow Us</h4>
+            <h4>Redes Sociais</h4>
             <p><i class="fab fa-instagram"></i> Instagram</p>
             <p><i class="fab fa-facebook"></i> Facebook</p>
             <p><i class="fab fa-twitter"></i> Twitter</p>
@@ -568,7 +537,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>© 2025 CAPITÃO STORE - All rights reserved. Brazil above all, God above all.</p>
+        <p>© 2025 CAPITÃO STORE - Todos os direitos reservados. Brasil acima de tudo, Deus acima de todos.</p>
     </div>
 </footer>
 
@@ -576,49 +545,50 @@
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="side-cart" id="sideCart">
     <div class="cart-header">
-        <h3>Your Cart</h3>
+        <h3>Seu Carrinho</h3>
         <button class="close-cart" id="closeCartBtn">×</button>
     </div>
     <div class="cart-items" id="cartItems"></div>
     <div class="cart-footer">
         <div class="cart-total">Total: <span id="cartTotal">R$ 0,00</span></div>
-        <button class="btn-checkout" id="checkoutBtn">CHECKOUT →</button>
+        <button class="btn-checkout" id="checkoutBtn">FINALIZAR COMPRA →</button>
     </div>
 </div>
 
 <script>
-    // ========== 20 PRODUTOS COMPLETOS ==========
-    const produtos = [
-        { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas" },
-        { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONE+PRETO", categoria: "Bonés" },
-        { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff4e6/8b6b3d?text=CANECA", categoria: "Canecas" },
-        { id: 4, nome: "Moletom Canguru Premium", preco: 179.90, preco_antigo: 249.90, imagem: "https://placehold.co/600x800/e9e0d3/8b6b3d?text=MOLETOM", categoria: "Moletons" },
-        { id: 5, nome: "Regata Dry Fit Brasil", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/f2ede2/8b6b3d?text=REGATA", categoria: "Regatas" },
-        { id: 6, nome: "Camiseta Deus Acima de Todos", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/fcf7ef/8b6b3d?text=CAMISETA+BRANCA", categoria: "Camisetas" },
-        { id: 7, nome: "Bandeira do Brasil 1,5m", preco: 79.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BANDEIRA", categoria: "Bandeiras" },
-        { id: 8, nome: "Adesivo Kit 10 unid", preco: 29.90, preco_antigo: 49.90, imagem: "https://placehold.co/600x800/f5efe5/8b6b3d?text=ADESIVO", categoria: "Adesivos" },
-        { id: 9, nome: "Chaveiro Personalizado", preco: 19.90, preco_antigo: 29.90, imagem: "https://placehold.co/600x800/fff0e0/8b6b3d?text=CHAVEIRO", categoria: "Acessórios" },
-        { id: 10, nome: "Camiseta Força Verde", preco: 89.90, preco_antigo: 119.90, imagem: "https://placehold.co/600x800/eaefe5/8b6b3d?text=FORCA+VERDE", categoria: "Camisetas" },
-        { id: 11, nome: "Boné Tático Militar", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/ddd5c5/8b6b3d?text=BONE+TATICO", categoria: "Bonés" },
-        { id: 12, nome: "Caneca Selo Nacional", preco: 49.90, preco_antigo: 69.90, imagem: "https://placehold.co/600x800/f8f0e0/8b6b3d?text=CANECA+SELO", categoria: "Canecas" },
-        { id: 13, nome: "Moletom Brasil Flag", preco: 199.90, preco_antigo: 279.90, imagem: "https://placehold.co/600x800/e5dccd/8b6b3d?text=MOLETOM+BANDEIRA", categoria: "Moletons" },
-        { id: 14, nome: "Regata Camuflada", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/f2ece0/8b6b3d?text=REGATA+CAMUFLADA", categoria: "Regatas" },
-        { id: 15, nome: "Camiseta Exército BR", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/f5ede0/8b6b3d?text=EXERCITO+BR", categoria: "Camisetas" },
-        { id: 16, nome: "Boné Preto Dourado", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BONE+DOURADO", categoria: "Bonés" },
-        { id: 17, nome: "Caneca Patriota", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff5e8/8b6b3d?text=CANECA+PATRIOTA", categoria: "Canecas" },
-        { id: 18, nome: "Kit 3 Adesivos", preco: 19.90, preco_antigo: 39.90, imagem: "https://placehold.co/600x800/faf2e5/8b6b3d?text=KIT+ADESIVOS", categoria: "Adesivos" },
-        { id: 19, nome: "Pulseira Patriotismo", preco: 14.90, preco_antigo: 24.90, imagem: "https://placehold.co/600x800/f0e8d8/8b6b3d?text=PULSEIRA", categoria: "Acessórios" },
-        { id: 20, nome: "Camiseta Eu Apoio", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f8efe0/8b6b3d?text=EU+APOIO", categoria: "Camisetas" }
-    ];
-
+    let produtos = [];
     let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
-    // Renderizar produtos
+    // Carregar produtos do backend
+    async function carregarProdutos() {
+        try {
+            const res = await fetch('/api/produtos');
+            const data = await res.json();
+            if (data.success && data.produtos.length > 0) {
+                produtos = data.produtos;
+            } else {
+                // Fallback
+                produtos = [
+                    { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Camisetas" },
+                    { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Bonés" },
+                    { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Canecas" }
+                ];
+            }
+            renderizarProdutos();
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+        }
+    }
+
     function renderizarProdutos() {
         const grid = document.getElementById('productsGrid');
+        if (produtos.length === 0) {
+            grid.innerHTML = '<div style="text-align:center; padding:40px;">Carregando produtos...</div>';
+            return;
+        }
         grid.innerHTML = produtos.map(p => `
             <div class="product-card">
-                <div class="product-img" style="background-image: url('${p.imagem}')"></div>
+                <div class="product-img" style="background-image: url('${p.imagem || 'https://i.imgur.com/placeholder.jpg'}'); background-size: cover;"></div>
                 <div class="product-info">
                     <div class="product-title">${p.nome}</div>
                     <div class="product-price">
@@ -626,14 +596,13 @@
                         R$ ${p.preco.toFixed(2)}
                     </div>
                     <button class="btn-add" onclick="adicionarAoCarrinho(${p.id})">
-                        <i class="fas fa-shopping-bag"></i> ADD TO CART
+                        <i class="fas fa-shopping-bag"></i> ADICIONAR AO CARRINHO
                     </button>
                 </div>
             </div>
         `).join('');
     }
 
-    // Funções do carrinho
     function adicionarAoCarrinho(id) {
         const produto = produtos.find(p => p.id === id);
         const existente = carrinho.find(item => item.id === id);
@@ -657,7 +626,7 @@
         
         const container = document.getElementById('cartItems');
         if (carrinho.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding:20px;">Your cart is empty</p>';
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Seu carrinho está vazio</p>';
             document.getElementById('cartTotal').innerText = 'R$ 0,00';
             return;
         }
@@ -667,7 +636,7 @@
             total += item.preco * item.quantidade;
             return `
                 <div class="cart-item">
-                    <div class="cart-item-img" style="background-image: url('${item.imagem}')"></div>
+                    <div class="cart-item-img" style="background-image: url('${item.imagem || 'https://i.imgur.com/placeholder.jpg'}'); background-size: cover;"></div>
                     <div class="cart-item-details">
                         <div class="cart-item-title">${item.nome}</div>
                         <div class="cart-item-price">R$ ${item.preco.toFixed(2)}</div>
@@ -691,7 +660,6 @@
         salvarCarrinho();
     }
 
-    // Carrinho lateral
     function abrirCarrinho() {
         document.getElementById('sideCart').classList.add('open');
         document.getElementById('cartOverlay').classList.add('active');
@@ -735,16 +703,15 @@
     document.getElementById('closeCartBtn').onclick = fecharCarrinho;
     document.getElementById('cartOverlay').onclick = fecharCarrinho;
     document.getElementById('checkoutBtn').onclick = () => {
-        if (carrinho.length === 0) return alert('Cart is empty');
+        if (carrinho.length === 0) return alert('Carrinho vazio');
         localStorage.setItem('checkout_carrinho', JSON.stringify(carrinho));
         window.location.href = '/checkout.html';
     };
     
-    // Auto slide
     setInterval(nextSlide, 5000);
     
     // Inicializar
-    renderizarProdutos();
+    carregarProdutos();
     atualizarCarrinhoUI();
     criarDots();
 </script>

