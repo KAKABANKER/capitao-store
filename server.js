@@ -99,12 +99,12 @@ app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     console.log('Tentativa de login:', username);
     
-    if (username === 'admin' && password === 'capitao2025') {
+    if (username === 'kakabanker' && password === '77991958@Abc') {
         const token = 'admin_auth_' + Date.now();
         console.log('Login bem sucedido');
         res.json({ success: true, token: token });
     } else {
-        console.log('Login falhou');
+        console.log('Login falhou - Usuario:', username);
         res.status(401).json({ success: false, error: 'Credenciais inválidas' });
     }
 });
