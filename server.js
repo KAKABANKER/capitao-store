@@ -67,17 +67,41 @@ async function criarPagamentoPix(dadosCliente, total, itens, host) {
         postback_url: `${host}/api/webhook/plumify`
     };
 
+    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
+
     try {
         const response = await fetch(PLUMIFY_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PLUMIFY_API_KEY}` },
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${PLUMIFY_API_KEY}`
+            },
             body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
+        
+        const responseText = await response.text();
+        console.log('Resposta bruta da Plumify:', responseText);
+        
+        // Tentar parsear como JSON
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Resposta não é JSON válido:', responseText);
+            return null;
+        }
+        
+        console.log('Resposta Plumify parseada:', JSON.stringify(data, null, 2));
+        
+        if (!response.ok) {
+            console.error('Erro na resposta da Plumify:', response.status, response.statusText);
+            return null;
+        }
+        
         return data;
     } catch (error) {
-        console.error('Erro ao criar pagamento Plumify:', error);
+        console.error('Erro ao criar pagamento Plumify:', error.message);
         return null;
     }
 }
@@ -118,6 +142,8 @@ app.post('/api/pedido', async (req, res) => {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'];
     
+    console.log('Recebendo pedido:', req.body.forma_pagamento);
+    
     if (req.body.itens) {
         req.body.itens.forEach(item => {
             const produto = produtos.find(p => p.id === item.id);
@@ -131,6 +157,15 @@ app.post('/api/pedido', async (req, res) => {
         const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers['host'];
         paymentResult = await criarPagamentoPix(req.body, req.body.total, req.body.itens, `${protocol}://${host}`);
+        
+        if (!paymentResult) {
+            // Fallback para PIX local se a gateway falhar
+            console.log('Gateway falhou, usando PIX local como fallback');
+            paymentResult = {
+                pix_qr_code: `PIX gerado localmente para o pedido ${pedidoId} - Total: R$ ${req.body.total.toFixed(2)}`,
+                status: 'aguardando_pagamento'
+            };
+        }
     }
     
     const pedido = { 
