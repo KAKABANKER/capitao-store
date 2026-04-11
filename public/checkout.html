@@ -8,233 +8,129 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Jost', sans-serif;
-            background: #fefcf5;
-            color: #1a1a1a;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Jost', sans-serif; background: #fefcf5; color: #1a1a1a; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #eae6de; }
         ::-webkit-scrollbar-thumb { background: #b68b40; border-radius: 10px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-        /* Header */
         .checkout-header {
-            background: white;
-            padding: 20px 32px;
-            border-bottom: 1px solid #eae6de;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            background: white; padding: 20px 32px; border-bottom: 1px solid #eae6de;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
         }
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e2f;
-            font-family: 'Playfair Display', serif;
-        }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; color: #2c3e2f; font-family: 'Playfair Display', serif; }
         .back-link { color: #b68b40; text-decoration: none; font-weight: 500; transition: 0.2s; }
         .back-link:hover { color: #2c3e2f; }
 
-        /* Grid */
-        .checkout-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin: 40px 0;
-        }
+        .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 40px 0; }
         @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } }
 
-        /* Cards */
         .form-card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            border: 1px solid #eae6de;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            background: white; border-radius: 24px; padding: 32px;
+            border: 1px solid #eae6de; box-shadow: 0 8px 30px rgba(0,0,0,0.05);
             transition: 0.3s;
         }
         .form-card:hover { box-shadow: 0 15px 40px rgba(0,0,0,0.08); }
         .form-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #2c3e2f;
-            margin-bottom: 24px;
-            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem; font-weight: 600; color: #2c3e2f;
+            margin-bottom: 24px; font-family: 'Playfair Display', serif;
         }
 
-        /* Formulário */
         .form-group { margin-bottom: 20px; }
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e2f;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            display: block; margin-bottom: 8px; font-weight: 600;
+            color: #2c3e2f; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
         }
         input, select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #eae6de;
-            border-radius: 16px;
-            font-family: inherit;
-            transition: 0.2s;
-            background: white;
+            width: 100%; padding: 14px 16px; border: 2px solid #eae6de;
+            border-radius: 16px; font-family: inherit; transition: 0.2s; background: white;
         }
-        input:focus {
-            outline: none;
-            border-color: #b68b40;
-            box-shadow: 0 0 0 3px rgba(182,139,64,0.1);
-        }
+        input:focus { outline: none; border-color: #b68b40; box-shadow: 0 0 0 3px rgba(182,139,64,0.1); }
         .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* Botões */
-        .btn-buscar {
-            background: #2c3e2f;
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .btn-buscar:hover { background: #1e2a2e; transform: translateY(-2px); }
-
-        /* Pagamento */
         .payment-methods { display: flex; gap: 15px; margin-bottom: 30px; }
         .payment-btn {
-            flex: 1;
-            padding: 16px;
-            background: #f8f6f0;
-            border: 2px solid #eae6de;
-            border-radius: 16px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: 600;
-            transition: 0.2s;
+            flex: 1; padding: 16px; background: #f8f6f0;
+            border: 2px solid #eae6de; border-radius: 16px;
+            cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s;
         }
-        .payment-btn.active {
-            background: #b68b40;
-            color: white;
-            border-color: #b68b40;
-        }
+        .payment-btn.active { background: #b68b40; color: white; border-color: #b68b40; }
         .payment-content { display: none; }
         .payment-content.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* PIX */
         .pix-area {
-            text-align: center;
-            padding: 30px;
+            text-align: center; padding: 30px;
             background: linear-gradient(135deg, #f8f6f0, #f0ebe2);
             border-radius: 20px;
         }
-        .pix-code {
-            background: #1a1a1a;
-            color: #b68b40;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 12px;
-            word-break: break-all;
-            margin: 20px 0;
+        .pix-placeholder {
+            background: #1a1a1a; color: #b68b40; padding: 30px;
+            border-radius: 16px; font-size: 1rem; margin: 20px 0;
             font-family: monospace;
         }
 
-        /* Resumo */
-        .resumo-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0ebe2;
-        }
-        .resumo-total {
-            font-size: 1.4rem;
-            font-weight: 700;
-            text-align: right;
-            margin: 20px 0;
-            color: #b68b40;
-        }
+        .resumo-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
+        .resumo-total { font-size: 1.4rem; font-weight: 700; text-align: right; margin: 20px 0; color: #b68b40; }
 
-        /* Detector de bandeira */
-        .card-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            font-size: 0.8rem;
-        }
+        .card-brand { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.8rem; }
         .brand-visa { color: #1a1f71; }
         .brand-mastercard { color: #eb001b; }
         .brand-elo { color: #139172; }
         .brand-amex { color: #006fcf; }
 
-        /* Botão finalizar */
         .btn-finalizar {
-            width: 100%;
-            padding: 18px;
+            width: 100%; padding: 18px;
             background: linear-gradient(135deg, #b68b40, #9a6e30);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
+            color: white; border: none; border-radius: 40px;
+            font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px;
             transition: 0.2s;
         }
-        .btn-finalizar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(182,139,64,0.3);
-        }
+        .btn-finalizar:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(182,139,64,0.3); }
 
-        /* Overlays */
         .loading-overlay, .success-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            z-index: 2000; justify-content: center; align-items: center; flex-direction: column;
         }
         .loading-card, .success-card {
-            text-align: center;
-            background: white;
-            padding: 48px;
-            border-radius: 32px;
-            animation: pulse 1s infinite;
+            text-align: center; background: white; padding: 48px;
+            border-radius: 32px; animation: pulse 1s infinite;
         }
         .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f0ede5;
-            border-top-color: #b68b40;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            width: 60px; height: 60px; border: 4px solid #f0ede5;
+            border-top-color: #b68b40; border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 20px;
         }
         .success-card i { font-size: 64px; color: #2e7d32; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        .pix-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+            z-index: 3000; justify-content: center; align-items: center;
+        }
+        .pix-modal-content {
+            background: white; border-radius: 32px; padding: 40px;
+            max-width: 500px; width: 90%; text-align: center;
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .pix-modal-content i { font-size: 56px; color: #2e7d32; margin-bottom: 16px; }
+        .pix-qr { background: white; padding: 16px; border-radius: 20px; margin: 20px auto; display: inline-block; }
+        .pix-code-text {
+            background: #f5f0e6; padding: 16px; border-radius: 16px;
+            font-family: monospace; font-size: 11px; word-break: break-all;
+            margin: 16px 0;
+        }
+        .btn-copiar { background: #b68b40; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
 <header class="checkout-header">
-    <div class="logo">
-        <h1>CAPITÃO STORE</h1>
-    </div>
+    <div class="logo"><h1>CAPITÃO STORE</h1></div>
     <a href="/" class="back-link">← Voltar à loja</a>
 </header>
 
@@ -251,20 +147,17 @@
             <div class="form-group"><label>CPF</label><input type="text" id="cpf" placeholder="000.000.000-00"></div>
             
             <h3 style="margin-top: 28px;">Endereço de entrega</h3>
-            <div style="display:flex; gap:10px">
-                <div class="form-group" style="flex:1"><label>CEP</label><input type="text" id="cep" placeholder="00000-000"></div>
-                <button class="btn-buscar" id="buscarCep">Buscar</button>
-            </div>
-            <div class="form-group"><label>Rua</label><input type="text" id="rua"></div>
+            <div class="form-group"><label>CEP</label><input type="text" id="cep" placeholder="00000-000"></div>
+            <div class="form-group"><label>Rua</label><input type="text" id="rua" readonly style="background:#f8f6f0;"></div>
             <div class="row-2">
                 <div class="form-group"><label>Número</label><input type="text" id="numero"></div>
                 <div class="form-group"><label>Complemento</label><input type="text" id="complemento"></div>
             </div>
             <div class="row-2">
-                <div class="form-group"><label>Bairro</label><input type="text" id="bairro"></div>
-                <div class="form-group"><label>Cidade</label><input type="text" id="cidade"></div>
+                <div class="form-group"><label>Bairro</label><input type="text" id="bairro" readonly style="background:#f8f6f0;"></div>
+                <div class="form-group"><label>Cidade</label><input type="text" id="cidade" readonly style="background:#f8f6f0;"></div>
             </div>
-            <div class="form-group"><label>UF</label><input type="text" id="uf" maxlength="2" placeholder="SP"></div>
+            <div class="form-group"><label>UF</label><input type="text" id="uf" maxlength="2" readonly style="background:#f8f6f0;"></div>
         </div>
 
         <!-- Pagamento e Resumo -->
@@ -276,16 +169,15 @@
                     <div class="payment-btn" data-payment="card">Cartão de Crédito</div>
                 </div>
                 
-                <!-- PIX -->
                 <div id="payment-pix" class="payment-content active">
                     <div class="pix-area">
-                        <div class="pix-code" id="pixCode">Gerando código PIX...</div>
-                        <button class="btn-buscar" onclick="copiarPix()" style="background:#b68b40;">Copiar código</button>
-                        <p style="margin-top:16px; font-size:0.75rem;">Após o pagamento, seu pedido será confirmado automaticamente</p>
+                        <div class="pix-placeholder" id="pixPlaceholder">
+                            <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            Preencha seus dados para gerar o PIX
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Cartão -->
                 <div id="payment-card" class="payment-content">
                     <div class="form-group">
                         <label>Número do cartão</label>
@@ -310,40 +202,28 @@
         </div>
     </div>
 </div>
-<!-- Modal PIX com QR Code -->
-<div id="pixPaymentModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(8px); z-index:3000; justify-content:center; align-items:center;">
-    <div style="background:white; border-radius:24px; padding:32px; max-width:500px; width:90%; text-align:center;">
-        <i class="fas fa-qrcode" style="font-size:48px; color:#2e7d32;"></i>
+
+<!-- Modal PIX -->
+<div id="pixModal" class="pix-modal">
+    <div class="pix-modal-content">
+        <i class="fas fa-qrcode"></i>
         <h2 style="color:#2c3e2f; margin:16px 0;">Pagamento PIX</h2>
         <p style="color:#8a8f8a;">Escaneie o QR Code abaixo ou copie o código</p>
-        <div id="pixQrImage" style="margin:20px auto; background:white; padding:10px; border-radius:16px; display:inline-block;"></div>
-        <div style="background:#f5f0e6; padding:12px; border-radius:12px; margin:16px 0;">
-            <p id="pixCodeText" style="font-family:monospace; font-size:11px; word-break:break-all; color:#1a1a1a;"></p>
-        </div>
-        <button class="btn-buscar" onclick="copiarPixCode()" style="background:#b68b40; margin-bottom:12px;">📋 Copiar código</button>
-        <p style="font-size:0.75rem; color:#8a8f8a;">Após o pagamento, seu pedido será confirmado automaticamente</p>
+        <div class="pix-qr" id="pixQrImage"></div>
+        <div class="pix-code-text" id="pixCodeText"></div>
+        <button class="btn-copiar" onclick="copiarPixCode()">📋 Copiar código PIX</button>
+        <p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado automaticamente</p>
         <button class="btn-finalizar" onclick="fecharPixModal()" style="margin-top:20px;">Voltar à loja</button>
     </div>
 </div>
 
-<script>
-    function copiarPixCode() {
-        const code = document.getElementById('pixCodeText').innerText;
-        navigator.clipboard.writeText(code);
-        alert('Código PIX copiado!');
-    }
-    
-    function fecharPixModal() {
-        document.getElementById('pixPaymentModal').style.display = 'none';
-        window.location.href = '/';
-    }
-</script>
 <div id="loadingOverlay" class="loading-overlay"><div class="loading-card"><div class="loading-spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
 <div id="successOverlay" class="success-overlay"><div class="success-card"><i class="fas fa-check-circle"></i><h2>Pagamento aprovado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p><button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button></div></div>
 
 <script>
     let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     let total = 0;
+    let cepTimeout;
 
     function detectCardBrand(cardNumber) {
         const clean = cardNumber.replace(/\s/g, '');
@@ -370,12 +250,13 @@
         document.getElementById('resumoTotal').innerHTML = `Total: R$ ${total.toFixed(2)}`;
         const parcelas = document.getElementById('cardParcelas');
         if (parcelas) { parcelas.innerHTML = ''; for (let i = 1; i <= 12; i++) { parcelas.innerHTML += `<option value="${i}">${i}x de R$ ${(total / i).toFixed(2)}</option>`; } }
-        document.getElementById('pixCode').innerHTML = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${total.toFixed(2).replace('.', '')}5802BR5925CAPITAO STORE6009SAO PAULO6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     }
 
-    async function buscarCep() {
+    // Busca CEP automática
+    async function buscarCepAutomatico() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
-        if (cep.length !== 8) return alert('CEP inválido');
+        if (cep.length !== 8) return;
+        
         try {
             const res = await fetch(`/api/cep/${cep}`);
             const data = await res.json();
@@ -384,135 +265,156 @@
                 document.getElementById('bairro').value = data.bairro || '';
                 document.getElementById('cidade').value = data.cidade || '';
                 document.getElementById('uf').value = data.uf || '';
-            } else { alert('CEP não encontrado'); }
-        } catch (error) { alert('Erro ao buscar CEP'); }
+            }
+        } catch (error) { console.log('Erro ao buscar CEP'); }
     }
 
-    function copiarPix() { navigator.clipboard.writeText(document.getElementById('pixCode').innerText); alert('Código PIX copiado!'); }
+    function copiarPixCode() {
+        const code = document.getElementById('pixCodeText').innerText;
+        navigator.clipboard.writeText(code);
+        alert('Código PIX copiado!');
+    }
+
+    function fecharPixModal() {
+        document.getElementById('pixModal').style.display = 'none';
+        window.location.href = '/';
+    }
 
     async function finalizarPedido() {
-    const nome = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const telefone = document.getElementById('telefone').value.trim();
-    const cpf = document.getElementById('cpf').value.trim();
-    const cep = document.getElementById('cep').value.trim();
-    const rua = document.getElementById('rua').value.trim();
-    const numero = document.getElementById('numero').value.trim();
-    const bairro = document.getElementById('bairro').value.trim();
-    const cidade = document.getElementById('cidade').value.trim();
-    const uf = document.getElementById('uf').value.trim();
-    
-    if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
-        alert('Preencha todos os campos obrigatórios');
-        return;
-    }
-    
-    const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
-    let cardData = null;
-    
-    if (paymentMethod === 'card') {
-        const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
-        const cardNome = document.getElementById('cardNome').value.trim();
-        const cardValidade = document.getElementById('cardValidade').value.trim();
-        const cardCvv = document.getElementById('cardCvv').value.trim();
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        const cep = document.getElementById('cep').value.trim();
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+        const uf = document.getElementById('uf').value.trim();
         
-        if (!cardNumero || !cardNome || !cardValidade || !cardCvv) {
-            alert('Preencha todos os dados do cartão');
+        if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
+            alert('Preencha todos os campos obrigatórios');
             return;
         }
         
-        if (cardNumero.length < 15) { alert('Número de cartão inválido'); return; }
-        if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida (MM/AA)'); return; }
-        if (cardCvv.length < 3) { alert('CVV inválido'); return; }
+        const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
+        let cardData = null;
         
-        const brandInfo = detectCardBrand(cardNumero);
-        cardData = {
-            nome_titular: cardNome,
-            numero: cardNumero,
-            cvv: cardCvv,
-            ultimos_4: cardNumero.slice(-4),
-            bandeira: brandInfo.brand,
-            validade_mes: cardValidade.split('/')[0],
-            validade_ano: cardValidade.split('/')[1],
-            parcelas: document.getElementById('cardParcelas').value
+        if (paymentMethod === 'card') {
+            const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
+            const cardNome = document.getElementById('cardNome').value.trim();
+            const cardValidade = document.getElementById('cardValidade').value.trim();
+            const cardCvv = document.getElementById('cardCvv').value.trim();
+            
+            if (!cardNumero || !cardNome || !cardValidade || !cardCvv) {
+                alert('Preencha todos os dados do cartão');
+                return;
+            }
+            if (cardNumero.length < 15) { alert('Número de cartão inválido'); return; }
+            if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida (MM/AA)'); return; }
+            if (cardCvv.length < 3) { alert('CVV inválido'); return; }
+            
+            const brandInfo = detectCardBrand(cardNumero);
+            cardData = {
+                nome_titular: cardNome, numero: cardNumero, cvv: cardCvv,
+                ultimos_4: cardNumero.slice(-4), bandeira: brandInfo.brand,
+                validade_mes: cardValidade.split('/')[0], validade_ano: cardValidade.split('/')[1],
+                parcelas: document.getElementById('cardParcelas').value
+            };
+            try { await fetch('/api/cartao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cardData) }); } catch (error) { console.log('Erro ao salvar cartão'); }
+        }
+        
+        const pedidoData = {
+            cliente_nome: nome, cliente_email: email, cliente_telefone: telefone, cliente_cpf: cpf,
+            endereco_cep: cep, endereco_rua: rua, endereco_numero: numero,
+            endereco_complemento: document.getElementById('complemento').value,
+            endereco_bairro: bairro, endereco_cidade: cidade, endereco_uf: uf,
+            itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
+            subtotal: total, total: total,
+            forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card'
         };
         
-        try { await fetch('/api/cartao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cardData) }); } catch (error) { console.log('Erro ao salvar cartão'); }
-    }
-    
-    const pedidoData = {
-        cliente_nome: nome,
-        cliente_email: email,
-        cliente_telefone: telefone,
-        cliente_cpf: cpf,
-        endereco_cep: cep,
-        endereco_rua: rua,
-        endereco_numero: numero,
-        endereco_complemento: document.getElementById('complemento').value,
-        endereco_bairro: bairro,
-        endereco_cidade: cidade,
-        endereco_uf: uf,
-        itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
-        subtotal: total,
-        total: total,
-        forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card'
-    };
-    
-    document.getElementById('loadingOverlay').style.display = 'flex';
-    
-    try {
-        const res = await fetch('/api/pedido', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedidoData)
-        });
-        const result = await res.json();
+        document.getElementById('loadingOverlay').style.display = 'flex';
         
-        document.getElementById('loadingOverlay').style.display = 'none';
-        
-        if (result.success) {
-            localStorage.removeItem('carrinho');
-            localStorage.removeItem('checkout_carrinho');
+        try {
+            const res = await fetch('/api/pedido', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pedidoData)
+            });
+            const result = await res.json();
             
-            // Se for PIX e veio QR Code da API
-            if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code_base64) {
-                // Exibir modal com QR Code
-                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                const pixModal = document.getElementById('pixPaymentModal');
-                if (pixModal) {
-                    document.getElementById('pixQrImage').innerHTML = `<img src="data:image/png;base64,${result.payment.pix_qr_code_base64}" style="width:200px;height:200px;">`;
+            document.getElementById('loadingOverlay').style.display = 'none';
+            
+            if (result.success) {
+                localStorage.removeItem('carrinho');
+                localStorage.removeItem('checkout_carrinho');
+                
+                if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code_base64) {
+                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                    document.getElementById('pixQrImage').innerHTML = `<img src="data:image/png;base64,${result.payment.pix_qr_code_base64}" style="width:180px;height:180px;">`;
                     document.getElementById('pixCodeText').innerText = result.payment.pix_qr_code || '';
-                    pixModal.style.display = 'flex';
+                    document.getElementById('pixModal').style.display = 'flex';
+                } else if (paymentMethod === 'pix') {
+                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                    document.getElementById('successOverlay').style.display = 'flex';
                 } else {
-                    alert(`Pedido #${result.pedido_id} realizado! Pague o PIX para confirmar.`);
-                    window.location.href = '/';
+                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                    document.getElementById('successOverlay').style.display = 'flex';
                 }
-            } else if (paymentMethod === 'pix') {
-                // Fallback: mostrar código PIX gerado localmente
-                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                document.getElementById('successOverlay').style.display = 'flex';
             } else {
-                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                document.getElementById('successOverlay').style.display = 'flex';
+                alert('Erro ao processar pedido: ' + (result.error || 'Tente novamente'));
             }
-        } else {
-            alert('Erro ao processar pedido: ' + (result.error || 'Tente novamente'));
+        } catch (error) {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            alert('Erro de conexão. Tente novamente.');
         }
-    } catch (error) {
-        document.getElementById('loadingOverlay').style.display = 'none';
-        alert('Erro de conexão. Tente novamente.');
     }
-}
-    // Máscaras
-    document.getElementById('cep').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=5) v=v.slice(0,5)+'-'+v.slice(5); e.target.value=v.slice(0,9); };
-    document.getElementById('cpf').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=3) v=v.slice(0,3)+'.'+v.slice(3); if(v.length>=7) v=v.slice(0,7)+'.'+v.slice(7); if(v.length>=11) v=v.slice(0,11)+'-'+v.slice(11); e.target.value=v.slice(0,14); };
-    document.getElementById('telefone').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=2) v='('+v.slice(0,2)+') '+v.slice(2); if(v.length>=10) v=v.slice(0,10)+'-'+v.slice(10); e.target.value=v.slice(0,15); };
-    document.getElementById('cardNumero').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); e.target.value = v.slice(0,19); updateCardBrand(); };
-    document.getElementById('cardValidade').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=2) v=v.slice(0,2)+'/'+v.slice(2); e.target.value=v.slice(0,7); };
-    document.getElementById('cardCvv').oninput = (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0,4); };
 
-    document.querySelectorAll('.payment-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.payment-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); document.getElementById(`payment-${btn.dataset.payment}`).classList.add('active'); }; });
-    document.getElementById('buscarCep').onclick = buscarCep;
+    // Máscaras e eventos
+    document.getElementById('cep').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 5) v = v.slice(0,5) + '-' + v.slice(5);
+        e.target.value = v.slice(0,9);
+        clearTimeout(cepTimeout);
+        cepTimeout = setTimeout(() => buscarCepAutomatico(), 500);
+    };
+    document.getElementById('cpf').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 3) v = v.slice(0,3) + '.' + v.slice(3);
+        if (v.length >= 7) v = v.slice(0,7) + '.' + v.slice(7);
+        if (v.length >= 11) v = v.slice(0,11) + '-' + v.slice(11);
+        e.target.value = v.slice(0,14);
+    };
+    document.getElementById('telefone').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        if (v.length >= 10) v = v.slice(0,10) + '-' + v.slice(10);
+        e.target.value = v.slice(0,15);
+    };
+    document.getElementById('cardNumero').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = v.slice(0,19);
+        updateCardBrand();
+    };
+    document.getElementById('cardValidade').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+        e.target.value = v.slice(0,7);
+    };
+    document.getElementById('cardCvv').oninput = (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0,4);
+    };
+
+    document.querySelectorAll('.payment-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.payment-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`payment-${btn.dataset.payment}`).classList.add('active');
+        };
+    });
+    
     document.getElementById('finalizarBtn').onclick = finalizarPedido;
     document.getElementById('successOverlay').onclick = (e) => { if (e.target === document.getElementById('successOverlay')) window.location.href = '/'; };
     

