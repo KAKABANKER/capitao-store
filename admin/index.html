@@ -252,6 +252,7 @@
                         <div class="form-group"><label>Stock</label><input type="number" id="prodEstoque" placeholder="50"></div>
                         <div class="form-group"><label>Image URL</label><input type="text" id="prodImagem" placeholder="https://..."></div>
                         <div class="form-group"><button class="btn-primary" onclick="salvarProduto()">SAVE PRODUCT</button></div>
+                        <div class="form-group"><label>Descrição do produto</label><textarea id="prodDescricao" rows="3" placeholder="Descrição detalhada do produto..."></textarea></div>
                     </div>
                 </div>
                 <div class="section-card">
@@ -431,6 +432,7 @@
         const produto = {
             nome: document.getElementById('prodNome').value,
             preco: parseFloat(document.getElementById('prodPreco').value),
+            descricao: document.getElementById('prodDescricao').value,
             preco_antigo: parseFloat(document.getElementById('prodPrecoAntigo').value) || null,
             categoria: document.getElementById('prodCategoria').value,
             estoque: parseInt(document.getElementById('prodEstoque').value) || 0,
