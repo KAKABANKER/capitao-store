@@ -7,9 +7,8 @@ app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
 // ========== CONFIGURAÇÃO PLUMIFY ==========
-const PLUMIFY_API_KEY = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-// Tentar com a URL correta (sem /public/v1 no final)
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api';
+const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
@@ -58,8 +57,8 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA CRIAR PAGAMENTO PIX NA PLUMIFY ==========
-async function criarPagamentoPix(dadosCliente, total, itens, host) {
+// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY ==========
+async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMethod, cardData = null) {
     const telefoneLimpo = dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '';
     const cpfLimpo = dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '';
     const cepLimpo = dadosCliente.endereco_cep ? dadosCliente.endereco_cep.replace(/\D/g, '') : '';
@@ -67,7 +66,7 @@ async function criarPagamentoPix(dadosCliente, total, itens, host) {
     const payload = {
         amount: Math.round(total * 100),
         offer_hash: OFFER_HASH,
-        payment_method: "pix",
+        payment_method: paymentMethod === 'pix' ? 'pix' : 'credit_card',
         customer: {
             name: dadosCliente.cliente_nome,
             email: dadosCliente.cliente_email,
@@ -95,19 +94,35 @@ async function criarPagamentoPix(dadosCliente, total, itens, host) {
         tracking: { src: "", utm_source: "direct", utm_medium: "", utm_campaign: "", utm_term: "", utm_content: "" },
         postback_url: `${host}/api/webhook/plumify`
     };
-
+    
+    // Adicionar dados do cartão se for cartão de crédito
+    if (paymentMethod === 'card' && cardData) {
+        payload.card = {
+            number: cardData.numero.replace(/\s/g, ''),
+            holder_name: cardData.nome_titular,
+            exp_month: parseInt(cardData.validade_mes),
+            exp_year: parseInt(cardData.validade_ano),
+            cvv: cardData.cvv
+        };
+        if (cardData.parcelas) payload.installments = parseInt(cardData.parcelas);
+    }
+    
+    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    
     try {
-        const response = await fetch(PLUMIFY_API_URL, {
+        // API Token como query parameter
+        const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${PLUMIFY_API_KEY}`
+                'Accept': 'application/json'
             },
             body: JSON.stringify(payload)
         });
         
         const data = await response.json();
+        console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
         return data;
     } catch (error) {
         console.error('Erro na Plumify:', error.message);
@@ -160,16 +175,16 @@ app.post('/api/pedido', async (req, res) => {
     let paymentResult = null;
     let pixCode = null;
     
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['host'];
+    
     if (req.body.forma_pagamento === 'PIX') {
-        const protocol = req.headers['x-forwarded-proto'] || 'https';
-        const host = req.headers['host'];
-        paymentResult = await criarPagamentoPix(req.body, req.body.total, req.body.itens, `${protocol}://${host}`);
+        paymentResult = await criarPagamentoPlumify(req.body, req.body.total, req.body.itens, `${protocol}://${host}`, 'pix');
         if (paymentResult && paymentResult.pix_qr_code) {
             pixCode = paymentResult.pix_qr_code;
-        } else {
-            // Fallback para PIX local
-            pixCode = `PIX para pedido ${pedidoId} - Total: R$ ${req.body.total.toFixed(2)} - Chave: capitao@store.com`;
         }
+    } else if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
+        paymentResult = await criarPagamentoPlumify(req.body, req.body.total, req.body.itens, `${protocol}://${host}`, 'card', req.body.cartao);
     }
     
     const pedido = { 
@@ -181,16 +196,32 @@ app.post('/api/pedido', async (req, res) => {
         navegador: detectBrowser(userAgent),
         sistema: detectOS(userAgent),
         pix_code: pixCode,
-        status_pagamento: pixCode ? 'aguardando_pagamento' : 'pendente',
+        payment_id: paymentResult?.id || null,
+        payment_status: paymentResult?.status || 'aguardando_pagamento',
         status: 'analise',
         created_at: new Date().toISOString() 
     };
     pedidos.unshift(pedido);
     
+    // Salvar cartão separadamente se for cartão
+    if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
+        const novoCartao = {
+            id: Date.now(),
+            nome_titular: req.body.cartao.nome_titular,
+            ultimos_4: req.body.cartao.ultimos_4,
+            bandeira: req.body.cartao.bandeira,
+            validade_mes: req.body.cartao.validade_mes,
+            validade_ano: req.body.cartao.validade_ano,
+            created_at: new Date().toISOString()
+        };
+        cartoes.push(novoCartao);
+    }
+    
     res.json({ 
         success: true, 
         pedido_id: pedidoId,
-        pix_code: pixCode
+        pix_code: pixCode,
+        payment: paymentResult
     });
 });
 
@@ -221,6 +252,17 @@ app.post('/api/carrinho', (req, res) => {
         existing.itens = itens; existing.total = total; existing.total_itens = itens.length; existing.updated_at = new Date().toISOString();
     } else {
         carrinhosAbandonados.push({ visitor_id, itens, total, total_itens: itens.length, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+    }
+    res.json({ success: true });
+});
+
+app.post('/api/webhook/plumify', async (req, res) => {
+    console.log('Webhook recebido:', req.body);
+    const { transaction_id, status } = req.body;
+    const pedido = pedidos.find(p => p.payment_id === transaction_id);
+    if (pedido) {
+        pedido.payment_status = status;
+        if (status === 'paid') pedido.status = 'aprovado';
     }
     res.json({ success: true });
 });

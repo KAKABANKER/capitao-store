@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #fefcf5; color: #1a1a1a; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: #fefcf5; color: #1a1a1a; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
         .checkout-header {
@@ -124,7 +124,7 @@
 </header>
 
 <div class="progress-steps">
-    <div class="step completed" id="stepCart"><span class="step-number">1</span><span>Carrinho</span></div>
+    <div class="step completed"><span class="step-number">1</span><span>Carrinho</span></div>
     <div class="step active" id="stepEmail"><span class="step-number">2</span><span>Email</span></div>
     <div class="step" id="stepAddress"><span class="step-number">3</span><span>Dados</span></div>
     <div class="step" id="stepPayment"><span class="step-number">4</span><span>Pagamento</span></div>
@@ -137,14 +137,8 @@
             <div id="tabEmail" class="tab-content active">
                 <div class="form-card">
                     <h3>Informe seu email</h3>
-                    <div class="form-row">
-                        <label>Email <span class="required">*</span></label>
-                        <input type="email" id="email" placeholder="seu@email.com">
-                    </div>
-                    <div class="nav-buttons">
-                        <div></div>
-                        <button class="btn-next" onclick="nextToAddress()">Continuar →</button>
-                    </div>
+                    <div class="form-row"><label>Email <span class="required">*</span></label><input type="email" id="email" placeholder="seu@email.com"></div>
+                    <div class="nav-buttons"><div></div><button class="btn-next" onclick="nextToAddress()">Continuar →</button></div>
                 </div>
             </div>
 
@@ -169,10 +163,7 @@
                         <div class="form-row"><label>Cidade <span class="required">*</span></label><input type="text" id="cidade" readonly></div>
                     </div>
                     <div class="form-row"><label>UF <span class="required">*</span></label><input type="text" id="uf" maxlength="2" readonly></div>
-                    <div class="nav-buttons">
-                        <button class="btn-back" onclick="backToEmail()">← Voltar</button>
-                        <button class="btn-next" onclick="nextToPayment()">Continuar →</button>
-                    </div>
+                    <div class="nav-buttons"><button class="btn-back" onclick="backToEmail()">← Voltar</button><button class="btn-next" onclick="nextToPayment()">Continuar →</button></div>
                 </div>
             </div>
 
@@ -208,15 +199,11 @@
                         <div class="form-row"><label>Parcelas</label><select id="cardParcelas"></select></div>
                     </div>
 
-                    <div class="nav-buttons">
-                        <button class="btn-back" onclick="backToAddress()">← Voltar</button>
-                        <button class="btn-finalizar" id="finalizarBtn">FINALIZAR PEDIDO</button>
-                    </div>
+                    <div class="nav-buttons"><button class="btn-back" onclick="backToAddress()">← Voltar</button><button class="btn-finalizar" id="finalizarBtn">FINALIZAR PEDIDO</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- Resumo -->
         <div>
             <div class="order-summary">
                 <div class="summary-header"><h3>Resumo do pedido</h3></div>
@@ -231,7 +218,6 @@
     </div>
 </div>
 
-<!-- Modals -->
 <div id="loadingModal" class="modal-overlay"><div class="modal-content"><div class="spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
 <div id="pixModal" class="modal-overlay"><div class="modal-content"><i class="fas fa-qrcode"></i><h2>Pagamento PIX</h2><p>Copie o código abaixo e pague no seu banco</p><div class="pix-code" id="pixCode"></div><button class="btn-copiar" onclick="copiarPix()">Copiar código PIX</button><p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado</p><button class="btn-finalizar" onclick="window.location.href='/pedido.html?id=' + pedidoIdAtual" style="margin-top:20px;">Acompanhar pedido →</button></div></div>
 
@@ -367,21 +353,32 @@
             if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida'); return; }
             if (cardCvv.length < 3) { alert('CVV inválido'); return; }
             cardData = {
-                nome_titular: cardNome, numero: cardNumero, cvv: cardCvv,
+                nome_titular: cardNome,
+                numero: cardNumero,
+                cvv: cardCvv,
                 ultimos_4: cardNumero.slice(-4),
                 bandeira: cardNumero.startsWith('4') ? 'Visa' : cardNumero.startsWith('5') ? 'Mastercard' : 'Outro',
-                validade_mes: cardValidade.split('/')[0], validade_ano: cardValidade.split('/')[1],
+                validade_mes: cardValidade.split('/')[0],
+                validade_ano: cardValidade.split('/')[1],
                 parcelas: document.getElementById('cardParcelas').value
             };
         }
 
         const pedidoData = {
-            cliente_nome: nome, cliente_email: email, cliente_telefone: telefone, cliente_cpf: cpf,
-            endereco_cep: cep, endereco_rua: rua, endereco_numero: numero,
+            cliente_nome: nome,
+            cliente_email: email,
+            cliente_telefone: telefone,
+            cliente_cpf: cpf,
+            endereco_cep: cep,
+            endereco_rua: rua,
+            endereco_numero: numero,
             endereco_complemento: document.getElementById('complemento').value,
-            endereco_bairro: bairro, endereco_cidade: cidade, endereco_uf: uf,
+            endereco_bairro: bairro,
+            endereco_cidade: cidade,
+            endereco_uf: uf,
             itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
-            subtotal: total, total: total,
+            subtotal: total,
+            total: total,
             forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card',
             cartao: cardData
         };
@@ -401,12 +398,9 @@
                 localStorage.removeItem('carrinho');
                 pedidoIdAtual = result.pedido_id;
 
-                if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code) {
-                    document.getElementById('pixCode').innerText = result.payment.pix_qr_code;
+                if (paymentMethod === 'pix' && result.pix_code) {
+                    document.getElementById('pixCode').innerText = result.pix_code;
                     document.getElementById('pixModal').style.display = 'flex';
-                } else if (paymentMethod === 'pix') {
-                    alert('Pedido realizado! Aguarde o processamento do pagamento.');
-                    window.location.href = `/pedido.html?id=${result.pedido_id}`;
                 } else {
                     window.location.href = `/pedido.html?id=${result.pedido_id}`;
                 }
