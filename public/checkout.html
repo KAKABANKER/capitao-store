@@ -135,7 +135,6 @@
 
 <div class="container">
     <div class="checkout-grid">
-        <!-- Dados do Cliente -->
         <div class="form-card">
             <h3>Seus dados</h3>
             <div class="form-group"><label>Nome completo</label><input type="text" id="nome" placeholder="Digite seu nome completo"></div>
@@ -159,7 +158,6 @@
             <div class="form-group"><label>UF</label><input type="text" id="uf" maxlength="2" readonly style="background:#f8f6f0;"></div>
         </div>
 
-        <!-- Pagamento e Resumo -->
         <div>
             <div class="form-card">
                 <h3>Pagamento</h3>
@@ -228,7 +226,6 @@
         if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(clean)) return { brand: 'Visa', icon: 'fab fa-cc-visa', color: 'brand-visa' };
         if (/^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$/.test(clean)) return { brand: 'Mastercard', icon: 'fab fa-cc-mastercard', color: 'brand-mastercard' };
         if (/^(4011|4312|4389|4514|4576|5044|5067|5090|6277|6362|6363|6504|6505|6506|6507|6509|6516|6550)/.test(clean)) return { brand: 'Elo', icon: 'fas fa-credit-card', color: 'brand-elo' };
-        if (/^3[47][0-9]{13}$/.test(clean)) return { brand: 'American Express', icon: 'fab fa-cc-amex', color: 'brand-amex' };
         return { brand: 'Credit Card', icon: 'fas fa-credit-card', color: '' };
     }
 
@@ -346,9 +343,11 @@
                 localStorage.removeItem('checkout_carrinho');
                 
                 if (paymentMethod === 'pix' && result.pix_code) {
-                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
                     document.getElementById('pixCodeText').innerText = result.pix_code;
                     document.getElementById('pixModal').style.display = 'flex';
+                } else if (paymentMethod === 'pix' && !result.pix_code) {
+                    alert('Erro ao gerar PIX. Tente novamente.');
+                    window.location.href = '/';
                 } else {
                     document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
                     document.getElementById('successOverlay').style.display = 'flex';

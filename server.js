@@ -52,15 +52,13 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA GERAR PIX LOCAL ==========
-function gerarPixLocal(total, pedidoId) {
-    // Gerar código PIX estático (simulado)
-    const pixCode = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${Math.round(total * 100)}5802BR5925CAPITAO STORE6009SAO PAULO62070503***6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    return {
-        pix_qr_code: pixCode,
-        pix_qr_code_base64: null,
-        status: 'aguardando_pagamento'
-    };
+// ========== FUNÇÃO PARA GERAR PIX ==========
+function gerarPixCode(total) {
+    const valorCentavos = Math.round(total * 100);
+    const randomId = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const timestamp = Date.now();
+    const pixCode = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${valorCentavos}5802BR5925CAPITAO STORE6009SAO PAULO62070503***6304${randomId}${timestamp}`;
+    return pixCode;
 }
 
 // ========== ROTAS PÚBLICAS ==========
@@ -93,18 +91,13 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Rota para gerar PIX (separada)
-app.post('/api/gerar-pix', async (req, res) => {
-    const { total, pedido_id } = req.body;
-    const pixData = gerarPixLocal(total, pedido_id);
-    res.json({ success: true, payment: pixData });
-});
-
-// Salvar pedido
+// Salvar pedido e gerar PIX automaticamente
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'];
+    
+    console.log('Recebendo pedido:', req.body.forma_pagamento);
     
     // Atualizar vendas
     if (req.body.itens) {
@@ -116,11 +109,12 @@ app.post('/api/pedido', async (req, res) => {
         });
     }
     
-    let paymentResult = null;
+    let pixCode = null;
     
-    // Gerar PIX local se for PIX
+    // Gerar PIX automaticamente se for PIX
     if (req.body.forma_pagamento === 'PIX') {
-        paymentResult = gerarPixLocal(req.body.total, pedidoId);
+        pixCode = gerarPixCode(req.body.total);
+        console.log('PIX gerado para o pedido:', pedidoId);
     }
     
     const pedido = { 
@@ -130,17 +124,17 @@ app.post('/api/pedido', async (req, res) => {
         dispositivo: detectDevice(userAgent),
         navegador: detectBrowser(userAgent),
         sistema: detectOS(userAgent),
-        payment_qr_code: paymentResult?.pix_qr_code || null,
-        payment_status: 'aguardando_pagamento',
+        pix_code: pixCode,
+        status_pagamento: pixCode ? 'aguardando_pagamento' : 'pendente',
         created_at: new Date().toISOString() 
     };
     pedidos.unshift(pedido);
-    console.log('Pedido salvo:', pedidoId);
+    console.log('Pedido salvo:', pedidoId, 'PIX:', pixCode ? 'GERADO' : 'NAO GERADO');
     
     res.json({ 
         success: true, 
         pedido_id: pedidoId,
-        payment: paymentResult
+        pix_code: pixCode
     });
 });
 
