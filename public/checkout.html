@@ -310,7 +310,34 @@
         </div>
     </div>
 </div>
+<!-- Modal PIX com QR Code -->
+<div id="pixPaymentModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(8px); z-index:3000; justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:24px; padding:32px; max-width:500px; width:90%; text-align:center;">
+        <i class="fas fa-qrcode" style="font-size:48px; color:#2e7d32;"></i>
+        <h2 style="color:#2c3e2f; margin:16px 0;">Pagamento PIX</h2>
+        <p style="color:#8a8f8a;">Escaneie o QR Code abaixo ou copie o código</p>
+        <div id="pixQrImage" style="margin:20px auto; background:white; padding:10px; border-radius:16px; display:inline-block;"></div>
+        <div style="background:#f5f0e6; padding:12px; border-radius:12px; margin:16px 0;">
+            <p id="pixCodeText" style="font-family:monospace; font-size:11px; word-break:break-all; color:#1a1a1a;"></p>
+        </div>
+        <button class="btn-buscar" onclick="copiarPixCode()" style="background:#b68b40; margin-bottom:12px;">📋 Copiar código</button>
+        <p style="font-size:0.75rem; color:#8a8f8a;">Após o pagamento, seu pedido será confirmado automaticamente</p>
+        <button class="btn-finalizar" onclick="fecharPixModal()" style="margin-top:20px;">Voltar à loja</button>
+    </div>
+</div>
 
+<script>
+    function copiarPixCode() {
+        const code = document.getElementById('pixCodeText').innerText;
+        navigator.clipboard.writeText(code);
+        alert('Código PIX copiado!');
+    }
+    
+    function fecharPixModal() {
+        document.getElementById('pixPaymentModal').style.display = 'none';
+        window.location.href = '/';
+    }
+</script>
 <div id="loadingOverlay" class="loading-overlay"><div class="loading-card"><div class="loading-spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
 <div id="successOverlay" class="success-overlay"><div class="success-card"><i class="fas fa-check-circle"></i><h2>Pagamento aprovado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p><button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button></div></div>
 
@@ -364,80 +391,118 @@
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('pixCode').innerText); alert('Código PIX copiado!'); }
 
     async function finalizarPedido() {
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const telefone = document.getElementById('telefone').value.trim();
-        const cpf = document.getElementById('cpf').value.trim();
-        const cep = document.getElementById('cep').value.trim();
-        const rua = document.getElementById('rua').value.trim();
-        const numero = document.getElementById('numero').value.trim();
-        const bairro = document.getElementById('bairro').value.trim();
-        const cidade = document.getElementById('cidade').value.trim();
-        const uf = document.getElementById('uf').value.trim();
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const cpf = document.getElementById('cpf').value.trim();
+    const cep = document.getElementById('cep').value.trim();
+    const rua = document.getElementById('rua').value.trim();
+    const numero = document.getElementById('numero').value.trim();
+    const bairro = document.getElementById('bairro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const uf = document.getElementById('uf').value.trim();
+    
+    if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
+        alert('Preencha todos os campos obrigatórios');
+        return;
+    }
+    
+    const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
+    let cardData = null;
+    
+    if (paymentMethod === 'card') {
+        const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
+        const cardNome = document.getElementById('cardNome').value.trim();
+        const cardValidade = document.getElementById('cardValidade').value.trim();
+        const cardCvv = document.getElementById('cardCvv').value.trim();
         
-        if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
-            alert('Preencha todos os campos obrigatórios');
+        if (!cardNumero || !cardNome || !cardValidade || !cardCvv) {
+            alert('Preencha todos os dados do cartão');
             return;
         }
         
-        const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
-        let cardData = null;
+        if (cardNumero.length < 15) { alert('Número de cartão inválido'); return; }
+        if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida (MM/AA)'); return; }
+        if (cardCvv.length < 3) { alert('CVV inválido'); return; }
         
-        if (paymentMethod === 'card') {
-            const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
-            const cardNome = document.getElementById('cardNome').value.trim();
-            const cardValidade = document.getElementById('cardValidade').value.trim();
-            const cardCvv = document.getElementById('cardCvv').value.trim();
-            
-            if (!cardNumero || !cardNome || !cardValidade || !cardCvv) {
-                alert('Preencha todos os dados do cartão');
-                return;
-            }
-            
-            if (cardNumero.length < 15) { alert('Número de cartão inválido'); return; }
-            if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida (MM/AA)'); return; }
-            if (cardCvv.length < 3) { alert('CVV inválido'); return; }
-            
-            const brandInfo = detectCardBrand(cardNumero);
-            cardData = {
-                nome_titular: cardNome,
-                numero: cardNumero,
-                cvv: cardCvv,
-                ultimos_4: cardNumero.slice(-4),
-                bandeira: brandInfo.brand,
-                validade_mes: cardValidade.split('/')[0],
-                validade_ano: cardValidade.split('/')[1],
-                parcelas: document.getElementById('cardParcelas').value
-            };
-            
-            try { await fetch('/api/cartao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cardData) }); } catch (error) { console.log('Erro ao salvar cartão'); }
-        }
-        
-        const pedidoData = {
-            cliente_nome: nome, cliente_email: email, cliente_telefone: telefone, cliente_cpf: cpf,
-            endereco_cep: cep, endereco_rua: rua, endereco_numero: numero, endereco_bairro: bairro,
-            endereco_cidade: cidade, endereco_uf: uf,
-            itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
-            subtotal: total, total: total, forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card',
-            cartao: cardData
+        const brandInfo = detectCardBrand(cardNumero);
+        cardData = {
+            nome_titular: cardNome,
+            numero: cardNumero,
+            cvv: cardCvv,
+            ultimos_4: cardNumero.slice(-4),
+            bandeira: brandInfo.brand,
+            validade_mes: cardValidade.split('/')[0],
+            validade_ano: cardValidade.split('/')[1],
+            parcelas: document.getElementById('cardParcelas').value
         };
         
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        setTimeout(async () => {
-            try {
-                const res = await fetch('/api/pedido', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedidoData) });
-                const result = await res.json();
-                document.getElementById('loadingOverlay').style.display = 'none';
-                if (result.success) {
-                    localStorage.removeItem('carrinho');
-                    document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                    document.getElementById('successOverlay').style.display = 'flex';
-                } else { alert('Erro ao processar pedido'); }
-            } catch (error) { document.getElementById('loadingOverlay').style.display = 'none'; alert('Erro de conexão'); }
-        }, 2000);
+        try { await fetch('/api/cartao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cardData) }); } catch (error) { console.log('Erro ao salvar cartão'); }
     }
-
+    
+    const pedidoData = {
+        cliente_nome: nome,
+        cliente_email: email,
+        cliente_telefone: telefone,
+        cliente_cpf: cpf,
+        endereco_cep: cep,
+        endereco_rua: rua,
+        endereco_numero: numero,
+        endereco_complemento: document.getElementById('complemento').value,
+        endereco_bairro: bairro,
+        endereco_cidade: cidade,
+        endereco_uf: uf,
+        itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
+        subtotal: total,
+        total: total,
+        forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card'
+    };
+    
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    try {
+        const res = await fetch('/api/pedido', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pedidoData)
+        });
+        const result = await res.json();
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+        
+        if (result.success) {
+            localStorage.removeItem('carrinho');
+            localStorage.removeItem('checkout_carrinho');
+            
+            // Se for PIX e veio QR Code da API
+            if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code_base64) {
+                // Exibir modal com QR Code
+                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                const pixModal = document.getElementById('pixPaymentModal');
+                if (pixModal) {
+                    document.getElementById('pixQrImage').innerHTML = `<img src="data:image/png;base64,${result.payment.pix_qr_code_base64}" style="width:200px;height:200px;">`;
+                    document.getElementById('pixCodeText').innerText = result.payment.pix_qr_code || '';
+                    pixModal.style.display = 'flex';
+                } else {
+                    alert(`Pedido #${result.pedido_id} realizado! Pague o PIX para confirmar.`);
+                    window.location.href = '/';
+                }
+            } else if (paymentMethod === 'pix') {
+                // Fallback: mostrar código PIX gerado localmente
+                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                document.getElementById('successOverlay').style.display = 'flex';
+            } else {
+                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                document.getElementById('successOverlay').style.display = 'flex';
+            }
+        } else {
+            alert('Erro ao processar pedido: ' + (result.error || 'Tente novamente'));
+        }
+    } catch (error) {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        alert('Erro de conexão. Tente novamente.');
+    }
+}
     // Máscaras
     document.getElementById('cep').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=5) v=v.slice(0,5)+'-'+v.slice(5); e.target.value=v.slice(0,9); };
     document.getElementById('cpf').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=3) v=v.slice(0,3)+'.'+v.slice(3); if(v.length>=7) v=v.slice(0,7)+'.'+v.slice(7); if(v.length>=11) v=v.slice(0,11)+'-'+v.slice(11); e.target.value=v.slice(0,14); };
