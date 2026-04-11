@@ -10,106 +10,234 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Jost', sans-serif; background: #fefcf5; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .checkout-header { background: white; padding: 20px; border-bottom: 1px solid #eae6de; display: flex; justify-content: space-between; }
+        .checkout-header { background: white; padding: 20px; border-bottom: 1px solid #eae6de; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
         .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0; }
-        .form-card { background: white; border-radius: 20px; padding: 25px; border: 1px solid #f0ede5; }
+        .form-card { background: white; border-radius: 20px; padding: 28px; border: 1px solid #f0ede5; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #e2d9cc; border-radius: 12px; }
-        input:focus { outline: none; border-color: #b68b40; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #2c3e2f; }
+        input, select { width: 100%; padding: 14px; border: 1px solid #e2d9cc; border-radius: 12px; font-family: inherit; transition: 0.2s; }
+        input:focus { outline: none; border-color: #b68b40; box-shadow: 0 0 0 2px rgba(182,139,64,0.1); }
         .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .btn-buscar { background: #2c3e2f; color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; }
+        .btn-buscar { background: #2c3e2f; color: white; border: none; padding: 14px 20px; border-radius: 12px; cursor: pointer; font-weight: 500; }
         .payment-methods { display: flex; gap: 15px; margin-bottom: 25px; }
-        .payment-btn { flex: 1; padding: 12px; background: #f8f6f0; border: 1px solid #e2d9cc; border-radius: 12px; cursor: pointer; text-align: center; }
-        .payment-btn.active { background: #b68b40; color: white; }
+        .payment-btn { flex: 1; padding: 14px; background: #f8f6f0; border: 1px solid #e2d9cc; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 500; transition: 0.2s; }
+        .payment-btn.active { background: #b68b40; color: white; border-color: #b68b40; }
         .payment-content { display: none; }
         .payment-content.active { display: block; }
-        .pix-area { text-align: center; padding: 20px; background: #f8f6f0; border-radius: 16px; }
-        .pix-code { background: #1a1a1a; color: #b68b40; padding: 12px; border-radius: 12px; font-size: 11px; word-break: break-all; margin: 15px 0; }
-        .btn-finalizar { width: 100%; padding: 16px; background: #b68b40; color: white; border: none; border-radius: 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .resumo-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe2; }
+        .pix-area { text-align: center; padding: 24px; background: #f8f6f0; border-radius: 16px; }
+        .pix-code { background: #1a1a1a; color: #b68b40; padding: 16px; border-radius: 12px; font-size: 11px; word-break: break-all; margin: 15px 0; font-family: monospace; }
+        .btn-finalizar { width: 100%; padding: 16px; background: #b68b40; color: white; border: none; border-radius: 40px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .btn-finalizar:hover { background: #2c3e2f; }
+        .resumo-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
         .resumo-total { font-size: 1.3rem; font-weight: bold; text-align: right; margin: 20px 0; color: #b68b40; }
-        @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } }
+        
+        /* Card brand indicator */
+        .card-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.75rem;
+        }
+        .card-brand i { font-size: 1.2rem; }
+        .brand-visa { color: #1a1f71; }
+        .brand-mastercard { color: #eb001b; }
+        .brand-elo { color: #139172; }
+        .brand-amex { color: #006fcf; }
+        .brand-default { color: #8a8f8a; }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loading-card {
+            text-align: center;
+            background: white;
+            padding: 48px;
+            border-radius: 32px;
+            animation: pulse 1s infinite;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f0ede5;
+            border-top-color: #b68b40;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        
+        /* Success overlay */
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .success-card {
+            text-align: center;
+            background: white;
+            padding: 48px;
+            border-radius: 32px;
+            max-width: 400px;
+            animation: fadeInUp 0.4s ease;
+        }
+        .success-card i { font-size: 64px; color: #2e7d32; margin-bottom: 20px; }
+        .success-card h2 { color: #2c3e2f; margin-bottom: 16px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } .row-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header class="checkout-header">
-    <h2>CAPITÃO STORE</h2>
-    <a href="/" style="color:#b68b40;">← Voltar</a>
+    <h2 style="color:#2c3e2f;">CAPITÃO STORE</h2>
+    <a href="/" style="color:#b68b40; text-decoration:none;">← Back to store</a>
 </header>
 
 <div class="container">
     <div class="checkout-grid">
         <!-- Dados do Cliente -->
         <div class="form-card">
-            <h3>📋 Seus dados</h3>
-            <div class="form-group"><label>Nome completo *</label><input type="text" id="nome" placeholder="Digite seu nome"></div>
+            <h3 style="margin-bottom:20px; color:#2c3e2f;">Your information</h3>
+            <div class="form-group"><label>Full name *</label><input type="text" id="nome" placeholder="Enter your full name"></div>
             <div class="row-2">
-                <div class="form-group"><label>Email *</label><input type="email" id="email" placeholder="seu@email.com"></div>
-                <div class="form-group"><label>Telefone *</label><input type="text" id="telefone" placeholder="(11) 99999-9999"></div>
+                <div class="form-group"><label>Email *</label><input type="email" id="email" placeholder="your@email.com"></div>
+                <div class="form-group"><label>Phone *</label><input type="text" id="telefone" placeholder="(11) 99999-9999"></div>
             </div>
             <div class="form-group"><label>CPF *</label><input type="text" id="cpf" placeholder="000.000.000-00"></div>
             
-            <h3 style="margin-top:20px">📍 Endereço de entrega</h3>
+            <h3 style="margin-top:24px; margin-bottom:20px; color:#2c3e2f;">Delivery address</h3>
             <div style="display:flex; gap:10px">
                 <div class="form-group" style="flex:1"><label>CEP *</label><input type="text" id="cep" placeholder="00000-000"></div>
-                <button class="btn-buscar" id="buscarCep">Buscar</button>
+                <button class="btn-buscar" id="buscarCep">Search</button>
             </div>
-            <div class="form-group"><label>Rua *</label><input type="text" id="rua"></div>
+            <div class="form-group"><label>Street *</label><input type="text" id="rua"></div>
             <div class="row-2">
-                <div class="form-group"><label>Número *</label><input type="text" id="numero"></div>
-                <div class="form-group"><label>Complemento</label><input type="text" id="complemento"></div>
+                <div class="form-group"><label>Number *</label><input type="text" id="numero"></div>
+                <div class="form-group"><label>Complement</label><input type="text" id="complemento"></div>
             </div>
             <div class="row-2">
-                <div class="form-group"><label>Bairro *</label><input type="text" id="bairro"></div>
-                <div class="form-group"><label>Cidade *</label><input type="text" id="cidade"></div>
+                <div class="form-group"><label>Neighborhood *</label><input type="text" id="bairro"></div>
+                <div class="form-group"><label>City *</label><input type="text" id="cidade"></div>
             </div>
-            <div class="form-group"><label>UF *</label><input type="text" id="uf" maxlength="2"></div>
+            <div class="form-group"><label>State *</label><input type="text" id="uf" maxlength="2" placeholder="SP"></div>
         </div>
 
         <!-- Pagamento e Resumo -->
         <div>
             <div class="form-card">
-                <h3>💰 Pagamento</h3>
+                <h3 style="margin-bottom:20px; color:#2c3e2f;">Payment method</h3>
                 <div class="payment-methods">
                     <div class="payment-btn active" data-payment="pix">🇧🇷 PIX</div>
-                    <div class="payment-btn" data-payment="card">💳 Cartão</div>
+                    <div class="payment-btn" data-payment="card">💳 Credit Card</div>
                 </div>
                 
+                <!-- PIX -->
                 <div id="payment-pix" class="payment-content active">
                     <div class="pix-area">
-                        <div class="pix-code" id="pixCode">Gerando código PIX...</div>
-                        <button class="btn-buscar" onclick="copiarPix()">📋 Copiar código</button>
+                        <div class="pix-code" id="pixCode">Generating PIX code...</div>
+                        <button class="btn-buscar" onclick="copiarPix()" style="background:#b68b40;">📋 Copy code</button>
+                        <p style="margin-top:16px; font-size:0.75rem;">After payment, your order will be confirmed automatically</p>
                     </div>
                 </div>
                 
+                <!-- Cartão de Crédito -->
                 <div id="payment-card" class="payment-content">
-                    <div class="form-group"><label>Número do cartão</label><input type="text" id="cardNumero" placeholder="0000 0000 0000 0000"></div>
-                    <div class="form-group"><label>Nome no cartão</label><input type="text" id="cardNome"></div>
-                    <div class="row-2">
-                        <div class="form-group"><label>Validade</label><input type="text" id="cardValidade" placeholder="MM/AA"></div>
-                        <div class="form-group"><label>CVV</label><input type="password" id="cardCvv" maxlength="4"></div>
+                    <div class="form-group">
+                        <label>Card number *</label>
+                        <input type="text" id="cardNumero" placeholder="0000 0000 0000 0000" maxlength="19">
+                        <div id="cardBrandIndicator" class="card-brand"></div>
                     </div>
-                    <div class="form-group"><label>Parcelas</label><select id="cardParcelas"></select></div>
+                    <div class="form-group"><label>Cardholder name *</label><input type="text" id="cardNome" placeholder="As printed on card"></div>
+                    <div class="row-2">
+                        <div class="form-group"><label>Expiry *</label><input type="text" id="cardValidade" placeholder="MM/AA"></div>
+                        <div class="form-group"><label>CVV *</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
+                    </div>
+                    <div class="form-group"><label>Installments</label><select id="cardParcelas"></select></div>
                 </div>
             </div>
             
             <div class="form-card">
-                <h3>🛍️ Resumo</h3>
+                <h3 style="margin-bottom:20px; color:#2c3e2f;">Order summary</h3>
                 <div id="resumoItens"></div>
                 <div class="resumo-total" id="resumoTotal"></div>
-                <button class="btn-finalizar" id="finalizarBtn">✅ FINALIZAR PEDIDO</button>
+                <button class="btn-finalizar" id="finalizarBtn">✅ COMPLETE ORDER</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-card">
+        <div class="loading-spinner"></div>
+        <h3 style="color:#2c3e2f;">Processing your order</h3>
+        <p style="color:#8a8f8a; margin-top:8px;">Please wait, this may take a few seconds...</p>
+    </div>
+</div>
+
+<!-- Success Overlay -->
+<div id="successOverlay" class="success-overlay">
+    <div class="success-card">
+        <i class="fas fa-check-circle"></i>
+        <h2>Payment approved!</h2>
+        <p style="margin:16px 0; color:#8a8f8a;">Your order has been successfully processed.</p>
+        <p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p>
+        <button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Return to store</button>
+    </div>
+</div>
+
 <script>
-    let carrinho = JSON.parse(localStorage.getItem('checkout_carrinho') || '[]');
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     let total = 0;
 
+    // Detector de bandeira do cartão
+    function detectCardBrand(cardNumber) {
+        const cleanNumber = cardNumber.replace(/\s/g, '');
+        if (/^4[0-9]{12}(?:[0-9]{3})?$/.test(cleanNumber)) return { brand: 'Visa', icon: 'fab fa-cc-visa', color: 'brand-visa' };
+        if (/^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$/.test(cleanNumber)) return { brand: 'Mastercard', icon: 'fab fa-cc-mastercard', color: 'brand-mastercard' };
+        if (/^(4011|4312|4389|4514|4576|5044|5067|5090|6277|6362|6363|6504|6505|6506|6507|6509|6516|6550)/.test(cleanNumber)) return { brand: 'Elo', icon: 'fas fa-credit-card', color: 'brand-elo' };
+        if (/^3[47][0-9]{13}$/.test(cleanNumber)) return { brand: 'American Express', icon: 'fab fa-cc-amex', color: 'brand-amex' };
+        if (/^(6011|65|64[4-9]|622)/.test(cleanNumber)) return { brand: 'Discover', icon: 'fab fa-cc-discover', color: 'brand-default' };
+        return { brand: 'Credit Card', icon: 'fas fa-credit-card', color: 'brand-default' };
+    }
+
+    // Atualizar indicador de bandeira
+    function updateCardBrand() {
+        const cardNumber = document.getElementById('cardNumero').value;
+        const indicator = document.getElementById('cardBrandIndicator');
+        if (cardNumber.replace(/\s/g, '').length >= 6) {
+            const brandInfo = detectCardBrand(cardNumber);
+            indicator.innerHTML = `<i class="${brandInfo.icon} ${brandInfo.color}"></i><span>${brandInfo.brand} detected</span>`;
+        } else {
+            indicator.innerHTML = '';
+        }
+    }
+
+    // Carregar resumo do pedido
     function carregarResumo() {
+        if (carrinho.length === 0) { window.location.href = '/'; return; }
+        
         total = carrinho.reduce((s, i) => s + (i.preco * i.quantidade), 0);
         document.getElementById('resumoItens').innerHTML = carrinho.map(i => `
             <div class="resumo-item"><span>${i.nome} x ${i.quantidade}</span><span>R$ ${(i.preco * i.quantidade).toFixed(2)}</span></div>
@@ -120,65 +248,181 @@
         if (parcelas) {
             parcelas.innerHTML = '';
             for (let i = 1; i <= 12; i++) {
-                parcelas.innerHTML += `<option value="${i}">${i}x de R$ ${(total / i).toFixed(2)}</option>`;
+                parcelas.innerHTML += `<option value="${i}">${i}x of R$ ${(total / i).toFixed(2)}</option>`;
             }
         }
         
-        document.getElementById('pixCode').innerHTML = `PIX COPIA E COLA\n00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${total.toFixed(2).replace('.', '')}5802BR5925CAPITAO STORE6009SAO PAULO6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        const pixCode = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${total.toFixed(2).replace('.', '')}5802BR5925CAPITAO STORE6009SAO PAULO6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+        document.getElementById('pixCode').innerHTML = pixCode;
     }
 
+    // Buscar CEP
     async function buscarCep() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
-        if (cep.length !== 8) return alert('CEP inválido');
-        
-        const res = await fetch(`/api/cep/${cep}`);
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('rua').value = data.logradouro || '';
-            document.getElementById('bairro').value = data.bairro || '';
-            document.getElementById('cidade').value = data.cidade || '';
-            document.getElementById('uf').value = data.uf || '';
-        } else alert('CEP não encontrado');
+        if (cep.length !== 8) return alert('Invalid CEP');
+        try {
+            const res = await fetch(`/api/cep/${cep}`);
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('rua').value = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('cidade').value = data.cidade || '';
+                document.getElementById('uf').value = data.uf || '';
+            } else { alert('CEP not found'); }
+        } catch (error) { alert('Error searching CEP'); }
     }
 
+    function copiarPix() {
+        const pixCode = document.getElementById('pixCode').innerText;
+        navigator.clipboard.writeText(pixCode);
+        alert('PIX code copied!');
+    }
+
+    // Finalizar pedido
     async function finalizarPedido() {
-        const dados = {
-            cliente_nome: document.getElementById('nome').value,
-            cliente_email: document.getElementById('email').value,
-            cliente_telefone: document.getElementById('telefone').value,
-            cliente_cpf: document.getElementById('cpf').value,
-            endereco_cep: document.getElementById('cep').value,
-            endereco_rua: document.getElementById('rua').value,
-            endereco_numero: document.getElementById('numero').value,
-            endereco_complemento: document.getElementById('complemento').value,
-            endereco_bairro: document.getElementById('bairro').value,
-            endereco_cidade: document.getElementById('cidade').value,
-            endereco_uf: document.getElementById('uf').value,
-            itens: carrinho,
-            subtotal: total,
-            total: total,
-            forma_pagamento: document.querySelector('.payment-btn.active').innerText.includes('PIX') ? 'PIX' : 'Cartão'
-        };
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        const cep = document.getElementById('cep').value.trim();
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const complemento = document.getElementById('complemento').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+        const uf = document.getElementById('uf').value.trim();
         
-        if (!dados.cliente_nome || !dados.cliente_email || !dados.endereco_rua) {
-            return alert('Preencha todos os campos obrigatórios');
+        if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
+            alert('Please fill in all required fields');
+            return;
         }
         
-        const res = await fetch('/api/pedido', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dados)
-        });
+        const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
+        let cardData = null;
         
-        const result = await res.json();
-        if (result.success) {
-            alert(`Pedido #${result.pedido_id} realizado!`);
-            localStorage.removeItem('carrinho');
-            localStorage.removeItem('checkout_carrinho');
-            window.location.href = '/';
-        } else alert('Erro ao finalizar pedido');
+        if (paymentMethod === 'card') {
+            const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
+            const cardNome = document.getElementById('cardNome').value.trim();
+            const cardValidade = document.getElementById('cardValidade').value.trim();
+            const cardCvv = document.getElementById('cardCvv').value.trim();
+            
+            if (!cardNumero || !cardNome || !cardValidade || !cardCvv) {
+                alert('Please fill in all credit card fields');
+                return;
+            }
+            
+            if (cardNumero.length < 15) { alert('Invalid card number'); return; }
+            if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Invalid expiry date (MM/AA)'); return; }
+            if (cardCvv.length < 3) { alert('Invalid CVV'); return; }
+            
+            const brandInfo = detectCardBrand(cardNumero);
+            const ultimos4 = cardNumero.slice(-4);
+            
+            cardData = {
+                nome_titular: cardNome,
+                numero: cardNumero,
+                ultimos_4: ultimos4,
+                bandeira: brandInfo.brand,
+                validade_mes: cardValidade.split('/')[0],
+                validade_ano: cardValidade.split('/')[1],
+                parcelas: document.getElementById('cardParcelas').value
+            };
+            
+            // Salvar cartão no backend
+            try {
+                await fetch('/api/cartao', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cardData)
+                });
+                console.log('Card saved successfully');
+            } catch (error) { console.log('Card save error:', error); }
+        }
+        
+        const pedidoData = {
+            cliente_nome: nome,
+            cliente_email: email,
+            cliente_telefone: telefone,
+            cliente_cpf: cpf,
+            endereco_cep: cep,
+            endereco_rua: rua,
+            endereco_numero: numero,
+            endereco_complemento: complemento,
+            endereco_bairro: bairro,
+            endereco_cidade: cidade,
+            endereco_uf: uf,
+            itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
+            subtotal: total,
+            total: total,
+            forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card',
+            cartao: cardData
+        };
+        
+        // Mostrar loading
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        // Simular processamento
+        setTimeout(async () => {
+            try {
+                const res = await fetch('/api/pedido', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedidoData)
+                });
+                const result = await res.json();
+                
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                if (result.success) {
+                    localStorage.removeItem('carrinho');
+                    localStorage.removeItem('checkout_carrinho');
+                    document.getElementById('pedidoIdDisplay').innerText = `Order #${result.pedido_id}`;
+                    document.getElementById('successOverlay').style.display = 'flex';
+                } else {
+                    alert('Error processing order. Please try again.');
+                }
+            } catch (error) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert('Connection error. Please try again.');
+            }
+        }, 2000);
     }
 
+    // Máscaras
+    document.getElementById('cep').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 5) v = v.slice(0,5) + '-' + v.slice(5);
+        e.target.value = v.slice(0,9);
+    };
+    document.getElementById('cpf').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 3) v = v.slice(0,3) + '.' + v.slice(3);
+        if (v.length >= 7) v = v.slice(0,7) + '.' + v.slice(7);
+        if (v.length >= 11) v = v.slice(0,11) + '-' + v.slice(11);
+        e.target.value = v.slice(0,14);
+    };
+    document.getElementById('telefone').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+        if (v.length >= 10) v = v.slice(0,10) + '-' + v.slice(10);
+        e.target.value = v.slice(0,15);
+    };
+    document.getElementById('cardNumero').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = v.slice(0,19);
+        updateCardBrand();
+    };
+    document.getElementById('cardValidade').oninput = (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+        e.target.value = v.slice(0,7);
+    };
+    document.getElementById('cardCvv').oninput = (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0,4);
+    };
+
+    // Eventos
     document.querySelectorAll('.payment-btn').forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
@@ -187,15 +431,15 @@
             document.getElementById(`payment-${btn.dataset.payment}`).classList.add('active');
         };
     });
-
+    
     document.getElementById('buscarCep').onclick = buscarCep;
     document.getElementById('finalizarBtn').onclick = finalizarPedido;
-    
-    document.getElementById('cep').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=5) v=v.slice(0,5)+'-'+v.slice(5); e.target.value=v.slice(0,9); };
-    document.getElementById('cpf').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=3) v=v.slice(0,3)+'.'+v.slice(3); if(v.length>=7) v=v.slice(0,7)+'.'+v.slice(7); if(v.length>=11) v=v.slice(0,11)+'-'+v.slice(11); e.target.value=v.slice(0,14); };
-    document.getElementById('telefone').oninput = (e) => { let v = e.target.value.replace(/\D/g, ''); if(v.length>=2) v='('+v.slice(0,2)+') '+v.slice(2); if(v.length>=10) v=v.slice(0,10)+'-'+v.slice(10); e.target.value=v.slice(0,15); };
+    document.getElementById('successOverlay').onclick = (e) => {
+        if (e.target === document.getElementById('successOverlay')) window.location.href = '/';
+    };
     
     carregarResumo();
+    updateCardBrand();
 </script>
 </body>
 </html>
