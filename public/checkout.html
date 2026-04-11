@@ -64,12 +64,11 @@
             background: linear-gradient(135deg, #f8f6f0, #f0ebe2);
             border-radius: 20px;
         }
-        .btn-gerar-pix {
-            background: #2c3e2f; color: white; border: none;
-            padding: 14px 28px; border-radius: 40px; font-weight: 600;
-            cursor: pointer; transition: 0.2s; margin-top: 10px;
+        .pix-placeholder {
+            background: #1a1a1a; color: #b68b40; padding: 30px;
+            border-radius: 16px; font-size: 1rem; margin: 20px 0;
+            font-family: monospace;
         }
-        .btn-gerar-pix:hover { background: #b68b40; transform: translateY(-2px); }
 
         .resumo-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
         .resumo-total { font-size: 1.4rem; font-weight: 700; text-align: right; margin: 20px 0; color: #b68b40; }
@@ -171,14 +170,9 @@
                 
                 <div id="payment-pix" class="payment-content active">
                     <div class="pix-area">
-                        <div id="pixStatusArea">
-                            <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                            <p>Preencha seus dados e clique no botão abaixo para gerar o PIX</p>
-                            <button class="btn-gerar-pix" id="gerarPixBtn">💰 GERAR PIX</button>
-                        </div>
-                        <div id="pixGeradoArea" style="display: none;">
-                            <i class="fas fa-check-circle" style="font-size: 2rem; color: #2e7d32; margin-bottom: 10px;"></i>
-                            <p>PIX gerado! Clique em "FINALIZAR PEDIDO" para concluir</p>
+                        <div class="pix-placeholder" id="pixPlaceholder">
+                            <i class="fas fa-qrcode" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            O código PIX será gerado após finalizar o pedido
                         </div>
                     </div>
                 </div>
@@ -222,14 +216,12 @@
 </div>
 
 <div id="loadingOverlay" class="loading-overlay"><div class="loading-card"><div class="loading-spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
-<div id="successOverlay" class="success-overlay"><div class="success-card"><i class="fas fa-check-circle"></i><h2>Pagamento aprovado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p><button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button></div></div>
+<div id="successOverlay" class="success-overlay"><div class="success-card"><i class="fas fa-check-circle"></i><h2>Pedido finalizado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p><button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button></div></div>
 
 <script>
     let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     let total = 0;
     let cepTimeout;
-    let pixGerado = false;
-    let pixCodeGerado = null;
 
     function detectCardBrand(cardNumber) {
         const clean = cardNumber.replace(/\s/g, '');
@@ -258,7 +250,6 @@
         if (parcelas) { parcelas.innerHTML = ''; for (let i = 1; i <= 12; i++) { parcelas.innerHTML += `<option value="${i}">${i}x de R$ ${(total / i).toFixed(2)}</option>`; } }
     }
 
-    // Busca CEP automática
     async function buscarCepAutomatico() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
         if (cep.length !== 8) return;
@@ -272,36 +263,6 @@
                 document.getElementById('uf').value = data.uf || '';
             }
         } catch (error) { console.log('Erro ao buscar CEP'); }
-    }
-
-    // Gerar PIX separadamente
-    async function gerarPix() {
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const cpf = document.getElementById('cpf').value.trim();
-        
-        if (!nome || !email || !cpf) {
-            alert('Preencha nome, email e CPF antes de gerar o PIX');
-            return;
-        }
-        
-        try {
-            const res = await fetch('/api/gerar-pix', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ total: total, pedido_id: 'temp' })
-            });
-            const data = await res.json();
-            if (data.success && data.payment) {
-                pixGerado = true;
-                pixCodeGerado = data.payment.pix_qr_code;
-                document.getElementById('pixStatusArea').style.display = 'none';
-                document.getElementById('pixGeradoArea').style.display = 'block';
-                alert('PIX gerado com sucesso! Agora finalize o pedido.');
-            }
-        } catch (error) {
-            alert('Erro ao gerar PIX. Tente novamente.');
-        }
     }
 
     function copiarPixCode() {
@@ -333,12 +294,6 @@
         }
         
         const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
-        
-        if (paymentMethod === 'pix' && !pixGerado) {
-            alert('Clique em "GERAR PIX" antes de finalizar o pedido');
-            return;
-        }
-        
         let cardData = null;
         
         if (paymentMethod === 'card') {
@@ -390,9 +345,9 @@
                 localStorage.removeItem('carrinho');
                 localStorage.removeItem('checkout_carrinho');
                 
-                if (paymentMethod === 'pix' && pixCodeGerado) {
+                if (paymentMethod === 'pix' && result.pix_code) {
                     document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
-                    document.getElementById('pixCodeText').innerText = pixCodeGerado;
+                    document.getElementById('pixCodeText').innerText = result.pix_code;
                     document.getElementById('pixModal').style.display = 'flex';
                 } else {
                     document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
@@ -452,7 +407,6 @@
         };
     });
     
-    document.getElementById('gerarPixBtn').onclick = gerarPix;
     document.getElementById('finalizarBtn').onclick = finalizarPedido;
     document.getElementById('successOverlay').onclick = (e) => { if (e.target === document.getElementById('successOverlay')) window.location.href = '/'; };
     
