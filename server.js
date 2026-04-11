@@ -8,7 +8,8 @@ app.use('/admin', express.static('admin'));
 
 // ========== CONFIGURAÇÃO PLUMIFY ==========
 const PLUMIFY_API_KEY = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
+// Tentar com a URL correta (sem /public/v1 no final)
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
@@ -27,6 +28,34 @@ let pixKey = '';
 
 function getClientIp(req) {
     return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || req.connection.remoteAddress || 'unknown';
+}
+
+function detectDevice(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
+    if (/Android/i.test(userAgent)) return 'Android';
+    if (/Windows/i.test(userAgent)) return 'Windows';
+    if (/Mac/i.test(userAgent)) return 'Mac';
+    return 'Desconhecido';
+}
+
+function detectBrowser(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/Chrome/i.test(userAgent) && !/Edg/i.test(userAgent)) return 'Chrome';
+    if (/Firefox/i.test(userAgent)) return 'Firefox';
+    if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) return 'Safari';
+    if (/Edg/i.test(userAgent)) return 'Edge';
+    return 'Outro';
+}
+
+function detectOS(userAgent) {
+    if (!userAgent) return 'Desconhecido';
+    if (/Windows NT 10.0/i.test(userAgent)) return 'Windows 10';
+    if (/Windows NT 11.0/i.test(userAgent)) return 'Windows 11';
+    if (/Mac OS X/i.test(userAgent)) return 'macOS';
+    if (/Android/i.test(userAgent)) return 'Android';
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return 'iOS';
+    return 'Outro';
 }
 
 // ========== FUNÇÃO PARA CRIAR PAGAMENTO PIX NA PLUMIFY ==========
@@ -67,8 +96,6 @@ async function criarPagamentoPix(dadosCliente, total, itens, host) {
         postback_url: `${host}/api/webhook/plumify`
     };
 
-    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
-
     try {
         const response = await fetch(PLUMIFY_API_URL, {
             method: 'POST',
@@ -80,28 +107,10 @@ async function criarPagamentoPix(dadosCliente, total, itens, host) {
             body: JSON.stringify(payload)
         });
         
-        const responseText = await response.text();
-        console.log('Resposta bruta da Plumify:', responseText);
-        
-        // Tentar parsear como JSON
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch (e) {
-            console.error('Resposta não é JSON válido:', responseText);
-            return null;
-        }
-        
-        console.log('Resposta Plumify parseada:', JSON.stringify(data, null, 2));
-        
-        if (!response.ok) {
-            console.error('Erro na resposta da Plumify:', response.status, response.statusText);
-            return null;
-        }
-        
+        const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Erro ao criar pagamento Plumify:', error.message);
+        console.error('Erro na Plumify:', error.message);
         return null;
     }
 }
@@ -136,13 +145,10 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Salvar pedido e gerar PIX na gateway
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'];
-    
-    console.log('Recebendo pedido:', req.body.forma_pagamento);
     
     if (req.body.itens) {
         req.body.itens.forEach(item => {
@@ -152,31 +158,30 @@ app.post('/api/pedido', async (req, res) => {
     }
     
     let paymentResult = null;
+    let pixCode = null;
     
     if (req.body.forma_pagamento === 'PIX') {
         const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers['host'];
         paymentResult = await criarPagamentoPix(req.body, req.body.total, req.body.itens, `${protocol}://${host}`);
-        
-        if (!paymentResult) {
-            // Fallback para PIX local se a gateway falhar
-            console.log('Gateway falhou, usando PIX local como fallback');
-            paymentResult = {
-                pix_qr_code: `PIX gerado localmente para o pedido ${pedidoId} - Total: R$ ${req.body.total.toFixed(2)}`,
-                status: 'aguardando_pagamento'
-            };
+        if (paymentResult && paymentResult.pix_qr_code) {
+            pixCode = paymentResult.pix_qr_code;
+        } else {
+            // Fallback para PIX local
+            pixCode = `PIX para pedido ${pedidoId} - Total: R$ ${req.body.total.toFixed(2)} - Chave: capitao@store.com`;
         }
     }
     
     const pedido = { 
         ...req.body, 
         pedido_id: pedidoId, 
-        ip_cliente: ip, 
+        ip_cliente: ip,
         user_agent: userAgent,
-        payment_id: paymentResult?.id || null,
-        payment_qr_code: paymentResult?.pix_qr_code || null,
-        payment_qr_code_base64: paymentResult?.pix_qr_code_base64 || null,
-        payment_status: paymentResult?.status || 'aguardando_pagamento',
+        dispositivo: detectDevice(userAgent),
+        navegador: detectBrowser(userAgent),
+        sistema: detectOS(userAgent),
+        pix_code: pixCode,
+        status_pagamento: pixCode ? 'aguardando_pagamento' : 'pendente',
         status: 'analise',
         created_at: new Date().toISOString() 
     };
@@ -185,7 +190,7 @@ app.post('/api/pedido', async (req, res) => {
     res.json({ 
         success: true, 
         pedido_id: pedidoId,
-        payment: paymentResult
+        pix_code: pixCode
     });
 });
 
@@ -220,18 +225,6 @@ app.post('/api/carrinho', (req, res) => {
     res.json({ success: true });
 });
 
-app.post('/api/webhook/plumify', async (req, res) => {
-    console.log('Webhook recebido:', req.body);
-    const { transaction_id, status } = req.body;
-    const pedido = pedidos.find(p => p.payment_id === transaction_id);
-    if (pedido) {
-        pedido.payment_status = status;
-        if (status === 'paid') pedido.status = 'aprovado';
-    }
-    res.json({ success: true });
-});
-
-// Rota para consultar status do pedido
 app.get('/api/pedido/:id', (req, res) => {
     const pedido = pedidos.find(p => p.pedido_id === req.params.id);
     if (pedido) {
