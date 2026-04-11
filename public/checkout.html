@@ -85,12 +85,17 @@
         .total-line { display: flex; justify-content: space-between; margin-bottom: 12px; }
         .total-grand { font-size: 1.3rem; font-weight: 700; color: #b68b40; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eae6de; }
 
-        .btn-finalizar {
-            width: 100%; padding: 16px; background: linear-gradient(135deg, #b68b40, #9a6e30);
-            color: white; border: none; border-radius: 40px; font-size: 1rem;
-            font-weight: 700; cursor: pointer; margin-top: 20px;
+        .btn-primary {
+            background: #b68b40; color: white; border: none;
+            padding: 14px 20px; border-radius: 40px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
         }
-        .btn-finalizar:hover { transform: translateY(-2px); }
+        .btn-primary:hover { background: #9a6e30; transform: translateY(-2px); }
+        .btn-secondary {
+            background: #f0ede5; color: #2c3e2f; border: none;
+            padding: 14px 20px; border-radius: 40px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+        }
 
         .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; }
         .btn-next, .btn-back { padding: 14px 28px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -114,6 +119,9 @@
         footer { background: #0f140f; color: #8a8f8a; text-align: center; padding: 32px; margin-top: 40px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        .pix-status { margin-top: 16px; padding: 12px; border-radius: 12px; font-size: 0.8rem; }
+        .pix-status.success { background: #e8f5e9; color: #2e7d32; }
+        .pix-status.error { background: #ffebee; color: #dc3545; }
     </style>
 </head>
 <body>
@@ -177,9 +185,19 @@
                     </div>
 
                     <div id="payment-pix" class="payment-content active">
-                        <div style="text-align:center; padding:20px; background:#f8f6f0; border-radius:16px;">
-                            <i class="fas fa-qrcode" style="font-size: 2rem; margin-bottom: 10px; display: block; color:#b68b40;"></i>
-                            Após finalizar o pedido, o código PIX será gerado
+                        <div style="text-align:center;">
+                            <div id="pixStatusArea">
+                                <div style="background:#f8f6f0; border-radius:16px; padding:30px; margin-bottom:16px;">
+                                    <i class="fas fa-qrcode" style="font-size: 3rem; margin-bottom: 10px; display: block; color:#b68b40;"></i>
+                                    <p>Clique no botão abaixo para gerar o código PIX</p>
+                                </div>
+                                <button class="btn-primary" id="gerarPixBtn" style="width:100%;">GERAR PIX</button>
+                            </div>
+                            <div id="pixGeradoArea" style="display:none;">
+                                <div class="pix-code" id="pixCodeDisplay"></div>
+                                <button class="btn-copiar" id="copiarPixBtn">Copiar código PIX</button>
+                                <div id="pixStatusMsg" class="pix-status success" style="margin-top:16px;">PIX gerado com sucesso! Aguardando pagamento.</div>
+                            </div>
                         </div>
                     </div>
 
@@ -199,7 +217,10 @@
                         <div class="form-row"><label>Parcelas</label><select id="cardParcelas"></select></div>
                     </div>
 
-                    <div class="nav-buttons"><button class="btn-back" onclick="backToAddress()">← Voltar</button><button class="btn-finalizar" id="finalizarBtn">FINALIZAR PEDIDO</button></div>
+                    <div class="nav-buttons">
+                        <button class="btn-back" onclick="backToAddress()">← Voltar</button>
+                        <button class="btn-next" id="finalizarPedidoBtn" style="display:none;">FINALIZAR PEDIDO</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -218,8 +239,8 @@
     </div>
 </div>
 
-<div id="loadingModal" class="modal-overlay"><div class="modal-content"><div class="spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
-<div id="pixModal" class="modal-overlay"><div class="modal-content"><i class="fas fa-qrcode"></i><h2>Pagamento PIX</h2><p>Copie o código abaixo e pague no seu banco</p><div class="pix-code" id="pixCode"></div><button class="btn-copiar" onclick="copiarPix()">Copiar código PIX</button><p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado</p><button class="btn-finalizar" onclick="window.location.href='/pedido.html?id=' + pedidoIdAtual" style="margin-top:20px;">Acompanhar pedido →</button></div></div>
+<div id="loadingModal" class="modal-overlay"><div class="modal-content"><div class="spinner"></div><h3>Processando</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
+<div id="successModal" class="modal-overlay"><div class="modal-content"><i class="fas fa-check-circle"></i><h2>Pedido realizado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoIdDisplay"></p><button class="btn-primary" onclick="window.location.href='/pedido.html?id=' + pedidoIdAtual" style="margin-top:20px;">Acompanhar pedido →</button></div></div>
 
 <footer><p>© 2025 CAPITAO STORE - Todos os direitos reservados.</p></footer>
 
@@ -228,6 +249,8 @@
     let total = 0;
     let cepTimeout;
     let pedidoIdAtual = '';
+    let pixGerado = false;
+    let pixCode = '';
 
     function carregarCarrinho() {
         carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
@@ -328,6 +351,67 @@
         document.getElementById('cardBrandIcon').innerHTML = brandIcon;
     }
 
+    // Gerar PIX separadamente
+    async function gerarPix() {
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        const cep = document.getElementById('cep').value.trim();
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+        const uf = document.getElementById('uf').value.trim();
+
+        if (!nome || !email || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
+            alert('Preencha todos os dados antes de gerar o PIX');
+            return;
+        }
+
+        document.getElementById('loadingModal').style.display = 'flex';
+
+        const clienteData = {
+            cliente_nome: nome,
+            cliente_email: email,
+            cliente_telefone: telefone,
+            cliente_cpf: cpf,
+            endereco_cep: cep,
+            endereco_rua: rua,
+            endereco_numero: numero,
+            endereco_complemento: document.getElementById('complemento').value,
+            endereco_bairro: bairro,
+            endereco_cidade: cidade,
+            endereco_uf: uf
+        };
+
+        try {
+            const res = await fetch('/api/gerar-pix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cliente: clienteData, total: total, itens: carrinho })
+            });
+            const result = await res.json();
+            document.getElementById('loadingModal').style.display = 'none';
+
+            if (result.success) {
+                pixGerado = true;
+                pixCode = result.pix_qr_code;
+                document.getElementById('pixCodeDisplay').innerText = pixCode;
+                document.getElementById('pixStatusArea').style.display = 'none';
+                document.getElementById('pixGeradoArea').style.display = 'block';
+                document.getElementById('finalizarPedidoBtn').style.display = 'block';
+                document.getElementById('finalizarPedidoBtn').innerText = 'FINALIZAR PEDIDO';
+            } else {
+                alert('Erro ao gerar PIX. Tente novamente.');
+            }
+        } catch (error) {
+            document.getElementById('loadingModal').style.display = 'none';
+            alert('Erro ao gerar PIX');
+        }
+    }
+
+    // Finalizar pedido (para cartão ou após PIX gerado)
     async function finalizarPedido() {
         const nome = document.getElementById('nome').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -362,6 +446,9 @@
                 validade_ano: cardValidade.split('/')[1],
                 parcelas: document.getElementById('cardParcelas').value
             };
+        } else if (paymentMethod === 'pix' && !pixGerado) {
+            alert('Clique em GERAR PIX antes de finalizar');
+            return;
         }
 
         const pedidoData = {
@@ -397,13 +484,8 @@
             if (result.success) {
                 localStorage.removeItem('carrinho');
                 pedidoIdAtual = result.pedido_id;
-
-                if (paymentMethod === 'pix' && result.pix_code) {
-                    document.getElementById('pixCode').innerText = result.pix_code;
-                    document.getElementById('pixModal').style.display = 'flex';
-                } else {
-                    window.location.href = `/pedido.html?id=${result.pedido_id}`;
-                }
+                document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
+                document.getElementById('successModal').style.display = 'flex';
             } else {
                 alert('Erro ao processar pedido');
             }
@@ -414,8 +496,7 @@
     }
 
     function copiarPix() {
-        const code = document.getElementById('pixCode').innerText;
-        navigator.clipboard.writeText(code);
+        navigator.clipboard.writeText(pixCode);
         alert('Código PIX copiado!');
     }
 
@@ -463,10 +544,23 @@
             document.querySelectorAll('.payment-content').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(`payment-${btn.dataset.payment}`).classList.add('active');
+            
+            // Reset PIX state when switching
+            if (btn.dataset.payment === 'pix') {
+                document.getElementById('finalizarPedidoBtn').style.display = 'none';
+                document.getElementById('pixStatusArea').style.display = 'block';
+                document.getElementById('pixGeradoArea').style.display = 'none';
+                pixGerado = false;
+            } else {
+                document.getElementById('finalizarPedidoBtn').style.display = 'block';
+                document.getElementById('finalizarPedidoBtn').innerHTML = 'FINALIZAR PEDIDO';
+            }
         };
     });
 
-    document.getElementById('finalizarBtn').onclick = finalizarPedido;
+    document.getElementById('gerarPixBtn').onclick = gerarPix;
+    document.getElementById('copiarPixBtn').onclick = copiarPix;
+    document.getElementById('finalizarPedidoBtn').onclick = finalizarPedido;
 
     carregarCarrinho();
     updateCardPreview();
