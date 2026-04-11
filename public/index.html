@@ -3,547 +3,750 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Console | Capitão Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <title>Capitão Store | Loja Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0a0c0a; color: #e5e5e5; overflow-x: hidden; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* Login Screen */
-        .login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0a0c0a 0%, #0f140f 100%);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        body {
+            font-family: 'Jost', sans-serif;
+            background: #fefcf5;
+            color: #1a1a1a;
+            overflow-x: hidden;
         }
-        .login-card {
-            background: rgba(18, 22, 18, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 32px; padding: 48px 44px;
-            width: 100%; max-width: 420px;
-            border: 1px solid rgba(46, 125, 50, 0.25);
-        }
-        .login-card h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 8px; }
-        .login-card p { color: #8a8f8a; font-size: 0.85rem; margin-bottom: 32px; }
-        .login-card input {
-            width: 100%; padding: 14px 18px; margin-bottom: 20px;
-            background: #0f140f; border: 1px solid #2a302a; border-radius: 16px;
-            color: #e5e5e5; font-size: 0.95rem;
-        }
-        .login-card input:focus { outline: none; border-color: #2e7d32; }
-        .login-btn {
-            width: 100%; padding: 14px; background: #2e7d32;
-            border: none; border-radius: 16px; color: white;
-            font-weight: 600; cursor: pointer;
-        }
-        .login-error { color: #ef5350; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
 
-        /* Admin Panel */
-        .admin-panel { display: none; }
-        .admin-container { max-width: 1440px; margin: 0 auto; padding: 24px 32px; }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #eae6de; }
+        ::-webkit-scrollbar-thumb { background: #b68b40; border-radius: 10px; }
+
+        /* Container */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+
+        /* Top Bar */
+        .top-bar {
+            background: #1e2a2e;
+            color: #e9c46a;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
 
         /* Header */
-        .admin-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 32px; padding-bottom: 20px;
-            border-bottom: 1px solid #1e241e;
-        }
-        .admin-header h1 { font-size: 1.5rem; font-weight: 600; }
-        .admin-header span { color: #2e7d32; }
-        .logout-btn {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            padding: 10px 24px; border-radius: 40px;
-            color: #ef5350; cursor: pointer;
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            background: white;
+            border-bottom: 1px solid #eae6de;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            gap: 20px; margin-bottom: 32px;
+        .logo h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2c3e2f;
+            font-family: 'Playfair Display', serif;
         }
-        .stat-card {
-            background: #111511; border: 1px solid #1e241e;
-            border-radius: 24px; padding: 24px;
-            transition: all 0.2s;
+        .logo span {
+            font-size: 0.7rem;
+            color: #b68b40;
+            display: block;
+            letter-spacing: 2px;
         }
-        .stat-card:hover { border-color: #2e7d32; transform: translateY(-2px); }
-        .stat-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
-        .stat-header i { font-size: 1.5rem; color: #2e7d32; opacity: 0.7; }
-        .stat-value { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
-        .stat-label { font-size: 0.8rem; color: #8a8f8a; }
-        .stat-trend { font-size: 0.7rem; margin-top: 12px; color: #4a6741; }
 
-        /* Tabs */
-        .tabs {
-            display: flex; gap: 12px; margin-bottom: 28px;
-            border-bottom: 1px solid #1e241e; padding-bottom: 12px;
-            flex-wrap: wrap;
+        .nav-links { display: flex; gap: 32px; }
+        .nav-links a {
+            text-decoration: none;
+            color: #2d3e2b;
+            font-weight: 500;
+            transition: 0.2s;
         }
-        .tab {
-            padding: 10px 24px; background: transparent; border: none;
-            color: #8a8f8a; font-weight: 500; cursor: pointer;
-            border-radius: 40px; transition: all 0.2s;
-        }
-        .tab:hover { color: #e5e5e5; }
-        .tab.active { background: #1a241a; color: #2e7d32; }
+        .nav-links a:hover { color: #b68b40; }
 
-        /* Cards */
-        .section-card {
-            background: #111511; border: 1px solid #1e241e;
-            border-radius: 24px; padding: 28px; margin-bottom: 28px;
+        .header-icons { display: flex; gap: 24px; align-items: center; }
+        .header-icons i {
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #2d3e2b;
+            transition: 0.2s;
+        }
+        .cart-icon { position: relative; cursor: pointer; }
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -12px;
+            background: #b68b40;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* Hero com Carrossel */
+        .hero-carousel {
+            position: relative;
+            height: 550px;
+            overflow: hidden;
+        }
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+        }
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .carousel-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+        }
+        .carousel-content {
+            position: absolute;
+            bottom: 80px;
+            left: 10%;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            max-width: 500px;
+        }
+        .carousel-content h2 {
+            font-size: 3rem;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 16px;
+        }
+        .carousel-content p { font-size: 1.1rem; margin-bottom: 24px; }
+        .carousel-btn {
+            background: #b68b40;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .carousel-btn:hover { background: #2c3e2f; }
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .dot.active { background: #b68b40; width: 24px; border-radius: 10px; }
+
+        /* Categorias */
+        .categories {
+            padding: 60px 0;
+            background: white;
+        }
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 24px;
+            text-align: center;
+        }
+        .category-item {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .category-item:hover { transform: translateY(-5px); }
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            background: #f5f0e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 2rem;
+            color: #b68b40;
+        }
+        .category-item span { font-weight: 500; color: #2c3e2f; }
+
+        /* Produtos */
+        .products-section {
+            padding: 60px 0;
+            background: #fefcf5;
         }
         .section-title {
-            font-size: 1.1rem; font-weight: 600; margin-bottom: 24px;
-            padding-bottom: 16px; border-bottom: 1px solid #1e241e;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .section-title h3 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #2c3e2f;
+            font-family: 'Playfair Display', serif;
+        }
+        .section-title p {
+            color: #8a8f8a;
+            margin-top: 8px;
         }
 
-        /* Formulário de produtos */
-        .form-row {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px; margin-bottom: 20px;
-        }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: #8a8f8a; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px; background: #0f140f;
-            border: 1px solid #2a302a; border-radius: 12px;
-            color: #e5e5e5; font-size: 0.85rem;
-        }
-        .form-group input:focus { outline: none; border-color: #2e7d32; }
-        .btn-primary {
-            background: #2e7d32; border: none; padding: 12px 24px;
-            border-radius: 40px; color: white; font-weight: 600; cursor: pointer;
-        }
-        .btn-danger {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            padding: 8px 16px; border-radius: 12px;
-            color: #ef5350; cursor: pointer;
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
         }
 
-        /* Tabelas */
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #1e241e; }
-        th { font-weight: 600; color: #8a8f8a; font-size: 0.75rem; }
-        td { font-size: 0.85rem; }
-        .badge {
-            display: inline-block; padding: 4px 12px; border-radius: 40px;
-            font-size: 0.7rem; font-weight: 500;
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            border: 1px solid #f0ede5;
+            cursor: pointer;
         }
-        .badge-success { background: rgba(46, 125, 50, 0.15); color: #4caf50; border: 1px solid rgba(46, 125, 50, 0.3); }
-        .badge-warning { background: rgba(255, 152, 0, 0.15); color: #ff9800; border: 1px solid rgba(255, 152, 0, 0.3); }
-        .toggle-card-btn {
-            background: #1e241e; border: none; padding: 6px 12px;
-            border-radius: 12px; color: #8a8f8a; cursor: pointer;
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+            border-color: #e2d9cc;
         }
-        .footer {
-            text-align: center; padding: 24px; color: #4a4f4a;
-            font-size: 0.7rem; border-top: 1px solid #1e241e; margin-top: 32px;
+        .product-img {
+            height: 280px;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.4s;
+        }
+        .product-card:hover .product-img { transform: scale(1.03); }
+        .product-info { padding: 20px; }
+        .product-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #2c3e2f;
+        }
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #b68b40;
+            margin: 10px 0;
+        }
+        .old-price {
+            font-size: 0.85rem;
+            color: #9b9b8a;
+            text-decoration: line-through;
+            margin-right: 8px;
+            font-weight: 400;
+        }
+        .btn-add {
+            background: #2c3e2f;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-add:hover { background: #b68b40; }
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #1e2a2e, #2c3e2f);
+            padding: 60px 32px;
+            text-align: center;
+            color: white;
+        }
+        .newsletter h3 { font-size: 1.8rem; font-family: 'Playfair Display', serif; margin-bottom: 16px; }
+        .newsletter p { margin-bottom: 24px; opacity: 0.8; }
+        .newsletter-form { display: flex; justify-content: center; gap: 12px; max-width: 500px; margin: 0 auto; }
+        .newsletter-form input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+        }
+        .newsletter-form button {
+            background: #b68b40;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
         }
 
-        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .admin-container { padding: 16px; } }
-        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
+        /* Footer */
+        footer {
+            background: #0f140f;
+            color: #8a8f8a;
+            padding: 48px 32px 24px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer-col h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .footer-col p { margin-bottom: 12px; font-size: 0.85rem; }
+        .footer-col i { margin-right: 8px; color: #b68b40; }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 40px;
+            border-top: 1px solid #1e241e;
+            font-size: 0.75rem;
+        }
+
+        /* Carrinho Lateral */
+        .side-cart {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            transition: 0.3s;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.1);
+        }
+        .side-cart.open { right: 0; }
+        .cart-header {
+            padding: 24px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-header h3 { font-size: 1.3rem; color: #2c3e2f; }
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        .cart-items { padding: 20px; max-height: 60%; overflow-y: auto; }
+        .cart-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0ebe2;
+        }
+        .cart-item-img {
+            width: 70px;
+            height: 70px;
+            background-size: cover;
+            border-radius: 12px;
+        }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; color: #2c3e2f; }
+        .cart-item-price { color: #b68b40; font-weight: 500; }
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .qty-btn {
+            background: #f0ede5;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .cart-footer {
+            padding: 24px;
+            border-top: 1px solid #eee;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+        }
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .btn-checkout {
+            background: #b68b40;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .cart-overlay.active { display: block; }
+
+        @media (max-width: 1024px) {
+            .categories-grid { grid-template-columns: repeat(3, 1fr); }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-carousel { height: 400px; }
+            .carousel-content h2 { font-size: 1.8rem; }
+            .categories-grid { grid-template-columns: repeat(2, 1fr); }
+            .side-cart { width: 100%; right: -100%; }
+        }
     </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="loginScreen" class="login-overlay">
-    <div class="login-card">
-        <h2>Access Console</h2>
-        <p>Administrative area - Restricted access</p>
-        <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
-        <input type="password" id="loginPass" placeholder="Password">
-        <button class="login-btn" onclick="fazerLogin()">Authenticate →</button>
-        <div id="loginError" class="login-error">Invalid credentials. Access denied.</div>
-    </div>
+<div class="top-bar">
+    🇧🇷 FREIGHT FREE FOR PURCHASES OVER R$250 | OFFICIAL STORE
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel" class="admin-panel">
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>CAPITAO STORE <span>// ADMIN CONSOLE</span></h1>
-            <button class="logout-btn" onclick="logout()">Exit</button>
+<header class="main-header">
+    <div class="logo">
+        <h1>CAPITÃO STORE</h1>
+        <span>OFFICIAL • PATRIOTIC VALUES</span>
+    </div>
+    <div class="nav-links">
+        <a href="#">HOME</a>
+        <a href="#">T-SHIRTS</a>
+        <a href="#">HATS</a>
+        <a href="#">MUGS</a>
+        <a href="#">ACCESSORIES</a>
+    </div>
+    <div class="header-icons">
+        <i class="far fa-user"></i>
+        <i class="far fa-heart"></i>
+        <div class="cart-icon" id="cartIcon">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-count" id="cartCount">0</span>
         </div>
+    </div>
+</header>
 
-        <!-- Stats Dashboard -->
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="stat-header"><i class="fas fa-users"></i></div><div class="stat-value" id="statOnline">0</div><div class="stat-label">Active visitors</div></div>
-            <div class="stat-card"><div class="stat-header"><i class="fas fa-shopping-cart"></i></div><div class="stat-value" id="statCarts">0</div><div class="stat-label">Abandoned carts</div></div>
-            <div class="stat-card"><div class="stat-header"><i class="fas fa-credit-card"></i></div><div class="stat-value" id="statCards">0</div><div class="stat-label">Saved cards</div></div>
-            <div class="stat-card"><div class="stat-header"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="statRevenue">R$ 0</div><div class="stat-label">Total revenue</div></div>
-            <div class="stat-card"><div class="stat-header"><i class="fas fa-box"></i></div><div class="stat-value" id="statProducts">0</div><div class="stat-label">Products</div></div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" onclick="openTab('products')">PRODUCTS</button>
-            <button class="tab" onclick="openTab('orders')">ORDERS</button>
-            <button class="tab" onclick="openTab('cards')">CARDS</button>
-            <button class="tab" onclick="openTab('visitors')">VISITORS</button>
-            <button class="tab" onclick="openTab('abandoned')">ABANDONED</button>
-            <button class="tab" onclick="openTab('pix')">PIX</button>
-        </div>
-
-        <!-- Tab: Products (com CRUD) -->
-        <div id="tabProducts" class="tab-content active">
-            <div class="section-card">
-                <div class="section-title">Add new product</div>
-                <div class="form-row">
-                    <div class="form-group"><label>Product name</label><input type="text" id="prodNome" placeholder="Ex: Camiseta"></div>
-                    <div class="form-group"><label>Price (R$)</label><input type="number" step="0.01" id="prodPreco" placeholder="89.90"></div>
-                    <div class="form-group"><label>Old price</label><input type="number" step="0.01" id="prodPrecoAntigo" placeholder="129.90"></div>
-                    <div class="form-group"><label>Category</label><input type="text" id="prodCategoria" placeholder="Camisetas"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Stock</label><input type="number" id="prodEstoque" placeholder="50"></div>
-                    <div class="form-group"><label>Image URL</label><input type="text" id="prodImagem" placeholder="https://..."></div>
-                    <div class="form-group"><label>Featured</label><select id="prodDestaque"><option value="true">Yes</option><option value="false">No</option></select></div>
-                    <div class="form-group"><button class="btn-primary" onclick="salvarProduto()" style="margin-top: 24px;">Save product</button></div>
-                </div>
-            </div>
-            <div class="section-card">
-                <div class="section-title">All products</div>
-                <div class="table-wrapper">
-                    <table id="productsTable">
-                        <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="productsBody"><tr><td colspan="7">Loading...</td></tr></tbody>
-                    </table>
-                </div>
+<!-- Carrossel Hero -->
+<div class="hero-carousel">
+    <div class="carousel-slides" id="carouselSlides">
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=1600');">
+            <div class="carousel-content">
+                <h2>Patriotic Collection</h2>
+                <p>Wear the colors of Brazil with pride and style</p>
+                <button class="carousel-btn">SHOP NOW →</button>
             </div>
         </div>
-
-        <!-- Tab: Orders -->
-        <div id="tabOrders" class="tab-content">
-            <div class="section-card"><div class="section-title">Recent orders</div><div class="table-wrapper"><table><thead><tr><th>Order ID</th><th>Customer</th><th>CPF</th><th>Address</th><th>Total</th><th>Date</th></tr></thead><tbody id="ordersBody"><tr><td colspan="6">Loading...</td></tr></tbody></table></div></div>
-        </div>
-
-        <!-- Tab: Cards -->
-        <div id="tabCards" class="tab-content">
-            <div class="section-card"><div class="section-title">Saved cards - Encrypted storage</div><div class="table-wrapper"><table><thead><tr><th>Customer</th><th>Card number</th><th>Brand</th><th>Expiry</th><th>Action</th></tr></thead><tbody id="cardsBody"><tr><td colspan="5">No cards registered</td></tr></tbody></table></div></div>
-        </div>
-
-        <!-- Tab: Visitors -->
-        <div id="tabVisitors" class="tab-content">
-            <div class="section-card"><div class="section-title">Active visitors tracking</div><div class="table-wrapper"><table><thead><tr><th>Visitor ID</th><th>IP</th><th>Stage</th><th>Pages</th><th>Last activity</th></tr></thead><tbody id="visitorsBody"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></div>
-        </div>
-
-        <!-- Tab: Abandoned Carts -->
-        <div id="tabAbandoned" class="tab-content">
-            <div class="section-card"><div class="section-title">Abandoned carts recovery</div><div class="table-wrapper"><table><thead><tr><th>Visitor</th><th>Items</th><th>Total</th><th>Last update</th><th>Action</th></tr></thead><tbody id="abandonedBody"><tr><td colspan="5">No abandoned carts</td></tr></tbody></table></div></div>
-        </div>
-
-        <!-- Tab: PIX Config -->
-        <div id="tabPix" class="tab-content">
-            <div class="section-card">
-                <div class="section-title">PIX payment configuration</div>
-                <div class="pix-area">
-                    <div class="pix-code" id="pixCodeDisplay">Configure your PIX key below</div>
-                    <div style="display: flex; gap: 12px; margin-top: 20px;">
-                        <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)" style="flex:1; background:#0f140f; border:1px solid #2a302a; border-radius:12px; padding:12px; color:white;">
-                        <button class="btn-primary" onclick="savePixKey()">Save PIX key</button>
-                    </div>
-                </div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1600');">
+            <div class="carousel-content">
+                <h2>Limited Edition</h2>
+                <p>Exclusive products for true patriots</p>
+                <button class="carousel-btn">DISCOVER →</button>
             </div>
         </div>
+        <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=1600');">
+            <div class="carousel-content">
+                <h2>Free Shipping</h2>
+                <p>On orders over R$250 throughout Brazil</p>
+                <button class="carousel-btn">LEARN MORE →</button>
+            </div>
+        </div>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+</div>
 
-        <div class="footer">CAPITAO STORE ADMIN CONSOLE // SECURE SYSTEM V1.0</div>
+<!-- Categorias -->
+<section class="categories">
+    <div class="container">
+        <div class="categories-grid">
+            <div class="category-item"><div class="category-icon"><i class="fas fa-tshirt"></i></div><span>T-Shirts</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-hat-cowboy"></i></div><span>Hats</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-mug-hot"></i></div><span>Mugs</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-user-tie"></i></div><span>Accessories</span></div>
+            <div class="category-item"><div class="category-icon"><i class="fas fa-flag-checkered"></i></div><span>Flags</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Produtos -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-title">
+            <h3>Featured Products</h3>
+            <p>Discover our exclusive collection of patriotic products</p>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter">
+    <h3>Subscribe to our newsletter</h3>
+    <p>Receive exclusive offers and news about new products</p>
+    <div class="newsletter-form">
+        <input type="email" placeholder="Your email">
+        <button>SUBSCRIBE</button>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>CAPITÃO STORE</h4>
+            <p><i class="fas fa-map-marker-alt"></i> Brasília, Brazil</p>
+            <p><i class="fas fa-phone"></i> +55 (61) 9999-9999</p>
+            <p><i class="fas fa-envelope"></i> contato@capitaostore.com</p>
+        </div>
+        <div class="footer-col">
+            <h4>Information</h4>
+            <p>About Us</p>
+            <p>Terms of Use</p>
+            <p>Privacy Policy</p>
+            <p>Exchanges and Returns</p>
+        </div>
+        <div class="footer-col">
+            <h4>Help</h4>
+            <p>FAQ</p>
+            <p>Shipping Tracking</p>
+            <p>Payment Methods</p>
+            <p>Customer Service</p>
+        </div>
+        <div class="footer-col">
+            <h4>Follow Us</h4>
+            <p><i class="fab fa-instagram"></i> Instagram</p>
+            <p><i class="fab fa-facebook"></i> Facebook</p>
+            <p><i class="fab fa-twitter"></i> Twitter</p>
+            <p><i class="fab fa-youtube"></i> YouTube</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 CAPITÃO STORE - All rights reserved. Brazil above all, God above all.</p>
+    </div>
+</footer>
+
+<!-- Carrinho Lateral -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="side-cart" id="sideCart">
+    <div class="cart-header">
+        <h3>Your Cart</h3>
+        <button class="close-cart" id="closeCartBtn">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+        <div class="cart-total">Total: <span id="cartTotal">R$ 0,00</span></div>
+        <button class="btn-checkout" id="checkoutBtn">CHECKOUT →</button>
     </div>
 </div>
 
 <script>
-    let adminToken = null;
-    let cardVisibility = {};
+    // ========== 20 PRODUTOS COMPLETOS ==========
+    const produtos = [
+        { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas" },
+        { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONE+PRETO", categoria: "Bonés" },
+        { id: 3, nome: "Caneca Ordem e Progresso", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff4e6/8b6b3d?text=CANECA", categoria: "Canecas" },
+        { id: 4, nome: "Moletom Canguru Premium", preco: 179.90, preco_antigo: 249.90, imagem: "https://placehold.co/600x800/e9e0d3/8b6b3d?text=MOLETOM", categoria: "Moletons" },
+        { id: 5, nome: "Regata Dry Fit Brasil", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/f2ede2/8b6b3d?text=REGATA", categoria: "Regatas" },
+        { id: 6, nome: "Camiseta Deus Acima de Todos", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/fcf7ef/8b6b3d?text=CAMISETA+BRANCA", categoria: "Camisetas" },
+        { id: 7, nome: "Bandeira do Brasil 1,5m", preco: 79.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BANDEIRA", categoria: "Bandeiras" },
+        { id: 8, nome: "Adesivo Kit 10 unid", preco: 29.90, preco_antigo: 49.90, imagem: "https://placehold.co/600x800/f5efe5/8b6b3d?text=ADESIVO", categoria: "Adesivos" },
+        { id: 9, nome: "Chaveiro Personalizado", preco: 19.90, preco_antigo: 29.90, imagem: "https://placehold.co/600x800/fff0e0/8b6b3d?text=CHAVEIRO", categoria: "Acessórios" },
+        { id: 10, nome: "Camiseta Força Verde", preco: 89.90, preco_antigo: 119.90, imagem: "https://placehold.co/600x800/eaefe5/8b6b3d?text=FORCA+VERDE", categoria: "Camisetas" },
+        { id: 11, nome: "Boné Tático Militar", preco: 69.90, preco_antigo: 99.90, imagem: "https://placehold.co/600x800/ddd5c5/8b6b3d?text=BONE+TATICO", categoria: "Bonés" },
+        { id: 12, nome: "Caneca Selo Nacional", preco: 49.90, preco_antigo: 69.90, imagem: "https://placehold.co/600x800/f8f0e0/8b6b3d?text=CANECA+SELO", categoria: "Canecas" },
+        { id: 13, nome: "Moletom Brasil Flag", preco: 199.90, preco_antigo: 279.90, imagem: "https://placehold.co/600x800/e5dccd/8b6b3d?text=MOLETOM+BANDEIRA", categoria: "Moletons" },
+        { id: 14, nome: "Regata Camuflada", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/f2ece0/8b6b3d?text=REGATA+CAMUFLADA", categoria: "Regatas" },
+        { id: 15, nome: "Camiseta Exército BR", preco: 79.90, preco_antigo: 109.90, imagem: "https://placehold.co/600x800/f5ede0/8b6b3d?text=EXERCITO+BR", categoria: "Camisetas" },
+        { id: 16, nome: "Boné Preto Dourado", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e8e0d0/8b6b3d?text=BONE+DOURADO", categoria: "Bonés" },
+        { id: 17, nome: "Caneca Patriota", preco: 39.90, preco_antigo: 59.90, imagem: "https://placehold.co/600x800/fff5e8/8b6b3d?text=CANECA+PATRIOTA", categoria: "Canecas" },
+        { id: 18, nome: "Kit 3 Adesivos", preco: 19.90, preco_antigo: 39.90, imagem: "https://placehold.co/600x800/faf2e5/8b6b3d?text=KIT+ADESIVOS", categoria: "Adesivos" },
+        { id: 19, nome: "Pulseira Patriotismo", preco: 14.90, preco_antigo: 24.90, imagem: "https://placehold.co/600x800/f0e8d8/8b6b3d?text=PULSEIRA", categoria: "Acessórios" },
+        { id: 20, nome: "Camiseta Eu Apoio", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f8efe0/8b6b3d?text=EU+APOIO", categoria: "Camisetas" }
+    ];
 
-    // ========== LOGIN ==========
-    async function fazerLogin() {
-        const username = document.getElementById('loginUser').value;
-        const password = document.getElementById('loginPass').value;
-        try {
-            const res = await fetch('/api/admin/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (data.success) {
-                adminToken = data.token;
-                sessionStorage.setItem('adminToken', adminToken);
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                loadAllData();
-                startRealtimeUpdates();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-                setTimeout(() => { document.getElementById('loginError').style.display = 'none'; }, 3000);
-            }
-        } catch (error) {
-            document.getElementById('loginError').style.display = 'block';
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+    // Renderizar produtos
+    function renderizarProdutos() {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = produtos.map(p => `
+            <div class="product-card">
+                <div class="product-img" style="background-image: url('${p.imagem}')"></div>
+                <div class="product-info">
+                    <div class="product-title">${p.nome}</div>
+                    <div class="product-price">
+                        ${p.preco_antigo ? `<span class="old-price">R$ ${p.preco_antigo.toFixed(2)}</span>` : ''}
+                        R$ ${p.preco.toFixed(2)}
+                    </div>
+                    <button class="btn-add" onclick="adicionarAoCarrinho(${p.id})">
+                        <i class="fas fa-shopping-bag"></i> ADD TO CART
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Funções do carrinho
+    function adicionarAoCarrinho(id) {
+        const produto = produtos.find(p => p.id === id);
+        const existente = carrinho.find(item => item.id === id);
+        if (existente) {
+            existente.quantidade++;
+        } else {
+            carrinho.push({ ...produto, quantidade: 1 });
         }
+        salvarCarrinho();
+        abrirCarrinho();
     }
 
-    function logout() {
-        sessionStorage.removeItem('adminToken');
-        adminToken = null;
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
+    function salvarCarrinho() {
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        atualizarCarrinhoUI();
     }
 
-    if (sessionStorage.getItem('adminToken')) {
-        adminToken = sessionStorage.getItem('adminToken');
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        loadAllData();
-        startRealtimeUpdates();
-    }
-
-    // ========== TABS ==========
-    function openTab(tabName) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
-    }
-
-    // ========== CRUD PRODUTOS ==========
-    async function loadProducts() {
-        try {
-            const res = await fetch('/api/admin/produtos', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const data = await res.json();
-            if (data.success) {
-                const tbody = document.getElementById('productsBody');
-                if (data.produtos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7">No products registered</td></tr>';
-                } else {
-                    tbody.innerHTML = data.produtos.map(p => `
-                        <tr>
-                            <td>${p.id}</td>
-                            <td>${p.nome}</td>
-                            <td>R$ ${p.preco.toFixed(2)}</td>
-                            <td>${p.categoria || '-'}</td>
-                            <td>${p.estoque || 0}</td>
-                            <td><span class="badge ${p.ativo ? 'badge-success' : 'badge-warning'}">${p.ativo ? 'Active' : 'Inactive'}</span></td>
-                            <td>
-                                <button class="btn-danger" style="margin-right:8px;" onclick="deleteProduct(${p.id})">Delete</button>
-                                <button class="toggle-card-btn" onclick="toggleProductStatus(${p.id}, ${!p.ativo})">${p.ativo ? 'Disable' : 'Enable'}</button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-                document.getElementById('statProducts').innerText = data.produtos.filter(p => p.ativo).length;
-            }
-        } catch (error) {
-            console.error('Error loading products:', error);
-        }
-    }
-
-    async function salvarProduto() {
-        const produto = {
-            nome: document.getElementById('prodNome').value,
-            preco: parseFloat(document.getElementById('prodPreco').value),
-            preco_antigo: parseFloat(document.getElementById('prodPrecoAntigo').value) || null,
-            categoria: document.getElementById('prodCategoria').value,
-            estoque: parseInt(document.getElementById('prodEstoque').value) || 0,
-            imagem: document.getElementById('prodImagem').value,
-            destaque: document.getElementById('prodDestaque').value === 'true'
-        };
-        if (!produto.nome || isNaN(produto.preco)) {
-            alert('Please fill in the product name and price');
+    function atualizarCarrinhoUI() {
+        const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
+        document.getElementById('cartCount').innerText = totalItens;
+        
+        const container = document.getElementById('cartItems');
+        if (carrinho.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Your cart is empty</p>';
+            document.getElementById('cartTotal').innerText = 'R$ 0,00';
             return;
         }
-        try {
-            const res = await fetch('/api/admin/produtos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify(produto)
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Product added successfully');
-                document.getElementById('prodNome').value = '';
-                document.getElementById('prodPreco').value = '';
-                document.getElementById('prodPrecoAntigo').value = '';
-                document.getElementById('prodCategoria').value = '';
-                document.getElementById('prodEstoque').value = '';
-                document.getElementById('prodImagem').value = '';
-                loadProducts();
-                loadStats();
-            } else {
-                alert('Error adding product');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error adding product');
+        
+        let total = 0;
+        container.innerHTML = carrinho.map((item, idx) => {
+            total += item.preco * item.quantidade;
+            return `
+                <div class="cart-item">
+                    <div class="cart-item-img" style="background-image: url('${item.imagem}')"></div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">${item.nome}</div>
+                        <div class="cart-item-price">R$ ${item.preco.toFixed(2)}</div>
+                        <div class="cart-item-quantity">
+                            <button class="qty-btn" onclick="alterarQuantidade(${idx}, -1)">-</button>
+                            <span>${item.quantidade}</span>
+                            <button class="qty-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('cartTotal').innerText = `R$ ${total.toFixed(2)}`;
+    }
+
+    function alterarQuantidade(idx, delta) {
+        carrinho[idx].quantidade += delta;
+        if (carrinho[idx].quantidade <= 0) {
+            carrinho.splice(idx, 1);
         }
+        salvarCarrinho();
     }
 
-    async function deleteProduct(id) {
-        if (confirm('Delete this product permanently?')) {
-            try {
-                const res = await fetch(`/api/admin/produtos/${id}/permanent`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('Product deleted');
-                    loadProducts();
-                    loadStats();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+    // Carrinho lateral
+    function abrirCarrinho() {
+        document.getElementById('sideCart').classList.add('open');
+        document.getElementById('cartOverlay').classList.add('active');
+    }
+    function fecharCarrinho() {
+        document.getElementById('sideCart').classList.remove('open');
+        document.getElementById('cartOverlay').classList.remove('active');
     }
 
-    async function toggleProductStatus(id, activate) {
-        try {
-            const res = await fetch(`/api/admin/produtos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify({ ativo: activate })
-            });
-            const data = await res.json();
-            if (data.success) {
-                loadProducts();
-                loadStats();
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    // Carrossel
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dotsContainer = document.getElementById('carouselDots');
+    
+    function criarDots() {
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => irParaSlide(i);
+            dotsContainer.appendChild(dot);
+        });
     }
-
-    // ========== OUTRAS FUNÇÕES ==========
-    async function loadOrders() {
-        try {
-            const res = await fetch('/api/admin/pedidos', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success) {
-                const tbody = document.getElementById('ordersBody');
-                if (data.pedidos.length === 0) tbody.innerHTML = '<td><td colspan="6">No orders found</td></tr>';
-                else {
-                    tbody.innerHTML = data.pedidos.map(p => `
-                        <tr><td>${p.pedido_id || p.id}</td><td>${p.cliente_nome || '-'}</td>
-                        <td>${p.cliente_cpf || '-'}</td><td>${p.endereco_rua || ''}, ${p.endereco_numero || ''}</td>
-                        <td>R$ ${parseFloat(p.total).toFixed(2)}</td><td>${new Date(p.created_at).toLocaleString()}</td></tr>
-                    `).join('');
-                }
-            }
-        } catch (error) { console.error('Error:', error); }
+    
+    function irParaSlide(index) {
+        currentSlide = index;
+        const offset = -index * 100;
+        document.querySelector('.carousel-slides').style.transform = `translateX(${offset}%)`;
+        document.querySelectorAll('.dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
     }
-
-    async function loadCards() {
-        try {
-            const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success) {
-                const tbody = document.getElementById('cardsBody');
-                if (data.cartoes.length === 0) tbody.innerHTML = '<td><td colspan="5">No cards registered</td></tr>';
-                else {
-                    tbody.innerHTML = data.cartoes.map(c => {
-                        const isVisible = cardVisibility[c.id] || false;
-                        return `<tr><td>${c.nome_titular || 'Unknown'}</td>
-                            <td class="${isVisible ? 'card-number-visible' : 'card-number-hidden'}">•••• •••• •••• ${c.ultimos_4}</td>
-                            <td>${c.bandeira || 'N/A'}</td><td>${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
-                            <td><button class="toggle-card-btn" onclick="toggleCard(${c.id})">${isVisible ? 'Hide' : 'Show'}</button></td></tr>`;
-                    }).join('');
-                }
-            }
-        } catch (error) { console.error('Error:', error); }
+    
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        irParaSlide(currentSlide);
     }
-
-    async function loadVisitors() {
-        try {
-            const res = await fetch('/api/admin/visitantes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success) {
-                const tbody = document.getElementById('visitorsBody');
-                if (data.visitantes.length === 0) tbody.innerHTML = '<td><td colspan="5">No visitors</td></tr>';
-                else {
-                    tbody.innerHTML = data.visitantes.map(v => `
-                        <tr><td>${v.visitor_id?.substring(0, 20) || '-'}</td><td>${v.ip || '-'}</td>
-                        <td><span class="badge badge-warning">${v.etapa || 'visitor'}</span></td>
-                        <td>${v.page_views || 0}</td><td>${v.ultima_atividade ? new Date(v.ultima_atividade).toLocaleString() : '-'}</td></tr>
-                    `).join('');
-                }
-            }
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    async function loadAbandonedCarts() {
-        try {
-            const res = await fetch('/api/admin/carrinhos-abandonados', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success) {
-                const tbody = document.getElementById('abandonedBody');
-                if (data.carrinhos.length === 0) tbody.innerHTML = '<tr><td colspan="5">No abandoned carts</td></tr>';
-                else {
-                    tbody.innerHTML = data.carrinhos.map(c => `
-                        <tr><td>${c.visitor_id?.substring(0, 20) || '-'}</td><td>${c.total_itens || 0} items</td>
-                        <td>R$ ${parseFloat(c.total).toFixed(2)}</td><td>${new Date(c.updated_at).toLocaleString()}</td>
-                        <td><button class="toggle-card-btn" onclick="recoverCart('${c.visitor_id}')">Recover</button></td></tr>
-                    `).join('');
-                }
-            }
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    async function loadStats() {
-        try {
-            const res = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('statOnline').innerText = data.stats.online || 0;
-                document.getElementById('statCarts').innerText = data.stats.abandoned_carts || 0;
-                document.getElementById('statCards').innerText = data.stats.total_cards || 0;
-                document.getElementById('statRevenue').innerHTML = `R$ ${(data.stats.revenue || 0).toFixed(2)}`;
-            }
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    async function loadPixConfig() {
-        try {
-            const res = await fetch('/api/admin/pix', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success && data.pix_key) {
-                document.getElementById('pixKey').value = data.pix_key;
-                document.getElementById('pixCodeDisplay').innerHTML = `Current PIX key: ${data.pix_key}`;
-            }
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    async function savePixKey() {
-        const pixKey = document.getElementById('pixKey').value;
-        try {
-            const res = await fetch('/api/admin/pix', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify({ pix_key: pixKey })
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('PIX key saved successfully');
-                document.getElementById('pixCodeDisplay').innerHTML = `Current PIX key: ${pixKey}`;
-            }
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    function toggleCard(cardId) { cardVisibility[cardId] = !cardVisibility[cardId]; loadCards(); }
-    function recoverCart(visitorId) { alert(`Recovery link sent to visitor ${visitorId}`); }
-    function startRealtimeUpdates() { setInterval(() => { loadStats(); }, 30000); }
-
-    async function loadAllData() {
-        await loadProducts();
-        await loadOrders();
-        await loadCards();
-        await loadVisitors();
-        await loadAbandonedCarts();
-        await loadStats();
-        await loadPixConfig();
-    }
+    
+    // Eventos
+    document.getElementById('cartIcon').onclick = abrirCarrinho;
+    document.getElementById('closeCartBtn').onclick = fecharCarrinho;
+    document.getElementById('cartOverlay').onclick = fecharCarrinho;
+    document.getElementById('checkoutBtn').onclick = () => {
+        if (carrinho.length === 0) return alert('Cart is empty');
+        localStorage.setItem('checkout_carrinho', JSON.stringify(carrinho));
+        window.location.href = '/checkout.html';
+    };
+    
+    // Auto slide
+    setInterval(nextSlide, 5000);
+    
+    // Inicializar
+    renderizarProdutos();
+    atualizarCarrinhoUI();
+    criarDots();
 </script>
 </body>
 </html>
