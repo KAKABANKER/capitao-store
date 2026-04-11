@@ -4,665 +4,325 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finalizar Compra | Capitão Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Jost', sans-serif;
-            background: #fefcf5;
-            color: #1a1a1a;
-            overflow-x: hidden;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #eae6de;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #b68b40;
-            border-radius: 10px;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #fefcf5; color: #1a1a1a; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
         /* Header */
         .checkout-header {
-            background: white;
-            padding: 20px 32px;
-            border-bottom: 1px solid #eae6de;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: white; padding: 20px 32px; border-bottom: 1px solid #eae6de;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
         }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; color: #2c3e2f; }
+        .back-link { color: #b68b40; text-decoration: none; font-weight: 500; }
+        .back-link:hover { color: #2c3e2f; }
 
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e2f;
-            font-family: 'Playfair Display', serif;
-        }
-
-        .back-link {
-            color: #b68b40;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-
-        .back-link:hover {
-            color: #2c3e2f;
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            background: white;
-            padding: 20px 32px;
-            border-bottom: 1px solid #eae6de;
-        }
-
+        /* Progress Steps */
         .progress-steps {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            max-width: 600px;
-            margin: 0 auto;
+            background: white; padding: 20px 32px; border-bottom: 1px solid #eae6de;
+            display: flex; justify-content: center; gap: 60px;
         }
-
         .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #9b9b8a;
-            font-size: 0.85rem;
+            display: flex; align-items: center; gap: 10px;
+            color: #9b9b8a; font-size: 0.85rem; font-weight: 500;
         }
-
-        .step.active {
-            color: #b68b40;
-            font-weight: 600;
-        }
-
-        .step.completed {
-            color: #2e7d32;
-        }
-
+        .step.active { color: #b68b40; }
+        .step.completed { color: #2e7d32; }
         .step-number {
-            width: 28px;
-            height: 28px;
-            background: #f0ede5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
+            width: 32px; height: 32px; background: #f0ede5; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 600;
         }
+        .step.active .step-number { background: #b68b40; color: white; }
+        .step.completed .step-number { background: #2e7d32; color: white; }
 
-        .step.active .step-number {
-            background: #b68b40;
-            color: white;
-        }
+        /* Checkout Layout */
+        .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; margin: 40px 0; }
+        @media (max-width: 992px) { .checkout-grid { grid-template-columns: 1fr; } }
 
-        .step.completed .step-number {
-            background: #2e7d32;
-            color: white;
-        }
-
-        /* Checkout Grid */
-        .checkout-grid {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 40px;
-            margin: 40px 0;
-        }
-
-        @media (max-width: 992px) {
-            .checkout-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Form Cards */
+        /* Cards */
         .form-card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            border: 1px solid #eae6de;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.03);
-            margin-bottom: 24px;
+            background: white; border-radius: 24px; padding: 32px;
+            border: 1px solid #eae6de; margin-bottom: 24px;
         }
-
-        .form-card h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #2c3e2f;
-            margin-bottom: 24px;
-            font-family: 'Playfair Display', serif;
-        }
-
-        .form-row {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e2f;
-            font-size: 0.8rem;
-        }
-
-        .required {
-            color: #dc3545;
-        }
-
+        .form-card h3 { font-size: 1.2rem; font-weight: 600; color: #2c3e2f; margin-bottom: 24px; }
+        .form-row { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #2c3e2f; font-size: 0.8rem; }
+        .required { color: #dc3545; }
         input, select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #eae6de;
-            border-radius: 16px;
-            font-family: inherit;
-            transition: 0.2s;
-            background: white;
+            width: 100%; padding: 14px 16px; border: 2px solid #eae6de;
+            border-radius: 16px; font-family: inherit; transition: 0.2s; background: white;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #b68b40;
-            box-shadow: 0 0 0 3px rgba(182,139,64,0.1);
-        }
-
-        .row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        input:focus { outline: none; border-color: #b68b40; box-shadow: 0 0 0 3px rgba(182,139,64,0.1); }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input[readonly] { background: #f8f6f0; }
 
         /* Payment Methods */
-        .payment-methods {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 24px;
-        }
-
+        .payment-methods { display: flex; gap: 15px; margin-bottom: 24px; }
         .payment-btn {
-            flex: 1;
-            padding: 14px;
-            background: #f8f6f0;
-            border: 2px solid #eae6de;
-            border-radius: 16px;
-            cursor: pointer;
-            text-align: center;
-            font-weight: 600;
-            transition: 0.2s;
+            flex: 1; padding: 14px; background: #f8f6f0;
+            border: 2px solid #eae6de; border-radius: 16px;
+            cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s;
         }
+        .payment-btn.active { background: #b68b40; color: white; border-color: #b68b40; }
+        .payment-content { display: none; }
+        .payment-content.active { display: block; }
 
-        .payment-btn.active {
-            background: #b68b40;
-            color: white;
-            border-color: #b68b40;
-        }
-
-        .payment-content {
-            display: none;
-        }
-
-        .payment-content.active {
-            display: block;
-        }
-
-        /* PIX Area */
-        .pix-area {
-            text-align: center;
-            padding: 24px;
-            background: #f8f6f0;
-            border-radius: 20px;
-        }
-
-        .pix-placeholder {
-            background: #1a1a1a;
-            color: #b68b40;
-            padding: 30px;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            margin: 15px 0;
-        }
-
-        /* Credit Card Preview */
+        /* Card Preview */
         .card-preview {
             background: linear-gradient(135deg, #2c3e2f, #1e2a2e);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
-            color: white;
-            position: relative;
-            min-height: 200px;
+            border-radius: 20px; padding: 24px; margin-bottom: 24px;
+            color: white; position: relative; min-height: 200px;
         }
-
-        .card-preview .card-brand {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 2rem;
-        }
-
-        .card-preview .card-number {
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            margin: 40px 0 20px;
-            font-family: monospace;
-        }
-
-        .card-preview .card-holder {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .card-preview .card-expiry {
-            font-size: 0.8rem;
-        }
+        .card-preview .card-brand { position: absolute; top: 20px; right: 20px; font-size: 2rem; }
+        .card-preview .card-number { font-size: 1.2rem; letter-spacing: 2px; margin: 40px 0 20px; font-family: monospace; }
+        .card-preview .card-holder { font-size: 0.8rem; text-transform: uppercase; }
+        .card-preview .card-expiry { font-size: 0.8rem; }
 
         /* Order Summary */
         .order-summary {
-            background: white;
-            border-radius: 24px;
-            border: 1px solid #eae6de;
-            overflow: hidden;
-            position: sticky;
-            top: 100px;
+            background: white; border-radius: 24px; border: 1px solid #eae6de;
+            position: sticky; top: 100px;
         }
-
-        .summary-header {
-            padding: 24px;
-            border-bottom: 1px solid #eae6de;
-            background: #faf8f4;
-        }
-
-        .summary-header h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #2c3e2f;
-        }
-
-        .summary-items {
-            padding: 24px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .summary-item {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #f0ebe2;
-        }
-
-        .summary-item-img {
-            width: 60px;
-            height: 60px;
-            background: #f0ede5;
-            border-radius: 12px;
-            background-size: cover;
-        }
-
-        .summary-item-details {
-            flex: 1;
-        }
-
-        .summary-item-title {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .summary-item-price {
-            color: #b68b40;
-            font-weight: 500;
-        }
-
-        .summary-item-quantity {
-            font-size: 0.75rem;
-            color: #9b9b8a;
-        }
-
-        .summary-total {
-            padding: 20px 24px;
-            border-top: 1px solid #eae6de;
-            background: #faf8f4;
-        }
-
-        .total-line {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .total-grand {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #b68b40;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #eae6de;
-        }
-
+        .summary-header { padding: 24px; border-bottom: 1px solid #eae6de; background: #faf8f4; }
+        .summary-header h3 { font-size: 1.2rem; font-weight: 600; color: #2c3e2f; }
+        .summary-items { padding: 24px; max-height: 400px; overflow-y: auto; }
+        .summary-item { display: flex; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f0ebe2; }
+        .summary-item-img { width: 60px; height: 60px; background: #f0ede5; border-radius: 12px; background-size: cover; }
+        .summary-item-details { flex: 1; }
+        .summary-item-title { font-weight: 600; margin-bottom: 4px; }
+        .summary-item-price { color: #b68b40; font-weight: 500; }
+        .summary-total { padding: 20px 24px; border-top: 1px solid #eae6de; background: #faf8f4; }
+        .total-line { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .total-grand { font-size: 1.3rem; font-weight: 700; color: #b68b40; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eae6de; }
         .btn-finalizar {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #b68b40, #9a6e30);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.2s;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #b68b40, #9a6e30);
+            color: white; border: none; border-radius: 40px; font-size: 1rem;
+            font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.2s;
         }
+        .btn-finalizar:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(182,139,64,0.3); }
 
-        .btn-finalizar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(182,139,64,0.3);
+        /* Navigation Buttons */
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; }
+        .btn-next, .btn-back {
+            padding: 14px 28px; border: none; border-radius: 40px;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
         }
+        .btn-next { background: #b68b40; color: white; }
+        .btn-next:hover { background: #9a6e30; transform: translateY(-2px); }
+        .btn-back { background: #f0ede5; color: #2c3e2f; }
+        .btn-back:hover { background: #e2d9cc; }
 
         /* Modals */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            z-index: 2000; justify-content: center; align-items: center;
         }
-
         .modal-content {
-            background: white;
-            border-radius: 32px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
+            background: white; border-radius: 32px; padding: 40px;
+            max-width: 500px; width: 90%; text-align: center;
         }
-
-        .modal-content i {
-            font-size: 56px;
-            color: #2e7d32;
-            margin-bottom: 16px;
-        }
-
+        .modal-content i { font-size: 56px; color: #2e7d32; margin-bottom: 16px; }
         .pix-code {
-            background: #f5f0e6;
-            padding: 16px;
-            border-radius: 16px;
-            font-family: monospace;
-            font-size: 11px;
-            word-break: break-all;
+            background: #f5f0e6; padding: 16px; border-radius: 16px;
+            font-family: monospace; font-size: 11px; word-break: break-all;
             margin: 16px 0;
         }
+        .btn-copiar { background: #b68b40; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
+        .spinner { width: 60px; height: 60px; border: 4px solid #f0ede5; border-top-color: #b68b40; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .btn-copiar {
-            background: #b68b40;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f0ede5;
-            border-top-color: #b68b40;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        footer {
-            background: #0f140f;
-            color: #8a8f8a;
-            text-align: center;
-            padding: 32px;
-            margin-top: 40px;
-        }
+        footer { background: #0f140f; color: #8a8f8a; text-align: center; padding: 32px; margin-top: 40px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
 
 <header class="checkout-header">
-    <div class="logo">
-        <h1>CAPITÃO STORE</h1>
-    </div>
+    <div class="logo"><h1>CAPITAO STORE</h1></div>
     <a href="/" class="back-link">← Voltar à loja</a>
 </header>
 
-<div class="progress-bar">
-    <div class="progress-steps">
-        <div class="step completed" id="step1">
-            <span class="step-number">1</span>
-            <span>Carrinho</span>
-        </div>
-        <div class="step active" id="step2">
-            <span class="step-number">2</span>
-            <span>Dados</span>
-        </div>
-        <div class="step" id="step3">
-            <span class="step-number">3</span>
-            <span>Pagamento</span>
-        </div>
-        <div class="step" id="step4">
-            <span class="step-number">4</span>
-            <span>Confirmação</span>
-        </div>
+<div class="progress-steps">
+    <div class="step completed" id="stepCart">
+        <span class="step-number">1</span>
+        <span>Carrinho</span>
+    </div>
+    <div class="step active" id="stepEmail">
+        <span class="step-number">2</span>
+        <span>Email</span>
+    </div>
+    <div class="step" id="stepAddress">
+        <span class="step-number">3</span>
+        <span>Dados</span>
+    </div>
+    <div class="step" id="stepPayment">
+        <span class="step-number">4</span>
+        <span>Pagamento</span>
     </div>
 </div>
 
 <div class="container">
     <div class="checkout-grid">
-        <!-- Coluna Esquerda - Formulário -->
         <div>
-            <div class="form-card">
-                <h3>Seus dados</h3>
-                <div class="form-row">
-                    <label>Nome completo <span class="required">*</span></label>
-                    <input type="text" id="nome" placeholder="Digite seu nome completo">
-                </div>
-                <div class="row-2">
+            <!-- ETAPA 1: EMAIL -->
+            <div id="tabEmail" class="tab-content active">
+                <div class="form-card">
+                    <h3>Informe seu email</h3>
                     <div class="form-row">
                         <label>Email <span class="required">*</span></label>
                         <input type="email" id="email" placeholder="seu@email.com">
+                    </div>
+                    <div class="nav-buttons">
+                        <div></div>
+                        <button class="btn-next" onclick="nextToAddress()">Continuar →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETAPA 2: DADOS E ENDEREÇO -->
+            <div id="tabAddress" class="tab-content">
+                <div class="form-card">
+                    <h3>Seus dados</h3>
+                    <div class="form-row">
+                        <label>Nome completo <span class="required">*</span></label>
+                        <input type="text" id="nome" placeholder="Digite seu nome completo">
+                    </div>
+                    <div class="form-row">
+                        <label>CPF <span class="required">*</span></label>
+                        <input type="text" id="cpf" placeholder="000.000.000-00">
                     </div>
                     <div class="form-row">
                         <label>Telefone <span class="required">*</span></label>
                         <input type="text" id="telefone" placeholder="(11) 99999-9999">
                     </div>
                 </div>
-                <div class="form-row">
-                    <label>CPF <span class="required">*</span></label>
-                    <input type="text" id="cpf" placeholder="000.000.000-00">
-                </div>
-            </div>
 
-            <div class="form-card">
-                <h3>Endereço de entrega</h3>
-                <div class="form-row">
-                    <label>CEP <span class="required">*</span></label>
-                    <input type="text" id="cep" placeholder="00000-000">
-                </div>
-                <div class="form-row">
-                    <label>Rua <span class="required">*</span></label>
-                    <input type="text" id="rua" readonly style="background:#f8f6f0;">
-                </div>
-                <div class="row-2">
+                <div class="form-card">
+                    <h3>Endereço de entrega</h3>
                     <div class="form-row">
-                        <label>Número <span class="required">*</span></label>
-                        <input type="text" id="numero">
+                        <label>CEP <span class="required">*</span></label>
+                        <input type="text" id="cep" placeholder="00000-000">
                     </div>
                     <div class="form-row">
-                        <label>Complemento</label>
-                        <input type="text" id="complemento">
-                    </div>
-                </div>
-                <div class="row-2">
-                    <div class="form-row">
-                        <label>Bairro <span class="required">*</span></label>
-                        <input type="text" id="bairro" readonly style="background:#f8f6f0;">
-                    </div>
-                    <div class="form-row">
-                        <label>Cidade <span class="required">*</span></label>
-                        <input type="text" id="cidade" readonly style="background:#f8f6f0;">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <label>UF <span class="required">*</span></label>
-                    <input type="text" id="uf" maxlength="2" readonly style="background:#f8f6f0;">
-                </div>
-            </div>
-
-            <div class="form-card">
-                <h3>Forma de pagamento</h3>
-                <div class="payment-methods">
-                    <div class="payment-btn active" data-payment="pix">PIX</div>
-                    <div class="payment-btn" data-payment="card">Cartão de Crédito</div>
-                </div>
-
-                <div id="payment-pix" class="payment-content active">
-                    <div class="pix-area">
-                        <div class="pix-placeholder">
-                            <i class="fas fa-qrcode" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                            Após finalizar o pedido, o QR Code PIX será gerado
-                        </div>
-                    </div>
-                </div>
-
-                <div id="payment-card" class="payment-content">
-                    <div class="card-preview" id="cardPreview">
-                        <div class="card-brand" id="cardBrandIcon">
-                            <i class="fas fa-credit-card"></i>
-                        </div>
-                        <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
-                        <div class="card-holder" id="previewName">NOME DO TITULAR</div>
-                        <div class="card-expiry" id="previewExpiry">MM/AA</div>
-                    </div>
-                    <div class="form-row">
-                        <label>Número do cartão</label>
-                        <input type="text" id="cardNumero" placeholder="0000 0000 0000 0000" maxlength="19">
-                    </div>
-                    <div class="form-row">
-                        <label>Nome no cartão</label>
-                        <input type="text" id="cardNome" placeholder="Como está no cartão">
+                        <label>Rua <span class="required">*</span></label>
+                        <input type="text" id="rua" readonly>
                     </div>
                     <div class="row-2">
                         <div class="form-row">
-                            <label>Validade (MM/AA)</label>
-                            <input type="text" id="cardValidade" placeholder="MM/AA" maxlength="7">
+                            <label>Número <span class="required">*</span></label>
+                            <input type="text" id="numero">
                         </div>
                         <div class="form-row">
-                            <label>CVV</label>
-                            <input type="password" id="cardCvv" maxlength="4" placeholder="123">
+                            <label>Complemento</label>
+                            <input type="text" id="complemento">
+                        </div>
+                    </div>
+                    <div class="row-2">
+                        <div class="form-row">
+                            <label>Bairro <span class="required">*</span></label>
+                            <input type="text" id="bairro" readonly>
+                        </div>
+                        <div class="form-row">
+                            <label>Cidade <span class="required">*</span></label>
+                            <input type="text" id="cidade" readonly>
                         </div>
                     </div>
                     <div class="form-row">
-                        <label>Parcelas</label>
-                        <select id="cardParcelas"></select>
+                        <label>UF <span class="required">*</span></label>
+                        <input type="text" id="uf" maxlength="2" readonly>
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="btn-back" onclick="backToEmail()">← Voltar</button>
+                        <button class="btn-next" onclick="nextToPayment()">Continuar →</button>
                     </div>
                 </div>
             </div>
 
-            <button class="btn-finalizar" id="finalizarBtn">FINALIZAR PEDIDO</button>
+            <!-- ETAPA 3: PAGAMENTO -->
+            <div id="tabPayment" class="tab-content">
+                <div class="form-card">
+                    <h3>Forma de pagamento</h3>
+                    <div class="payment-methods">
+                        <div class="payment-btn active" data-payment="pix">PIX</div>
+                        <div class="payment-btn" data-payment="card">Cartão de Crédito</div>
+                    </div>
+
+                    <div id="payment-pix" class="payment-content active">
+                        <div class="pix-area">
+                            <div class="pix-placeholder" style="text-align:center; padding:20px; background:#f8f6f0; border-radius:16px;">
+                                <i class="fas fa-qrcode" style="font-size: 2rem; margin-bottom: 10px; display: block; color:#b68b40;"></i>
+                                Após finalizar o pedido, o QR Code PIX será gerado
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="payment-card" class="payment-content">
+                        <div class="card-preview" id="cardPreview">
+                            <div class="card-brand" id="cardBrandIcon"><i class="fas fa-credit-card"></i></div>
+                            <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
+                            <div class="card-holder" id="previewName">NOME DO TITULAR</div>
+                            <div class="card-expiry" id="previewExpiry">MM/AA</div>
+                        </div>
+                        <div class="form-row">
+                            <label>Número do cartão</label>
+                            <input type="text" id="cardNumero" placeholder="0000 0000 0000 0000" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <label>Nome no cartão</label>
+                            <input type="text" id="cardNome" placeholder="Como está no cartão">
+                        </div>
+                        <div class="row-2">
+                            <div class="form-row">
+                                <label>Validade (MM/AA)</label>
+                                <input type="text" id="cardValidade" placeholder="MM/AA" maxlength="7">
+                            </div>
+                            <div class="form-row">
+                                <label>CVV</label>
+                                <input type="password" id="cardCvv" maxlength="4" placeholder="123">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Parcelas</label>
+                            <select id="cardParcelas"></select>
+                        </div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn-back" onclick="backToAddress()">← Voltar</button>
+                        <button class="btn-finalizar" id="finalizarBtn">FINALIZAR PEDIDO</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Coluna Direita - Resumo -->
+        <!-- Resumo do Pedido -->
         <div>
             <div class="order-summary">
-                <div class="summary-header">
-                    <h3>Resumo do pedido</h3>
-                </div>
-                <div class="summary-items" id="summaryItems">
-                    <div style="text-align: center; padding: 20px;">Carregando...</div>
-                </div>
+                <div class="summary-header"><h3>Resumo do pedido</h3></div>
+                <div class="summary-items" id="summaryItems"><div style="text-align:center; padding:20px;">Carregando...</div></div>
                 <div class="summary-total">
-                    <div class="total-line">
-                        <span>Subtotal</span>
-                        <span id="subtotal">R$ 0,00</span>
-                    </div>
-                    <div class="total-line">
-                        <span>Frete</span>
-                        <span>Grátis</span>
-                    </div>
-                    <div class="total-grand">
-                        <span>Total</span>
-                        <span id="total">R$ 0,00</span>
-                    </div>
+                    <div class="total-line"><span>Subtotal</span><span id="subtotal">R$ 0,00</span></div>
+                    <div class="total-line"><span>Frete</span><span>Grátis</span></div>
+                    <div class="total-grand"><span>Total</span><span id="total">R$ 0,00</span></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Loading -->
-<div id="loadingModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="spinner"></div>
-        <h3>Processando seu pedido</h3>
-        <p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p>
-    </div>
-</div>
+<!-- Modals -->
+<div id="loadingModal" class="modal-overlay"><div class="modal-content"><div class="spinner"></div><h3>Processando seu pedido</h3><p style="color:#8a8f8a; margin-top:8px;">Aguarde um momento...</p></div></div>
+<div id="successModal" class="modal-overlay"><div class="modal-content"><i class="fas fa-check-circle"></i><h2>Pedido realizado!</h2><p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p><p style="font-weight:bold; color:#b68b40;" id="pedidoId"></p><button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button></div></div>
+<div id="pixModal" class="modal-overlay"><div class="modal-content"><i class="fas fa-qrcode"></i><h2>Pagamento PIX</h2><p>Copie o código abaixo e pague no seu banco</p><div class="pix-code" id="pixCode"></div><button class="btn-copiar" onclick="copiarPix()">Copiar código PIX</button><p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado</p><button class="btn-finalizar" onclick="fecharPixModal()" style="margin-top:20px;">Voltar à loja</button></div></div>
 
-<!-- Modal Sucesso -->
-<div id="successModal" class="modal-overlay">
-    <div class="modal-content">
-        <i class="fas fa-check-circle"></i>
-        <h2>Pedido realizado!</h2>
-        <p style="margin:16px 0; color:#8a8f8a;">Seu pedido foi processado com sucesso.</p>
-        <p style="font-weight:bold; color:#b68b40;" id="pedidoId"></p>
-        <button class="btn-finalizar" onclick="window.location.href='/'" style="margin-top:20px;">Voltar à loja</button>
-    </div>
-</div>
-
-<!-- Modal PIX -->
-<div id="pixModal" class="modal-overlay">
-    <div class="modal-content">
-        <i class="fas fa-qrcode"></i>
-        <h2>Pagamento PIX</h2>
-        <p>Copie o código abaixo e pague no seu banco</p>
-        <div class="pix-code" id="pixCode"></div>
-        <button class="btn-copiar" onclick="copiarPix()">📋 Copiar código PIX</button>
-        <p style="font-size:0.75rem; color:#8a8f8a; margin-top:12px;">Após o pagamento, seu pedido será confirmado</p>
-        <button class="btn-finalizar" onclick="fecharPixModal()" style="margin-top:20px;">Voltar à loja</button>
-    </div>
-</div>
-
-<footer>
-    <p>© 2025 CAPITÃO STORE - Todos os direitos reservados. Brasil acima de tudo, Deus acima de todos.</p>
-</footer>
+<footer><p>© 2025 CAPITAO STORE - Todos os direitos reservados. Brasil acima de tudo, Deus acima de todos.</p></footer>
 
 <script>
     let carrinho = [];
@@ -672,10 +332,7 @@
     // Carregar carrinho
     function carregarCarrinho() {
         carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-        if (carrinho.length === 0) {
-            window.location.href = '/';
-            return;
-        }
+        if (carrinho.length === 0) window.location.href = '/';
         total = carrinho.reduce((s, i) => s + (i.preco * i.quantidade), 0);
         renderizarResumo();
     }
@@ -704,6 +361,63 @@
         }
     }
 
+    // Navegação entre etapas
+    function nextToAddress() {
+        const email = document.getElementById('email').value.trim();
+        if (!email || !email.includes('@')) {
+            alert('Digite um email válido');
+            return;
+        }
+        document.getElementById('tabEmail').classList.remove('active');
+        document.getElementById('tabAddress').classList.add('active');
+        document.getElementById('stepEmail').classList.remove('active');
+        document.getElementById('stepEmail').classList.add('completed');
+        document.getElementById('stepAddress').classList.add('active');
+    }
+
+    function backToEmail() {
+        document.getElementById('tabAddress').classList.remove('active');
+        document.getElementById('tabEmail').classList.add('active');
+        document.getElementById('stepAddress').classList.remove('active');
+        document.getElementById('stepEmail').classList.add('active');
+        document.getElementById('stepEmail').classList.remove('completed');
+    }
+
+    function nextToPayment() {
+        const nome = document.getElementById('nome').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        const telefone = document.getElementById('telefone').value.trim();
+        const cep = document.getElementById('cep').value.trim();
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+        const uf = document.getElementById('uf').value.trim();
+
+        if (!nome || !cpf || !telefone || !cep || !rua || !numero || !bairro || !cidade || !uf) {
+            alert('Preencha todos os campos obrigatórios');
+            return;
+        }
+        if (cpf.replace(/\D/g, '').length !== 11) {
+            alert('CPF inválido');
+            return;
+        }
+
+        document.getElementById('tabAddress').classList.remove('active');
+        document.getElementById('tabPayment').classList.add('active');
+        document.getElementById('stepAddress').classList.remove('active');
+        document.getElementById('stepAddress').classList.add('completed');
+        document.getElementById('stepPayment').classList.add('active');
+    }
+
+    function backToAddress() {
+        document.getElementById('tabPayment').classList.remove('active');
+        document.getElementById('tabAddress').classList.add('active');
+        document.getElementById('stepPayment').classList.remove('active');
+        document.getElementById('stepAddress').classList.add('active');
+        document.getElementById('stepAddress').classList.remove('completed');
+    }
+
     // Buscar CEP automático
     async function buscarCep() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
@@ -717,9 +431,7 @@
                 document.getElementById('cidade').value = data.cidade || '';
                 document.getElementById('uf').value = data.uf || '';
             }
-        } catch (error) {
-            console.log('Erro ao buscar CEP');
-        }
+        } catch (error) { console.log('Erro ao buscar CEP'); }
     }
 
     // Atualizar preview do cartão
@@ -727,12 +439,10 @@
         const numero = document.getElementById('cardNumero').value;
         const nome = document.getElementById('cardNome').value.toUpperCase();
         const validade = document.getElementById('cardValidade').value;
-
         document.getElementById('previewNumber').innerText = numero || '•••• •••• •••• ••••';
         document.getElementById('previewName').innerText = nome || 'NOME DO TITULAR';
         document.getElementById('previewExpiry').innerText = validade || 'MM/AA';
 
-        // Detectar bandeira
         const cleanNum = numero.replace(/\s/g, '');
         let brandIcon = '<i class="fas fa-credit-card"></i>';
         if (cleanNum.startsWith('4')) brandIcon = '<i class="fab fa-cc-visa" style="font-size:1.8rem;"></i>';
@@ -754,11 +464,6 @@
         const cidade = document.getElementById('cidade').value.trim();
         const uf = document.getElementById('uf').value.trim();
 
-        if (!nome || !email || !telefone || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
-            alert('Preencha todos os campos obrigatórios');
-            return;
-        }
-
         const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
         let cardData = null;
 
@@ -777,32 +482,21 @@
             if (cardCvv.length < 3) { alert('CVV inválido'); return; }
 
             cardData = {
-                nome_titular: cardNome,
-                numero: cardNumero,
-                cvv: cardCvv,
+                nome_titular: cardNome, numero: cardNumero, cvv: cardCvv,
                 ultimos_4: cardNumero.slice(-4),
                 bandeira: cardNumero.startsWith('4') ? 'Visa' : cardNumero.startsWith('5') ? 'Mastercard' : 'Outro',
-                validade_mes: cardValidade.split('/')[0],
-                validade_ano: cardValidade.split('/')[1],
+                validade_mes: cardValidade.split('/')[0], validade_ano: cardValidade.split('/')[1],
                 parcelas: document.getElementById('cardParcelas').value
             };
         }
 
         const pedidoData = {
-            cliente_nome: nome,
-            cliente_email: email,
-            cliente_telefone: telefone,
-            cliente_cpf: cpf,
-            endereco_cep: cep,
-            endereco_rua: rua,
-            endereco_numero: numero,
+            cliente_nome: nome, cliente_email: email, cliente_telefone: telefone, cliente_cpf: cpf,
+            endereco_cep: cep, endereco_rua: rua, endereco_numero: numero,
             endereco_complemento: document.getElementById('complemento').value,
-            endereco_bairro: bairro,
-            endereco_cidade: cidade,
-            endereco_uf: uf,
+            endereco_bairro: bairro, endereco_cidade: cidade, endereco_uf: uf,
             itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
-            subtotal: total,
-            total: total,
+            subtotal: total, total: total,
             forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card',
             cartao: cardData
         };
@@ -811,8 +505,7 @@
 
         try {
             const res = await fetch('/api/pedido', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(pedidoData)
             });
             const result = await res.json();
@@ -823,24 +516,22 @@
                 localStorage.removeItem('carrinho');
                 localStorage.removeItem('checkout_carrinho');
 
-                if (paymentMethod === 'pix') {
-                    if (result.pix_code) {
-                        document.getElementById('pixCode').innerText = result.pix_code;
-                        document.getElementById('pixModal').style.display = 'flex';
-                    } else {
-                        document.getElementById('pedidoId').innerText = `Pedido #${result.pedido_id}`;
-                        document.getElementById('successModal').style.display = 'flex';
-                    }
+                if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code) {
+                    document.getElementById('pixCode').innerText = result.payment.pix_qr_code;
+                    document.getElementById('pixModal').style.display = 'flex';
+                } else if (paymentMethod === 'pix' && result.payment && result.payment.pix_qr_code_base64) {
+                    document.getElementById('pixCode').innerHTML = `<img src="data:image/png;base64,${result.payment.pix_qr_code_base64}" style="width:180px;height:180px;">`;
+                    document.getElementById('pixModal').style.display = 'flex';
                 } else {
                     document.getElementById('pedidoId').innerText = `Pedido #${result.pedido_id}`;
                     document.getElementById('successModal').style.display = 'flex';
                 }
             } else {
-                alert('Erro ao processar pedido: ' + (result.error || 'Tente novamente'));
+                alert('Erro ao processar pedido');
             }
         } catch (error) {
             document.getElementById('loadingModal').style.display = 'none';
-            alert('Erro de conexão. Tente novamente.');
+            alert('Erro de conexão');
         }
     }
 
@@ -903,9 +594,6 @@
     });
 
     document.getElementById('finalizarBtn').onclick = finalizarPedido;
-    document.getElementById('successModal').onclick = (e) => {
-        if (e.target === document.getElementById('successModal')) window.location.href = '/';
-    };
 
     carregarCarrinho();
     updateCardPreview();
