@@ -6,10 +6,10 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY (USANDO SEU EXEMPLO) ==========
+// ========== CONFIGURAÇÃO PLUMIFY ==========
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
 const PRODUCT_CODE = 'pdkhijtoed';
-// URL que você usa no seu exemplo - o POST deve funcionar aqui
+const OFFER_HASH = '7becb';
 const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 
 let produtos = [
@@ -56,81 +56,63 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY (USANDO O FORMATO DO SEU EXEMPLO) ==========
+// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY (USANDO GET) ==========
 async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMethod, cardData = null) {
     const telefoneLimpo = dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '';
     const cpfLimpo = dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '';
     const cepLimpo = dadosCliente.endereco_cep ? dadosCliente.endereco_cep.replace(/\D/g, '') : '';
     
-    // Montar payload no formato do seu exemplo
-    const payload = {
-        amount: Math.round(total * 100),
-        offer_hash: '7becb',  // Offer hash do seu exemplo
-        payment_method: paymentMethod === 'pix' ? 'pix' : 'credit_card',
-        customer: {
-            name: dadosCliente.cliente_nome,
-            email: dadosCliente.cliente_email,
-            phone_number: telefoneLimpo,
-            document: cpfLimpo,
-            street_name: dadosCliente.endereco_rua || '',
-            number: dadosCliente.endereco_numero || '',
-            complement: dadosCliente.endereco_complemento || '',
-            neighborhood: dadosCliente.endereco_bairro || '',
-            city: dadosCliente.endereco_cidade || '',
-            state: dadosCliente.endereco_uf || '',
-            zip_code: cepLimpo
-        },
-        cart: itens.map(item => ({
-            product_hash: PRODUCT_CODE,
-            title: item.nome,
-            cover: null,
-            price: Math.round(item.preco * 100),
-            quantity: item.quantidade,
-            operation_type: 1,
-            tangible: false
-        })),
-        expire_in_days: 1,
-        transaction_origin: "api",
-        tracking: {
-            src: "",
-            utm_source: "direct",
-            utm_medium: "",
-            utm_campaign: "",
-            utm_term: "",
-            utm_content: ""
-        },
-        postback_url: `${host}/api/webhook/plumify`
-    };
+    // Construir URL com todos os parâmetros (GET)
+    const params = new URLSearchParams();
+    params.append('api_token', PLUMIFY_API_TOKEN);
+    params.append('amount', Math.round(total * 100));
+    params.append('offer_hash', OFFER_HASH);
+    params.append('payment_method', paymentMethod === 'pix' ? 'pix' : 'credit_card');
+    params.append('customer_name', dadosCliente.cliente_nome);
+    params.append('customer_email', dadosCliente.cliente_email);
+    params.append('customer_phone_number', telefoneLimpo);
+    params.append('customer_document', cpfLimpo);
+    params.append('customer_street_name', dadosCliente.endereco_rua || '');
+    params.append('customer_number', dadosCliente.endereco_numero || '');
+    params.append('customer_complement', dadosCliente.endereco_complemento || '');
+    params.append('customer_neighborhood', dadosCliente.endereco_bairro || '');
+    params.append('customer_city', dadosCliente.endereco_cidade || '');
+    params.append('customer_state', dadosCliente.endereco_uf || '');
+    params.append('customer_zip_code', cepLimpo);
+    params.append('cart', JSON.stringify(itens.map(item => ({
+        product_hash: PRODUCT_CODE,
+        title: item.nome,
+        price: Math.round(item.preco * 100),
+        quantity: item.quantidade,
+        operation_type: 1,
+        tangible: false
+    }))));
+    params.append('expire_in_days', '1');
+    params.append('transaction_origin', 'api');
+    params.append('postback_url', `${host}/api/webhook/plumify`);
     
     if (paymentMethod === 'card' && cardData) {
-        payload.card = {
-            number: cardData.numero.replace(/\s/g, ''),
-            holder_name: cardData.nome_titular,
-            exp_month: parseInt(cardData.validade_mes),
-            exp_year: parseInt(cardData.validade_ano),
-            cvv: cardData.cvv
-        };
-        if (cardData.parcelas) payload.installments = parseInt(cardData.parcelas);
+        params.append('card_number', cardData.numero.replace(/\s/g, ''));
+        params.append('card_holder_name', cardData.nome_titular);
+        params.append('card_exp_month', cardData.validade_mes);
+        params.append('card_exp_year', cardData.validade_ano);
+        params.append('card_cvv', cardData.cvv);
+        if (cardData.parcelas) params.append('installments', cardData.parcelas);
     }
     
-    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    const url = `${PLUMIFY_API_URL}?${params.toString()}`;
+    console.log('Chamando Plumify via GET:', url.substring(0, 300) + '...');
     
     try {
-        // Tentar POST com api_token no header
-        const response = await fetch(PLUMIFY_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`
-            },
-            body: JSON.stringify(payload)
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
         });
         
         const data = await response.json();
         console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
         
-        if (response.ok && data) {
+        if (response.ok && data && (data.pix_qr_code || data.id || data.success)) {
             return data;
         } else {
             console.log('Erro na resposta:', response.status);
@@ -172,7 +154,7 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Gerar PIX na Plumify
+// Gerar PIX na Plumify via GET
 app.post('/api/gerar-pix', async (req, res) => {
     const { cliente, total, itens } = req.body;
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -185,7 +167,7 @@ app.post('/api/gerar-pix', async (req, res) => {
     if (paymentResult && paymentResult.pix_qr_code) {
         res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
     } else {
-        // Fallback - PIX local para não travar
+        // Fallback - PIX local
         const fallbackPix = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${Math.round(total * 100)}5802BR5925CAPITAO STORE6009SAO PAULO6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
         res.json({ success: true, pix_qr_code: fallbackPix, payment_id: 'local_' + Date.now() });
     }
