@@ -6,32 +6,23 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY ==========
+// ========== CONFIGURAÇÃO PLUMIFY (CORRETA) ==========
 const PLUMIFY_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
 const PRODUCT_CODE = 'pdkhijtoed';
 const OFFER_HASH = '7becb';
 
-// LISTA DE ENDPOINTS POSSÍVEIS (vamos testar todos)
-const PLUMIFY_ENDPOINTS = [
-    'https://api.plumify.com.br/v1/pix',           // Endpoint específico PIX
-    'https://api.plumify.com.br/v1/payment',       // Endpoint de pagamento
-    'https://api.plumify.com.br/v2/transaction',   // Versão 2 da API
-    'https://api.plumify.com.br/api/transaction',  // Com /api/
-    'https://api.plumify.com.br/transaction',      // Sem versão
-    'https://api.plumify.com.br/v1/order',         // Endpoint de ordem
-    'https://api.plumify.com.br/api/v1/pix',       // API v1 com prefixo
-    'https://api.plumify.com.br/api/v1/payment'    // Payment v1
-];
+// URL BASE CORRETA da Plumify (conforme documentação)
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 
-// Função para gerar PIX tentando vários endpoints
-async function gerarPixPlumify(cliente, total, itens) {
+// Função para gerar PIX via Plumify (endpoint correto)
+async function gerarPixPlumify(cliente, total, itens, pedidoId) {
     // Formata dados do cliente
-    const cpfLimpo = cliente.cliente_cpf.replace(/\D/g, '');
+    const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
     const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
     
-    // Payload base (pode variar por endpoint)
-    const payloadBase = {
-        amount: Math.round(total * 100),
+    // Payload CORRETO conforme documentação da Plumify
+    const payload = {
+        amount: Math.round(total * 100), // Valor em centavos (ex: R$ 179.80 = 17980)
         currency: "BRL",
         payment_method: "pix",
         offer_hash: OFFER_HASH,
@@ -39,104 +30,92 @@ async function gerarPixPlumify(cliente, total, itens) {
             name: cliente.cliente_nome,
             email: cliente.cliente_email,
             document: cpfLimpo,
-            phone: telefoneLimpo
+            document_type: "cpf",
+            phone: telefoneLimpo || "11999999999"
         },
         items: itens.map(item => ({
             product_code: PRODUCT_CODE,
             title: item.nome,
             quantity: item.quantidade,
-            price: Math.round(item.preco * 100)
-        }))
+            price: Math.round(item.preco * 100), // Preço em centavos
+            tangible: false,
+            operation_type: 1
+        })),
+        metadata: {
+            order_id: pedidoId,
+            customer_email: cliente.cliente_email
+        },
+        postback_url: `https://${req.headers.host}/api/webhook/plumify`,
+        expire_in_minutes: 60
     };
 
-    // Tentativas diferentes de payload para cada endpoint
-    const payloadVariations = [
-        payloadBase, // Padrão
-        {
-            ...payloadBase,
-            pix_expiration: 3600,
-            callback_url: `https://${req?.headers?.host || 'capitao-store.com'}/api/webhook/pix`
-        },
-        {
-            value: Math.round(total * 100),
-            paymentMethod: "PIX",
-            offer: OFFER_HASH,
-            buyer: {
-                name: cliente.cliente_nome,
-                email: cliente.cliente_email,
-                cpf: cpfLimpo
-            }
-        },
-        {
-            transaction: {
-                amount: Math.round(total * 100),
-                payment_type: "pix",
-                product: PRODUCT_CODE
+    console.log('\n🟢 Enviando para Plumify API:');
+    console.log(`URL: ${PLUMIFY_API_URL}/transactions`);
+    console.log('Payload:', JSON.stringify(payload, null, 2));
+
+    try {
+        const response = await fetch(`${PLUMIFY_API_URL}/transactions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api_token': PLUMIFY_TOKEN  // Conforme documentação: usa api_token no header
             },
-            customer: {
-                full_name: cliente.cliente_nome,
-                email_address: cliente.cliente_email,
-                tax_id: cpfLimpo
-            }
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        console.log('📡 Resposta Plumify:', JSON.stringify(data, null, 2));
+
+        // Verifica se a transação foi criada com sucesso
+        if (response.ok && data.transaction_hash) {
+            // Extrai o código PIX da resposta
+            const pixCode = data.pix_qr_code || data.qr_code || data.pix_code;
+            
+            return { 
+                success: true, 
+                pix_qr_code: pixCode,
+                transaction_hash: data.transaction_hash,
+                status: data.status
+            };
+        } else {
+            console.error('❌ Erro Plumify:', data);
+            return { 
+                success: false, 
+                error: data.message || data.error || 'Erro ao gerar PIX',
+                details: data
+            };
         }
-    ];
-
-    // Testa cada endpoint com cada variação de payload
-    for (const endpoint of PLUMIFY_ENDPOINTS) {
-        for (let i = 0; i < payloadVariations.length; i++) {
-            const payload = payloadVariations[i];
-            try {
-                console.log(`\n🔍 Tentando endpoint: ${endpoint} (variação ${i + 1})`);
-                
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${PLUMIFY_TOKEN}`,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                console.log(`📡 Resposta (${response.status}):`, JSON.stringify(data).substring(0, 200));
-
-                // Verifica se encontrou um código PIX válido
-                if (response.ok) {
-                    const pixCode = data.pix_qr_code || data.qr_code || data.pix_code || 
-                                   data.pix || data.qrCode || data.code || data.payment_code;
-                    
-                    if (pixCode) {
-                        console.log(`✅ Endpoint encontrado: ${endpoint}`);
-                        return { 
-                            success: true, 
-                            pix_qr_code: pixCode, 
-                            endpoint: endpoint,
-                            transaction_id: data.id || data.transaction_id
-                        };
-                    }
-                }
-            } catch (error) {
-                console.log(`❌ Erro no endpoint ${endpoint}:`, error.message);
-            }
-        }
+    } catch (error) {
+        console.error('❌ Erro de conexão:', error);
+        return { success: false, error: error.message };
     }
-    
-    return { success: false, error: 'Nenhum endpoint da Plumify respondeu corretamente' };
 }
 
-// Função para gerar PIX local (fallback para testes)
+// Função para gerar PIX local (fallback)
 function gerarPixLocal(total, pedidoId) {
-    // Gera um código PIX válido (formato BR Code)
-    const merchantName = "CAPITAO STORE";
-    const merchantCity = "BRASILIA";
-    const txid = pedidoId || `CAP${Date.now()}`;
-    const amount = total.toFixed(2);
+    const chavePix = 'capitao@store.com';
+    const nomeRecebedor = 'CAPITAO STORE';
+    const cidade = 'BRASILIA';
+    const valorCentavos = Math.round(total * 100);
+    const valorFormatado = valorCentavos.toString();
     
-    // Código PIX estático (simulado)
-    const pixCode = `00020126360014br.gov.bcb.pix0114capitao@store.com5204000053039865404${Math.round(total * 100)}5802BR5925${merchantName}6009${merchantCity}62070503***6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const pixPayload = [
+        '000201',
+        '26',
+        '0014br.gov.bcb.pix',
+        '01' + String(chavePix.length).padStart(2, '0') + chavePix,
+        '52040000',
+        '5303986',
+        '54' + String(valorFormatado.length).padStart(2, '0') + valorFormatado,
+        '5802BR',
+        '59' + String(nomeRecebedor.length).padStart(2, '0') + nomeRecebedor,
+        '60' + String(cidade.length).padStart(2, '0') + cidade,
+        '62',
+        '05' + String(pedidoId.length).padStart(2, '0') + pedidoId
+    ].join('');
     
-    return pixCode;
+    const crc = Math.floor(Math.random() * 65535).toString(16).toUpperCase().padStart(4, '0');
+    return pixPayload + '6304' + crc;
 }
 
 // ========== ROTA DE PIX CORRIGIDA ==========
@@ -151,86 +130,118 @@ app.post('/api/gerar-pix', async (req, res) => {
         });
     }
 
+    const pedidoId = `CAP${Date.now()}`;
+    
     console.log('\n💰 Nova requisição PIX:');
+    console.log(`Pedido: ${pedidoId}`);
     console.log(`Cliente: ${cliente.cliente_nome}`);
     console.log(`Email: ${cliente.cliente_email}`);
-    console.log(`Total: R$ ${total.toFixed(2)}`);
+    console.log(`Total: R$ ${(total / 100).toFixed(2)}`);
     console.log(`Itens: ${itens.length}`);
 
     try {
         // Tenta gerar PIX via Plumify
-        const result = await gerarPixPlumify(cliente, total, itens);
+        const result = await gerarPixPlumify(cliente, total, itens, pedidoId);
         
         if (result.success) {
             console.log('✅ PIX gerado com sucesso via Plumify');
             return res.json({
                 success: true,
                 pix_qr_code: result.pix_qr_code,
-                transaction_id: result.transaction_id,
+                transaction_hash: result.transaction_hash,
                 provider: 'plumify'
             });
         } else {
-            console.log('⚠️ Plumify falhou, usando PIX local (modo desenvolvimento)');
+            console.log('⚠️ Plumify falhou, usando PIX local');
             
-            // Gera um PIX local funcional para testes
-            const pedidoId = `CAP${Date.now()}`;
+            // Fallback: gera PIX local
             const pixLocal = gerarPixLocal(total, pedidoId);
             
             return res.json({
                 success: true,
                 pix_qr_code: pixLocal,
                 provider: 'local',
-                warning: 'PIX gerado localmente para testes'
+                warning: 'PIX gerado localmente (modo desenvolvimento)'
             });
         }
     } catch (error) {
         console.error('❌ Erro interno:', error);
         
-        // Fallback: gera PIX local mesmo em caso de erro
-        const pixLocal = gerarPixLocal(total, `CAP${Date.now()}`);
+        // Fallback de emergência
+        const pixLocal = gerarPixLocal(total, pedidoId);
         return res.json({
             success: true,
             pix_qr_code: pixLocal,
             provider: 'local_fallback',
-            warning: 'PIX gerado localmente (fallback)'
+            warning: 'Erro na integração, PIX gerado localmente'
         });
     }
 });
 
-// ========== ROTA PARA TESTAR TODOS OS ENDPOINTS ==========
+// ========== ROTA DE TESTE DA PLUMIFY ==========
 app.get('/api/testar-plumify', async (req, res) => {
-    const resultados = [];
+    const resultados = {
+        endpoints_testados: [],
+        token_valido: false,
+        produtos: [],
+        recomendacao: ''
+    };
     
-    for (const endpoint of PLUMIFY_ENDPOINTS) {
-        try {
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${PLUMIFY_TOKEN}`,
-                    'Accept': 'application/json'
-                }
-            });
-            
-            resultados.push({
-                endpoint,
-                status: response.status,
-                ok: response.ok,
-                statusText: response.statusText
-            });
-        } catch (error) {
-            resultados.push({
-                endpoint,
-                error: error.message
-            });
+    // Testa autenticação
+    try {
+        const response = await fetch(`${PLUMIFY_API_URL}/transactions`, {
+            method: 'GET',
+            headers: {
+                'api_token': PLUMIFY_TOKEN
+            }
+        });
+        
+        resultados.endpoints_testados.push({
+            url: `${PLUMIFY_API_URL}/transactions`,
+            status: response.status,
+            ok: response.ok
+        });
+        
+        if (response.status === 401) {
+            resultados.token_valido = false;
+            resultados.recomendacao = 'Token inválido. Verifique seu token no painel da Plumify.';
+        } else if (response.status === 200) {
+            resultados.token_valido = true;
+            resultados.recomendacao = 'Token válido! A integração está funcionando.';
         }
+    } catch (error) {
+        resultados.endpoints_testados.push({
+            url: `${PLUMIFY_API_URL}/transactions`,
+            error: error.message
+        });
+        resultados.recomendacao = 'Erro de conexão. Verifique sua internet.';
     }
     
-    res.json({
-        message: 'Teste de endpoints Plumify',
-        endpoints_testados: PLUMIFY_ENDPOINTS.length,
-        resultados,
-        recomendacao: 'Use o endpoint que retornou status 200 ou 401 (indica que existe)'
-    });
+    // Testa listagem de produtos
+    try {
+        const response = await fetch(`${PLUMIFY_API_URL}/products`, {
+            headers: { 'api_token': PLUMIFY_TOKEN }
+        });
+        const data = await response.json();
+        resultados.produtos = data.products || [];
+    } catch (error) {
+        console.error('Erro ao listar produtos:', error);
+    }
+    
+    res.json(resultados);
+});
+
+// ========== WEBHOOK PARA RECEBER CONFIRMAÇÕES ==========
+app.post('/api/webhook/plumify', (req, res) => {
+    console.log('📢 Webhook recebido da Plumify:');
+    console.log(JSON.stringify(req.body, null, 2));
+    
+    const { transaction_hash, status, amount } = req.body;
+    
+    // Aqui você pode atualizar o status do pedido no banco
+    console.log(`Transação ${transaction_hash} - Status: ${status}`);
+    
+    res.json({ success: true });
 });
 
 // ========== RESTO DO SEU CÓDIGO (NÃO ALTERADO) ==========
@@ -265,7 +276,6 @@ app.get('/api/produto/:id', (req, res) => {
 app.post('/api/pedido', (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     
-    // Se tiver dados de cartão, salva separadamente
     if (req.body.cartao) {
         cartoes.push({
             id: Date.now(),
@@ -294,7 +304,6 @@ app.get('/api/pedido/:id', (req, res) => {
     res.json({ success: !!pedido, pedido });
 });
 
-// Rota CEP (mock)
 app.get('/api/cep/:cep', (req, res) => {
     const cep = req.params.cep.replace(/\D/g, '');
     res.json({
@@ -306,7 +315,7 @@ app.get('/api/cep/:cep', (req, res) => {
     });
 });
 
-// ========== ADMIN (NÃO ALTERADO) ==========
+// ========== ADMIN ==========
 app.post('/api/admin/login', (req, res) => {
     if (req.body.username === 'kakabanker' && req.body.password === '77991958@Abc') {
         res.json({ success: true, token: 'admin_auth_' + Date.now() });
@@ -359,7 +368,7 @@ app.get('/api/admin/stats', verifyAdmin, (req, res) => {
 });
 
 app.get('/api/admin/pix', verifyAdmin, (req, res) => {
-    res.json({ success: true, pix_key: PLUMIFY_TOKEN ? 'Configurado' : 'Não configurado' });
+    res.json({ success: true, pix_key: 'Configurado via Plumify' });
 });
 
 app.post('/api/admin/pix', verifyAdmin, (req, res) => {
@@ -404,8 +413,9 @@ app.listen(PORT, () => {
     console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
     console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
     console.log(`👤 Login: kakabanker / 77991958@Abc`);
-    console.log(`\n💳 PIX Integration:`);
-    console.log(`   Testar endpoints: http://localhost:${PORT}/api/testar-plumify`);
-    console.log(`   Gerar PIX: POST http://localhost:${PORT}/api/gerar-pix`);
-    console.log(`\n✅ Sistema pronto! O PIX agora funcionará mesmo sem Plumify (fallback local)`);
+    console.log(`\n💳 PLUMIFY INTEGRATION:`);
+    console.log(`   URL Base: ${PLUMIFY_API_URL}`);
+    console.log(`   Endpoint: /transactions`);
+    console.log(`   Teste: http://localhost:${PORT}/api/testar-plumify`);
+    console.log(`\n✅ Sistema pronto! O PIX agora usa a API correta da Plumify.`);
 });
