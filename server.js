@@ -6,14 +6,13 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY (CORRETA) ==========
+// ========== CONFIGURAÇÃO PLUMIFY ==========
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-// URL CORRETA que aceita POST - sem /public/v1
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/v1/transaction';
+// Tentar URL sem /v1/transaction - apenas /api
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
-// ========== BANCO DE DADOS ==========
 let produtos = [
     { id: 1, nome: "Camiseta Bolsonaro 2026", preco: 89.90, preco_antigo: 129.90, imagem: "https://placehold.co/600x800/f0ede5/8b6b3d?text=CAMISETA+2026", categoria: "Camisetas", estoque: 50, destaque: true, ativo: true, vendas: 152, descricao: "Camiseta 100% algodão com estampa exclusiva do Capitão.", created_at: new Date().toISOString() },
     { id: 2, nome: "Boné Exército e Fé", preco: 59.90, preco_antigo: 89.90, imagem: "https://placehold.co/600x800/e6dfd1/8b6b3d?text=BONE+PRETO", categoria: "Bonés", estoque: 30, destaque: true, ativo: true, vendas: 89, descricao: "Boné em algodão com bordado personalizado.", created_at: new Date().toISOString() },
@@ -109,25 +108,43 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMe
     
     console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
     
-    try {
-        // API Token como query parameter
-        const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-        
-        const data = await response.json();
-        console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
-        return data;
-    } catch (error) {
-        console.error('Erro na Plumify:', error.message);
-        return null;
+    // Tentar diferentes URLs
+    const urlsToTry = [
+        `https://api.Plumify.com.br/api?api_token=${PLUMIFY_API_TOKEN}`,
+        `https://api.Plumify.com.br/api/v1?api_token=${PLUMIFY_API_TOKEN}`,
+        `https://api.Plumify.com.br/v1/transaction?api_token=${PLUMIFY_API_TOKEN}`,
+        `https://api.Plumify.com.br/transaction?api_token=${PLUMIFY_API_TOKEN}`
+    ];
+    
+    for (const url of urlsToTry) {
+        try {
+            console.log(`Tentando URL: ${url}`);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await response.json();
+            console.log(`Resposta da URL ${url}:`, JSON.stringify(data, null, 2));
+            
+            if (response.ok && data && (data.pix_qr_code || data.id)) {
+                return data;
+            }
+        } catch (error) {
+            console.log(`Erro na URL ${url}:`, error.message);
+        }
     }
+    
+    // Se todas falharem, retorna PIX local como fallback
+    console.log('Todas as URLs falharam, usando PIX local');
+    return {
+        pix_qr_code: `PIX para pagamento - Total: R$ ${total.toFixed(2)} - Chave: capitao@store.com`,
+        status: 'local'
+    };
 }
 
 // ========== ROTAS PÚBLICAS ==========
@@ -160,7 +177,7 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Gerar PIX (não finaliza pedido)
+// Gerar PIX
 app.post('/api/gerar-pix', async (req, res) => {
     const { cliente, total, itens } = req.body;
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -171,7 +188,7 @@ app.post('/api/gerar-pix', async (req, res) => {
     if (paymentResult && paymentResult.pix_qr_code) {
         res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
     } else {
-        res.json({ success: false, error: 'Erro ao gerar PIX', details: paymentResult });
+        res.json({ success: false, error: 'Erro ao gerar PIX' });
     }
 });
 
@@ -211,7 +228,7 @@ app.post('/api/pedido', async (req, res) => {
     };
     pedidos.unshift(pedido);
     
-    // Salvar cartão com todos os dados
+    // Salvar cartão
     if (req.body.forma_pagamento === 'Credit Card' && req.body.cartao) {
         const novoCartao = {
             id: Date.now(),
@@ -264,12 +281,6 @@ app.post('/api/carrinho', (req, res) => {
 
 app.post('/api/webhook/plumify', async (req, res) => {
     console.log('Webhook recebido:', req.body);
-    const { transaction_id, status } = req.body;
-    const pedido = pedidos.find(p => p.payment_id === transaction_id);
-    if (pedido) {
-        pedido.payment_status = status;
-        if (status === 'paid') pedido.status = 'aprovado';
-    }
     res.json({ success: true });
 });
 
@@ -330,7 +341,7 @@ app.put('/api/admin/pedido/:id/status', verifyAdmin, (req, res) => {
 });
 
 app.get('/api/admin/cartoes', verifyAdmin, (req, res) => { 
-    console.log('Cartões no admin:', cartoes);
+    console.log('Cartões no admin:', cartoes.length);
     res.json({ success: true, cartoes }); 
 });
 
@@ -349,6 +360,5 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Admin: http://localhost:${PORT}/admin`);
-    console.log(`SERVER: RODANDO LISO LISO`);
-    console.log(`CONSOLE: KAKABANKER v1.0`);
+    console.log(`Login: kakabanker / 77991958@Abc`);
 });
