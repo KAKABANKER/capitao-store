@@ -6,10 +6,8 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY (ENDEREÇO CORRETO) ==========
+// ========== CONFIGURAÇÃO PLUMIFY ==========
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-// Endpoint correto que aceita POST - baseado no seu exemplo
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
@@ -57,67 +55,63 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY (CORRIGIDA) ==========
+// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY (USANDO GET) ==========
 async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMethod, cardData = null) {
+    // Construir URL com todos os parâmetros via GET
     const telefoneLimpo = dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '';
     const cpfLimpo = dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '';
     const cepLimpo = dadosCliente.endereco_cep ? dadosCliente.endereco_cep.replace(/\D/g, '') : '';
     
-    const payload = {
+    // Montar parâmetros da URL
+    const params = new URLSearchParams({
+        api_token: PLUMIFY_API_TOKEN,
         amount: Math.round(total * 100),
         offer_hash: OFFER_HASH,
         payment_method: paymentMethod === 'pix' ? 'pix' : 'credit_card',
-        customer: {
-            name: dadosCliente.cliente_nome,
-            email: dadosCliente.cliente_email,
-            phone_number: telefoneLimpo,
-            document: cpfLimpo,
-            street_name: dadosCliente.endereco_rua || '',
-            number: dadosCliente.endereco_numero || '',
-            complement: dadosCliente.endereco_complemento || "",
-            neighborhood: dadosCliente.endereco_bairro || '',
-            city: dadosCliente.endereco_cidade || '',
-            state: dadosCliente.endereco_uf || '',
-            zip_code: cepLimpo
-        },
-        cart: itens.map(item => ({
+        customer_name: dadosCliente.cliente_nome,
+        customer_email: dadosCliente.cliente_email,
+        customer_phone_number: telefoneLimpo,
+        customer_document: cpfLimpo,
+        customer_street_name: dadosCliente.endereco_rua || '',
+        customer_number: dadosCliente.endereco_numero || '',
+        customer_complement: dadosCliente.endereco_complemento || '',
+        customer_neighborhood: dadosCliente.endereco_bairro || '',
+        customer_city: dadosCliente.endereco_cidade || '',
+        customer_state: dadosCliente.endereco_uf || '',
+        customer_zip_code: cepLimpo,
+        cart: JSON.stringify(itens.map(item => ({
             product_hash: PRODUCT_HASH,
             title: item.nome,
-            cover: null,
             price: Math.round(item.preco * 100),
             quantity: item.quantidade,
             operation_type: 1,
             tangible: false
-        })),
+        }))),
         expire_in_days: 1,
         transaction_origin: "api",
-        tracking: { src: "", utm_source: "direct", utm_medium: "", utm_campaign: "", utm_term: "", utm_content: "" },
         postback_url: `${host}/api/webhook/plumify`
-    };
+    });
     
+    // Se for cartão, adicionar dados do cartão
     if (paymentMethod === 'card' && cardData) {
-        payload.card = {
-            number: cardData.numero.replace(/\s/g, ''),
-            holder_name: cardData.nome_titular,
-            exp_month: parseInt(cardData.validade_mes),
-            exp_year: parseInt(cardData.validade_ano),
-            cvv: cardData.cvv
-        };
-        if (cardData.parcelas) payload.installments = parseInt(cardData.parcelas);
+        params.append('card_number', cardData.numero.replace(/\s/g, ''));
+        params.append('card_holder_name', cardData.nome_titular);
+        params.append('card_exp_month', cardData.validade_mes);
+        params.append('card_exp_year', cardData.validade_ano);
+        params.append('card_cvv', cardData.cvv);
+        if (cardData.parcelas) params.append('installments', cardData.parcelas);
     }
     
-    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    // URL para GET
+    const url = `https://api.Plumify.com.br/api/public/v1?${params.toString()}`;
+    console.log('Chamando Plumify via GET:', url.substring(0, 500) + '...');
     
     try {
-        // Usando a URL exata que você tem - com api_token no corpo ou na URL?
-        const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
+            }
         });
         
         const data = await response.json();
@@ -165,7 +159,7 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Gerar PIX na Plumify
+// Gerar PIX na Plumify via GET
 app.post('/api/gerar-pix', async (req, res) => {
     const { cliente, total, itens } = req.body;
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -178,7 +172,7 @@ app.post('/api/gerar-pix', async (req, res) => {
     if (paymentResult && paymentResult.pix_qr_code) {
         res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
     } else {
-        // Fallback apenas se a API realmente falhar
+        // Fallback - PIX local
         const fallbackPix = `PIX para pagamento - Total: R$ ${total.toFixed(2)} - Chave: capitao@store.com`;
         res.json({ success: true, pix_qr_code: fallbackPix, payment_id: 'local_' + Date.now() });
     }
@@ -352,14 +346,5 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Admin: http://localhost:${PORT}/admin`);
-    console.log(`Console: servidor sendo iniciado...`);
-    console.log(`Console: servidor iniciado`);
-    console.log(`Console: ╔═══════════════════════════════════╗
-║    ██╗  ██╗ █████╗ ██╗  ██╗ █████╗ ║
-║    ██║ ██╔╝██╔══██╗██║ ██╔╝██╔══██╗║
-║    █████╔╝ ███████║█████╔╝ ███████║║
-║    ██╔═██╗ ██╔══██║██╔═██╗ ██╔══██║║
-║    ██║  ██╗██║  ██║██║  ██╗██║  ██║║
-║    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝║
-╚═══════════════════════════════════╝`);
+    console.log(`Login: kakabanker / 77991958@Abc`);
 });
