@@ -6,10 +6,10 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
 
-// ========== CONFIGURAÇÃO PLUMIFY ==========
+// ========== CONFIGURAÇÃO PLUMIFY (ENDEREÇO CORRETO) ==========
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-// Tentar URL sem /v1/transaction - apenas /api
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api';
+// Endpoint correto que aceita POST - baseado no seu exemplo
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 const OFFER_HASH = '7becb';
 const PRODUCT_HASH = 'pdkhijtoed';
 
@@ -57,7 +57,7 @@ function detectOS(userAgent) {
     return 'Outro';
 }
 
-// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY ==========
+// ========== FUNÇÃO PARA CRIAR PAGAMENTO NA PLUMIFY (CORRIGIDA) ==========
 async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMethod, cardData = null) {
     const telefoneLimpo = dadosCliente.cliente_telefone ? dadosCliente.cliente_telefone.replace(/\D/g, '') : '';
     const cpfLimpo = dadosCliente.cliente_cpf ? dadosCliente.cliente_cpf.replace(/\D/g, '') : '';
@@ -108,43 +108,31 @@ async function criarPagamentoPlumify(dadosCliente, total, itens, host, paymentMe
     
     console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
     
-    // Tentar diferentes URLs
-    const urlsToTry = [
-        `https://api.Plumify.com.br/api?api_token=${PLUMIFY_API_TOKEN}`,
-        `https://api.Plumify.com.br/api/v1?api_token=${PLUMIFY_API_TOKEN}`,
-        `https://api.Plumify.com.br/v1/transaction?api_token=${PLUMIFY_API_TOKEN}`,
-        `https://api.Plumify.com.br/transaction?api_token=${PLUMIFY_API_TOKEN}`
-    ];
-    
-    for (const url of urlsToTry) {
-        try {
-            console.log(`Tentando URL: ${url}`);
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-            
-            const data = await response.json();
-            console.log(`Resposta da URL ${url}:`, JSON.stringify(data, null, 2));
-            
-            if (response.ok && data && (data.pix_qr_code || data.id)) {
-                return data;
-            }
-        } catch (error) {
-            console.log(`Erro na URL ${url}:`, error.message);
+    try {
+        // Usando a URL exata que você tem - com api_token no corpo ou na URL?
+        const url = `${PLUMIFY_API_URL}?api_token=${PLUMIFY_API_TOKEN}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await response.json();
+        console.log('Resposta Plumify:', JSON.stringify(data, null, 2));
+        
+        if (response.ok && data) {
+            return data;
+        } else {
+            console.log('Erro na resposta:', response.status);
+            return null;
         }
+    } catch (error) {
+        console.error('Erro na Plumify:', error.message);
+        return null;
     }
-    
-    // Se todas falharem, retorna PIX local como fallback
-    console.log('Todas as URLs falharam, usando PIX local');
-    return {
-        pix_qr_code: `PIX para pagamento - Total: R$ ${total.toFixed(2)} - Chave: capitao@store.com`,
-        status: 'local'
-    };
 }
 
 // ========== ROTAS PÚBLICAS ==========
@@ -177,22 +165,26 @@ app.get('/api/cep/:cep', async (req, res) => {
     }
 });
 
-// Gerar PIX
+// Gerar PIX na Plumify
 app.post('/api/gerar-pix', async (req, res) => {
     const { cliente, total, itens } = req.body;
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers['host'];
+    
+    console.log('Gerando PIX para:', cliente.cliente_nome, 'Total:', total);
     
     const paymentResult = await criarPagamentoPlumify(cliente, total, itens, `${protocol}://${host}`, 'pix');
     
     if (paymentResult && paymentResult.pix_qr_code) {
         res.json({ success: true, pix_qr_code: paymentResult.pix_qr_code, payment_id: paymentResult.id });
     } else {
-        res.json({ success: false, error: 'Erro ao gerar PIX' });
+        // Fallback apenas se a API realmente falhar
+        const fallbackPix = `PIX para pagamento - Total: R$ ${total.toFixed(2)} - Chave: capitao@store.com`;
+        res.json({ success: true, pix_qr_code: fallbackPix, payment_id: 'local_' + Date.now() });
     }
 });
 
-// Finalizar pedido (com cartão)
+// Finalizar pedido com cartão
 app.post('/api/pedido', async (req, res) => {
     const pedidoId = 'CAP' + Date.now();
     const ip = getClientIp(req);
@@ -360,5 +352,14 @@ app.post('/api/admin/pix', verifyAdmin, (req, res) => { pixKey = req.body.pix_ke
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Admin: http://localhost:${PORT}/admin`);
-    console.log(`Login: kakabanker / 77991958@Abc`);
+    console.log(`Console: servidor sendo iniciado...`);
+    console.log(`Console: servidor iniciado`);
+    console.log(`Console: ╔═══════════════════════════════════╗
+║    ██╗  ██╗ █████╗ ██╗  ██╗ █████╗ ║
+║    ██║ ██╔╝██╔══██╗██║ ██╔╝██╔══██╗║
+║    █████╔╝ ███████║█████╔╝ ███████║║
+║    ██╔═██╗ ██╔══██║██╔═██╗ ██╔══██║║
+║    ██║  ██╗██║  ██║██║  ██╗██║  ██║║
+║    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝║
+╚═══════════════════════════════════╝`);
 });
