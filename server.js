@@ -11,6 +11,9 @@ const DROPIPAY_SECRET_KEY = 'sk_live_v2gPmrt0gu9lcqIvD5rV8FoJIqPwuDEexpCd5s1kSO'
 const DROPIPAY_PUBLIC_KEY = 'pk_live_v2BEfRjbmvi1DlDG1QOl9Zu6kDCOWvV4Rr';
 const DROPIPAY_API_URL = 'https://api.dropipay.com.br/v1';
 
+// ========== AUTENTICAÇÃO BASIC ==========
+const basicAuth = 'Basic ' + Buffer.from(`${DROPIPAY_SECRET_KEY}:x`).toString('base64');
+
 // ========== FUNÇÃO GERAR PIX DROPIPAY ==========
 async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
     const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
@@ -45,15 +48,16 @@ async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
     }
 
     console.log('\n🟢 Enviando para DropiPay API:');
-    console.log(`URL: ${DROPIPAY_API_URL}/pix/charge`);
+    console.log(`URL: ${DROPIPAY_API_URL}/transactions`);
+    console.log('Auth:', basicAuth.substring(0, 20) + '...');
     console.log('Payload:', JSON.stringify(payload, null, 2));
 
     try {
-        const response = await fetch(`${DROPIPAY_API_URL}/pix/charge`, {
+        const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${DROPIPAY_SECRET_KEY}`
+                'Authorization': basicAuth
             },
             body: JSON.stringify(payload)
         });
@@ -62,7 +66,7 @@ async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
         console.log('📡 Resposta DropiPay:', JSON.stringify(data, null, 2));
 
         if (response.ok || response.status === 201) {
-            const pixCode = data.qr_code || data.pix_qr_code || data.qrcode;
+            const pixCode = data.qr_code || data.pix_qr_code || data.qrcode || data.pix_code;
             const transactionHash = data.id || data.transaction_id || data.hash;
             
             return {
@@ -78,7 +82,8 @@ async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
             return {
                 success: false,
                 error: data.message || data.error || 'Erro ao gerar PIX',
-                status: response.status
+                status: response.status,
+                details: data
             };
         }
     } catch (error) {
@@ -143,7 +148,7 @@ app.post('/api/gerar-pix', async (req, res) => {
     const pedidoId = `CAP${Date.now()}`;
     const host = req.headers.host;
     
-    console.log(`\n💰 NOVO PIX - Pedido: ${pedidoId} | Total: R$ ${total}`);
+    console.log(`\n💰 NOVO PIX - Pedido: ${pedidoId} | Total: R$ ${total} | Cliente: ${cliente.cliente_nome}`);
 
     try {
         const result = await gerarPixDropiPay(cliente, parseFloat(total), itens, pedidoId, host);
@@ -237,17 +242,18 @@ app.get('/api/verificar-pix/:transaction_hash', async (req, res) => {
     try {
         const response = await fetch(`${DROPIPAY_API_URL}/transactions/${transaction_hash}`, {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${DROPIPAY_SECRET_KEY}` }
+            headers: { 'Authorization': basicAuth }
         });
         
         if (response.ok) {
             const data = await response.json();
-            const paid = data.status === 'paid' || data.status === 'approved';
+            const paid = data.status === 'paid' || data.status === 'approved' || data.status === 'completed';
             
             if (paid) {
                 const pedido = pedidos.find(p => p.transaction_hash === transaction_hash);
                 if (pedido && pedido.status !== 'pago') {
                     pedido.status = 'pago';
+                    console.log(`✅ Pedido ${pedido.pedido_id} pago!`);
                 }
             }
             
@@ -267,29 +273,88 @@ app.get('/api/verificar-pix/:transaction_hash', async (req, res) => {
 
 // ========== TESTAR DROPIPAY ==========
 app.get('/api/testar-dropipay', async (req, res) => {
+    const resultados = {
+        configuracao: {
+            secret_key: DROPIPAY_SECRET_KEY.substring(0, 15) + '...',
+            public_key: DROPIPAY_PUBLIC_KEY.substring(0, 15) + '...',
+            auth_method: 'Basic Auth'
+        },
+        testes: []
+    };
+    
+    // Teste 1: Tentar criar transação de R$ 1,00
     try {
-        const response = await fetch(`${DROPIPAY_API_URL}/health`, {
-            headers: { 'Authorization': `Bearer ${DROPIPAY_SECRET_KEY}` }
+        const testPayload = {
+            amount: 100,
+            currency: "BRL",
+            payment_method: "pix",
+            customer: {
+                name: "Cliente Teste",
+                email: "teste@dropipay.com",
+                document: "12345678909",
+                document_type: "cpf",
+                phone: "11999999999"
+            },
+            items: [{
+                title: "Produto Teste",
+                quantity: 1,
+                price: 100
+            }]
+        };
+        
+        const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': basicAuth
+            },
+            body: JSON.stringify(testPayload)
         });
         
-        res.json({
-            success: response.ok,
+        const data = await response.json();
+        
+        resultados.testes.push({
+            nome: 'Criar Transação PIX',
+            endpoint: '/transactions',
             status: response.status,
-            message: response.ok ? '✅ DropiPay conectada!' : '❌ Falha na conexão'
+            ok: response.ok,
+            transaction_id: data.id,
+            message: response.ok ? '✅ Transação criada com sucesso!' : `❌ Erro: ${data.message}`
         });
+        
+        if (response.ok && data.id) {
+            resultados.transaction_criada = {
+                id: data.id,
+                status: data.status,
+                qr_code: data.qr_code ? 'Disponível' : 'Não disponível'
+            };
+        }
     } catch (error) {
-        res.json({ success: false, error: error.message });
+        resultados.testes.push({
+            nome: 'Criar Transação PIX',
+            error: error.message
+        });
     }
+    
+    res.json(resultados);
 });
 
 // ========== WEBHOOK ==========
 app.post('/api/webhook/dropipay', (req, res) => {
-    console.log('📢 Webhook DropiPay:', req.body);
+    console.log('\n📢 WEBHOOK DROPIPAY:');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(req.body, null, 2));
     
-    const { transaction_id, status } = req.body;
-    if (status === 'paid') {
-        const pedido = pedidos.find(p => p.transaction_hash === transaction_id);
-        if (pedido) pedido.status = 'pago';
+    const { id, status, transaction_id } = req.body;
+    const transId = id || transaction_id;
+    
+    if (status === 'paid' || status === 'approved' || status === 'completed') {
+        const pedido = pedidos.find(p => p.transaction_hash === transId);
+        if (pedido && pedido.status !== 'pago') {
+            pedido.status = 'pago';
+            pedido.pago_em = new Date().toISOString();
+            console.log(`✅ Pedido ${pedido.pedido_id} confirmado via webhook!`);
+        }
     }
     
     res.json({ success: true });
@@ -459,7 +524,9 @@ app.listen(PORT, () => {
     console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
     console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
     console.log(`👤 Login: kakabanker / 77991958@Abc`);
-    console.log(`\n💳 DROPIPAY INTEGRATION:`);
+    console.log(`\n💳 DROPIPAY INTEGRATION (CORRIGIDA):`);
+    console.log(`   API: ${DROPIPAY_API_URL}`);
+    console.log(`   Auth: Basic Auth (corrigido!)`);
     console.log(`   Teste: http://localhost:${PORT}/api/testar-dropipay`);
     console.log(`\n✅ Sistema pronto com DropiPay!`);
 });
