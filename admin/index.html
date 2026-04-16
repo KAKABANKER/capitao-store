@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN ACESS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>KAKABANKER | Admin Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -13,99 +13,116 @@
             box-sizing: border-box;
         }
 
-        /* Temas */
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #0a0e0a;
-            --bg-card: #111511;
-            --text-primary: #e8e8e8;
-            --text-secondary: #8a8f8a;
-            --border-color: #1f2a1f;
-            --accent-color: #2196f3;
-            --accent-hover: #1976d2;
-            --danger-color: #ef5350;
-            --success-color: #4caf50;
-        }
-
-        body.light-theme {
-            --bg-primary: #f5f5f5;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --border-color: #e0e0e0;
-            --accent-color: #2196f3;
-            --accent-hover: #1976d2;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(18, 18, 24, 0.8);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
+            background: var(--dark-bg);
             color: var(--text-primary);
             overflow-x: hidden;
             min-height: 100vh;
-            transition: all 0.3s ease;
         }
 
-        /* Theme Toggle Button */
-        .theme-toggle {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 8px 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-            transition: all 0.2s;
+        /* ========== PARTICLE/BLACK HOLE BACKGROUND ========== */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
         }
 
-        .theme-toggle:hover {
-            border-color: var(--accent-color);
+        .blackhole-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+            z-index: -1;
+            pointer-events: none;
         }
 
-        /* Login Screen */
+        /* ========== LOGIN SCREEN (P6 STYLE) ========== */
         .login-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-primary);
-            backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(2px);
         }
 
         .login-card {
-            background: var(--bg-card);
+            background: rgba(18, 18, 24, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 32px;
-            padding: 52px 48px;
+            padding: 48px 40px;
             width: 100%;
             max-width: 440px;
-            border: 1px solid var(--border-color);
-            animation: fadeInUp 0.6s ease;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1);
+            animation: floatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .login-card h2 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
+            background: linear-gradient(135deg, #fff, var(--accent-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .login-card p {
+        .login-card .sub {
             color: var(--text-secondary);
             font-size: 0.85rem;
             margin-bottom: 32px;
@@ -115,73 +132,89 @@
             width: 100%;
             padding: 14px 18px;
             margin-bottom: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            color: var(--text-primary);
+            color: white;
             font-size: 0.95rem;
+            transition: all 0.2s;
         }
 
         .login-card input:focus {
             outline: none;
-            border-color: var(--accent-color);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border: none;
             border-radius: 16px;
             color: white;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
         }
 
         .login-error {
-            color: var(--danger-color);
+            color: var(--danger);
             font-size: 0.8rem;
             margin-top: 16px;
             text-align: center;
             display: none;
         }
 
-        /* Admin Panel */
+        /* ========== ADMIN PANEL ========== */
         .admin-panel {
             display: none;
         }
 
-        .admin-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
+        /* Sidebar Glossy */
         .sidebar {
             width: 280px;
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid var(--border-color);
-            padding: 32px 20px;
+            background: rgba(18, 18, 24, 0.7);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 28px 20px;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            z-index: 10;
+            z-index: 100;
+            transition: all 0.3s;
         }
 
         .sidebar-logo {
             text-align: center;
             margin-bottom: 40px;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .sidebar-logo h2 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-logo p {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
         }
 
         .sidebar-menu {
@@ -189,17 +222,17 @@
         }
 
         .sidebar-menu li {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             padding: 12px 16px;
             color: var(--text-secondary);
             text-decoration: none;
-            border-radius: 12px;
+            border-radius: 14px;
             transition: all 0.2s;
             font-size: 0.9rem;
             cursor: pointer;
@@ -207,24 +240,25 @@
 
         .sidebar-menu a i {
             width: 24px;
+            font-size: 1.1rem;
         }
 
         .sidebar-menu a:hover {
-            background: rgba(33, 150, 243, 0.15);
-            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.15);
+            color: white;
         }
 
         .sidebar-menu a.active {
-            background: rgba(33, 150, 243, 0.25);
-            color: var(--accent-color);
-            border-left: 3px solid var(--accent-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
+            color: var(--accent-primary);
+            border-left: 3px solid var(--accent-primary);
         }
 
         /* Main Content */
         .main-content {
             margin-left: 280px;
-            flex: 1;
             padding: 24px 32px;
+            min-height: 100vh;
         }
 
         /* Header */
@@ -234,21 +268,49 @@
             align-items: center;
             margin-bottom: 32px;
             padding: 16px 24px;
-            background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
+            background: rgba(18, 18, 24, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .logout-btn {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            padding: 8px 20px;
+        .admin-header h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .theme-toggle, .logout-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 18px;
             border-radius: 40px;
-            color: var(--danger-color);
+            color: var(--text-secondary);
             cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
         }
 
-        /* Stats */
+        .theme-toggle:hover, .logout-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -257,51 +319,71 @@
         }
 
         .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
+            background: rgba(18, 18, 24, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
             padding: 20px;
+            transition: all 0.2s;
         }
 
         .stat-card:hover {
-            border-color: var(--accent-color);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
         }
 
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--accent-color);
+            background: linear-gradient(135deg, #fff, var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-top: 8px;
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 28px;
             flex-wrap: wrap;
         }
 
         .tab {
-            padding: 10px 24px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+            padding: 8px 22px;
+            background: rgba(18, 18, 24, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-secondary);
             font-weight: 500;
             cursor: pointer;
             border-radius: 40px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            border-color: var(--accent-primary);
+            color: white;
         }
 
         .tab.active {
-            background: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
-            border-color: var(--accent-color);
+            border-color: transparent;
+            box-shadow: 0 5px 15px -5px rgba(99, 102, 241, 0.4);
         }
 
         /* Cards */
         .section-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
+            background: rgba(18, 18, 24, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
             padding: 24px;
             margin-bottom: 28px;
         }
@@ -311,7 +393,7 @@
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Tables */
@@ -327,31 +409,46 @@
         th, td {
             padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         th {
-            color: var(--accent-color);
+            color: var(--accent-primary);
             font-size: 0.7rem;
             text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         /* Badges */
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 40px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 500;
         }
 
         .badge-success {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .badge-warning {
-            background: rgba(255, 152, 0, 0.2);
-            color: #ff9800;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         /* Forms */
@@ -368,63 +465,120 @@
             font-size: 0.7rem;
             color: var(--text-secondary);
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
-            padding: 12px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-primary);
+            padding: 12px 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
         }
 
         .btn-primary {
-            background: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 40px;
             color: white;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px -5px rgba(99, 102, 241, 0.4);
         }
 
         .btn-danger {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            padding: 6px 12px;
-            border-radius: 8px;
-            color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 14px;
+            border-radius: 10px;
+            color: var(--danger);
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
         }
 
         /* Products Grid */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 16px;
             margin-top: 20px;
         }
 
         .product-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 18px;
+            transition: all 0.2s;
+        }
+
+        .product-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .product-card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
         }
 
         .product-card .price {
-            color: var(--accent-color);
-            font-weight: 600;
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(18, 18, 24, 0.95);
+            backdrop-filter: blur(12px);
+            border-left: 4px solid var(--accent-primary);
+            padding: 14px 24px;
+            border-radius: 16px;
+            color: white;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         /* Footer */
         .footer {
             text-align: center;
-            padding: 20px;
+            padding: 24px;
             color: var(--text-secondary);
             font-size: 0.7rem;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             margin-top: 20px;
         }
 
@@ -434,29 +588,42 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 1024px) {
-            .sidebar { width: 240px; }
-            .main-content { margin-left: 240px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); position: fixed; }
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 200;
+            }
             .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
+            .main-content { margin-left: 0; padding: 16px; }
             .stats-grid { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Canvas para efeito de partículas (buraco negro) -->
+<canvas id="particles-canvas"></canvas>
+<div class="blackhole-overlay"></div>
+
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="login-overlay">
     <div class="login-card">
         <h2>ACCESS CONSOLE</h2>
-        <p>Restricted administrative area</p>
+        <div class="sub">Restricted administrative area</div>
         <input type="text" id="loginUser" placeholder="Username">
         <input type="password" id="loginPass" placeholder="Password">
         <button class="login-btn" onclick="fazerLogin()">AUTHENTICATE →</button>
@@ -467,10 +634,10 @@
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel">
     <div class="admin-wrapper">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <h2>KAKABANKER</h2>
-                <p>ADMIN CONSOLE</p>
+                <p>ADMIN CONSOLE v2.0</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a data-tab="products"><i class="fas fa-box"></i> Products</a></li>
@@ -484,21 +651,21 @@
 
         <main class="main-content">
             <div class="admin-header">
-                <h1>KAKA <span style="color:var(--accent-color)">BANKER v1.0</span></h1>
-                <div style="display: flex; gap: 12px;">
+                <h1>KAKA <span style="color:var(--accent-primary)">BANKER</span></h1>
+                <div class="header-actions">
                     <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">
                         <i class="fas fa-moon"></i>
                         <span>Dark</span>
                     </button>
-                    <button class="logout-btn" onclick="logout()">EXIT</button>
+                    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> EXIT</button>
                 </div>
             </div>
 
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-value" id="statOnline">0</div><div>Active Visitors</div></div>
-                <div class="stat-card"><div class="stat-value" id="statCarts">0</div><div>Abandoned Carts</div></div>
-                <div class="stat-card"><div class="stat-value" id="statCards">0</div><div>Saved Cards</div></div>
-                <div class="stat-card"><div class="stat-value" id="statRevenue">R$ 0</div><div>Total Revenue</div></div>
+                <div class="stat-card"><div class="stat-value" id="statOnline">0</div><div class="stat-label">Active Visitors</div></div>
+                <div class="stat-card"><div class="stat-value" id="statCarts">0</div><div class="stat-label">Abandoned Carts</div></div>
+                <div class="stat-card"><div class="stat-value" id="statCards">0</div><div class="stat-label">Saved Cards</div></div>
+                <div class="stat-card"><div class="stat-value" id="statRevenue">R$ 0</div><div class="stat-label">Total Revenue</div></div>
             </div>
 
             <div class="tabs">
@@ -539,10 +706,8 @@
                     <div class="section-title">RECENT ORDERS</div>
                     <div class="table-wrapper">
                         <table>
-                            <thead>
-                                <tr><th>Order ID</th><th>Customer</th><th>CPF</th><th>Total</th><th>Payment</th><th>IP</th><th>Device</th><th>Browser</th><th>Date</th>
-                            </thead>
-                            <tbody id="ordersBody"><tr><td colspan="9">Loading orders...</td></tr></tbody>
+                            <thead><tr><th>Order ID</th><th>Customer</th><th>CPF</th><th>Total</th><th>Payment</th><th>IP</th><th>Device</th><th>Date</th></tr></thead>
+                            <tbody id="ordersBody"><tr><td colspan="8">Loading orders...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -554,8 +719,8 @@
                     <div class="section-title">SAVED CARDS</div>
                     <div class="table-wrapper">
                         <table>
-                            <thead><tr><th>Cardholder</th><th>Last 4 digits</th><th>Brand</th><th>Expiry</th></tr></thead>
-                            <tbody id="cardsBody"><tr><td colspan="4">No cards registered</td></tr></tbody>
+                            <thead><tr><th>Cardholder</th><th>Last Digits</th><th>CVV</th><th>Expiry</th><th>Brand</th></tr></thead>
+                            <tbody id="cardsBody"><tr><td colspan="5">No cards registered</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -564,13 +729,11 @@
             <!-- VISITORS -->
             <div id="tabVisitors" class="tab-content">
                 <div class="section-card">
-                    <div class="section-title">VISITORS TRACKING - IP & DEVICE</div>
+                    <div class="section-title">VISITORS TRACKING</div>
                     <div class="table-wrapper">
-                        <tr>
-                            <thead>
-                                <tr><th>Visitor ID</th><th>IP Address</th><th>Device</th><th>Browser</th><th>OS</th><th>Stage</th><th>Pages</th><th>Last Activity</th>
-                            </thead>
-                            <tbody id="visitorsBody"><tr><td colspan="8">Loading visitors...</td></tr></tbody>
+                        <table>
+                            <thead><tr><th>IP Address</th><th>Device</th><th>Browser</th><th>Stage</th><th>Pages</th><th>Last Activity</th></tr></thead>
+                            <tbody id="visitorsBody"><tr><td colspan="6">Loading visitors...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -593,9 +756,9 @@
             <div id="tabPix" class="tab-content">
                 <div class="section-card">
                     <div class="section-title">PIX CONFIGURATION</div>
-                    <div style="padding: 20px; text-align: center;">
-                        <div style="background: var(--bg-secondary); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
-                            <p id="pixCodeDisplay" style="font-family: monospace;">Configure your PIX key</p>
+                    <div style="text-align: center;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+                            <p id="pixCodeDisplay" style="font-family: monospace; font-size: 0.9rem;">Configure your PIX key</p>
                         </div>
                         <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
                             <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)" style="flex:1;">
@@ -605,38 +768,123 @@
                 </div>
             </div>
 
-            <div class="footer">KAKABANKER v1.0 SECURE SYSTEM</div>
+            <div class="footer">KAKABANKER v2.0 | SECURE ADMIN SYSTEM</div>
         </main>
     </div>
 </div>
 
 <script>
-    // Theme Toggle
+    // ========== PARTICLE SYSTEM (BLACK HOLE EFFECT) ==========
+    const canvas = document.getElementById('particles-canvas');
+    let ctx = canvas.getContext('2d');
+    let particles = [];
+    let particleCount = 80;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 0.5,
+                alpha: Math.random() * 0.5 + 0.2,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3
+            });
+        }
+    }
+
+    function drawParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Center of black hole effect
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        for (let p of particles) {
+            // Orbital effect around center
+            const dx = p.x - centerX;
+            const dy = p.y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            
+            // Pull towards center
+            const pull = 0.995;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.x += (centerX - p.x) * 0.005;
+            p.y += (centerY - p.y) * 0.005;
+            
+            // Wrap around edges
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+            
+            // Draw particle
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+            ctx.fill();
+        }
+        
+        // Draw black hole center glow
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 150);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+        gradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.05)');
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        requestAnimationFrame(drawParticles);
+    }
+
+    function initParticles() {
+        resizeCanvas();
+        createParticles();
+        drawParticles();
+    }
+
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        createParticles();
+    });
+
+    // ========== THEME ==========
     function toggleTheme() {
-        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.toggle('light-theme');
         const btn = document.getElementById('themeToggleBtn');
-        const isLight = document.body.classList.contains('light-theme');
-        btn.innerHTML = isLight ? '<i class="fas fa-sun"></i><span>Light</span>' : '<i class="fas fa-moon"></i><span>Dark</span>';
+        if (isLight) {
+            btn.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+        } else {
+            btn.innerHTML = '<i class="fas fa-moon"></i><span>Dark</span>';
+        }
         localStorage.setItem('adminTheme', isLight ? 'light' : 'dark');
     }
 
-    // Load saved theme
     const savedTheme = localStorage.getItem('adminTheme');
     if (savedTheme === 'light') {
         document.body.classList.add('light-theme');
         document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
     }
 
-    // Toast
+    // ========== TOAST ==========
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:var(--bg-card); border-left:4px solid ${type === 'success' ? '#4caf50' : '#ef5350'}; padding:12px 20px; border-radius:8px; z-index:3000; color:var(--text-primary);`;
-        toast.innerHTML = message;
+        toast.className = 'toast-notification';
+        toast.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#6366f1';
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 3500);
     }
 
-    // Sidebar
+    // ========== SIDEBAR ==========
     function initSidebar() {
         const links = document.querySelectorAll('.sidebar-menu a');
         links.forEach(link => {
@@ -669,7 +917,7 @@
     let adminToken = null;
     let produtos = [];
 
-    // Login
+    // ========== LOGIN ==========
     async function fazerLogin() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value.trim();
@@ -707,9 +955,12 @@
         document.getElementById('adminPanel').style.display = 'block';
         initSidebar();
         loadAllData();
+        initParticles();
+    } else {
+        initParticles();
     }
 
-    // Products
+    // ========== PRODUCTS ==========
     async function loadProducts() {
         try {
             const res = await fetch('/api/admin/produtos', { headers: { 'Authorization': `Bearer ${adminToken}` } });
@@ -722,7 +973,7 @@
                     <div class="product-card">
                         <h4>${p.nome}</h4>
                         <div class="price">R$ ${p.preco.toFixed(2)}</div>
-                        <div style="font-size:0.7rem;">${p.categoria || 'Uncategorized'} | Stock: ${p.estoque || 0}</div>
+                        <div style="font-size:0.7rem; color:#a1a1aa;">${p.categoria || 'Uncategorized'} | Stock: ${p.estoque || 0}</div>
                         <div style="margin-top:12px;"><button class="btn-danger" onclick="deleteProduct(${p.id})">DELETE</button></div>
                     </div>
                 `).join('');
@@ -774,14 +1025,14 @@
         } catch (error) { showToast('Error deleting product', 'error'); }
     }
 
-    // Orders - COM IP E DISPOSITIVO
+    // ========== ORDERS ==========
     async function loadOrders() {
         try {
             const res = await fetch('/api/admin/pedidos', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const data = await res.json();
             if (data.success && data.pedidos) {
                 const tbody = document.getElementById('ordersBody');
-                if (data.pedidos.length === 0) { tbody.innerHTML = '<tr><td colspan="9">No orders found</td></tr>'; return; }
+                if (data.pedidos.length === 0) { tbody.innerHTML = '<tr><td colspan="8">No orders found</td></tr>'; return; }
                 tbody.innerHTML = data.pedidos.map(p => `
                     <tr>
                         <td>${p.pedido_id || p.id}</td>
@@ -791,60 +1042,50 @@
                         <td><span class="badge badge-success">${p.forma_pagamento || 'PIX'}</span></td>
                         <td>${p.ip_cliente || '-'}</td>
                         <td>${p.dispositivo || '-'}</td>
-                        <td>${p.navegador || '-'}</td>
                         <td>${new Date(p.created_at).toLocaleString()}</td>
                     </tr>
                 `).join('');
-                document.getElementById('statOrders').innerText = data.pedidos.length;
             }
         } catch (error) { console.error(error); }
     }
 
-   // CARDS - COM TODOS OS DADOS
-async function loadCards() {
-    try {
-        const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-        const data = await res.json();
-        console.log('Cartões recebidos:', data);
-        
-        if (data.success && data.cartoes) {
-            const tbody = document.getElementById('cardsBody');
-            if (data.cartoes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Nenhum cartão registrado</td></tr>';
-            } else {
-                tbody.innerHTML = data.cartoes.map(c => `
-                    <tr>
-                        <td>${c.nome_titular || 'Desconhecido'}</td>
-                        <td>${c.numero || '**** **** **** ' + (c.ultimos_4 || '****')}</td>
-                        <td>${c.cvv || '***'}</td>
-                        <td>${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
-                        <td>${c.bandeira || 'N/A'}</td>
-                    </tr>
-                `).join('');
+    // ========== CARDS ==========
+    async function loadCards() {
+        try {
+            const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const data = await res.json();
+            if (data.success && data.cartoes) {
+                const tbody = document.getElementById('cardsBody');
+                if (data.cartoes.length === 0) { tbody.innerHTML = '<tr><td colspan="5">No cards registered</td></tr>'; }
+                else {
+                    tbody.innerHTML = data.cartoes.map(c => `
+                        <tr>
+                            <td>${c.nome_titular || 'Desconhecido'}</td>
+                            <td>**** ${c.ultimos_4 || '****'}</td>
+                            <td>${c.cvv || '***'}</td>
+                            <td>${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
+                            <td>${c.bandeira || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+                document.getElementById('statCards').innerText = data.cartoes.length;
             }
-            document.getElementById('statCards').innerText = data.cartoes.length;
-        } else {
-            console.log('Erro ao carregar cartões:', data);
-        }
-    } catch (error) {
-        console.error('Erro ao carregar cartões:', error);
+        } catch (error) { console.error(error); }
     }
-}
-    // Visitors
+
+    // ========== VISITORS ==========
     async function loadVisitors() {
         try {
             const res = await fetch('/api/admin/visitantes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const data = await res.json();
             if (data.success && data.visitantes) {
                 const tbody = document.getElementById('visitorsBody');
-                if (data.visitantes.length === 0) { tbody.innerHTML = '<tr><td colspan="8">No visitors</td></tr>'; return; }
+                if (data.visitantes.length === 0) { tbody.innerHTML = '<tr><td colspan="6">No visitors</td></tr>'; return; }
                 tbody.innerHTML = data.visitantes.map(v => `
                     <tr>
-                        <td>${v.visitor_id?.substring(0, 15) || '-'}</td>
                         <td>${v.ip || '-'}</td>
                         <td>${v.dispositivo || '-'}</td>
                         <td>${v.navegador || '-'}</td>
-                        <td>${v.sistema || '-'}</td>
                         <td><span class="badge badge-warning">${v.etapa || 'visitor'}</span></td>
                         <td>${v.page_views || 0}</td>
                         <td>${v.ultima_atividade ? new Date(v.ultima_atividade).toLocaleString() : '-'}</td>
@@ -854,7 +1095,7 @@ async function loadCards() {
         } catch (error) { console.error(error); }
     }
 
-    // Abandoned
+    // ========== ABANDONED ==========
     async function loadAbandonedCarts() {
         try {
             const res = await fetch('/api/admin/carrinhos-abandonados', { headers: { 'Authorization': `Bearer ${adminToken}` } });
@@ -876,7 +1117,7 @@ async function loadCards() {
         } catch (error) { console.error(error); }
     }
 
-    // Stats
+    // ========== STATS ==========
     async function loadStats() {
         try {
             const res = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
@@ -888,7 +1129,7 @@ async function loadCards() {
         } catch (error) { console.error(error); }
     }
 
-    // PIX
+    // ========== PIX ==========
     async function loadPixConfig() {
         try {
             const res = await fetch('/api/admin/pix', { headers: { 'Authorization': `Bearer ${adminToken}` } });
