@@ -11,27 +11,24 @@ const DROPIPAY_SECRET_KEY = 'sk_live_v2gPmrt0gu9lcqIvD5rV8FoJIqPwuDEexpCd5s1kSO'
 const DROPIPAY_PUBLIC_KEY = 'pk_live_v2BEfRjbmvi1DlDG1QOl9Zu6kDCOWvV4Rr';
 const DROPIPAY_API_URL = 'https://api.dropipay.com.br/v1';
 
-// Autenticação Basic Auth (conforme documentação da DropiPay)
+// Basic Auth: secret_key + ":x" codificado em base64
 const basicAuth = 'Basic ' + Buffer.from(`${DROPIPAY_SECRET_KEY}:x`).toString('base64');
 
-// ========== FUNÇÃO GERAR CHECKOUT (PIX/BOLETO) ==========
-async function gerarCheckoutDropiPay(cliente, total, itens, pedidoId, host, paymentMethod = 'pix') {
+// ========== FUNÇÃO CRIAR TRANSAÇÃO (UNIFICADA) ==========
+async function criarTransacaoDropiPay(cliente, total, itens, pedidoId, host, paymentMethod, cartao = null) {
     const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
     const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
     const amountInCents = Math.round(total * 100);
     
-    // Payload conforme padrão DropiPay (baseado nos exemplos)
+    // Payload base conforme documentação
     const payload = {
         amount: amountInCents,
-        currency: "BRL",
-        paymentMethod: paymentMethod,
+        payment_method: paymentMethod, // 'pix', 'boleto', 'credit_card'
         customer: {
             name: cliente.cliente_nome,
             email: cliente.cliente_email,
-            document: {
-                type: "cpf",
-                number: cpfLimpo
-            },
+            document: cpfLimpo,
+            document_type: "cpf",
             phone: telefoneLimpo || "11999999999"
         },
         items: itens.map(item => ({
@@ -42,133 +39,65 @@ async function gerarCheckoutDropiPay(cliente, total, itens, pedidoId, host, paym
         metadata: {
             order_id: pedidoId,
             customer_email: cliente.cliente_email
-        },
-        settings: {
-            requestAddress: true,
-            requestPhone: true,
-            requestDocument: true
         }
     };
 
-    // Adiciona endereço se disponível
-    if (cliente.endereco_cep) {
-        payload.customer.address = {
-            street: cliente.endereco_rua || "Não informado",
-            number: cliente.endereco_numero || "S/N",
-            neighborhood: cliente.endereco_bairro || "Centro",
-            city: cliente.endereco_cidade || "São Paulo",
-            state: cliente.endereco_uf || "SP",
-            zipCode: cliente.endereco_cep.replace(/\D/g, ''),
-            country: "BR"
+    // Adiciona dados específicos por método de pagamento
+    if (paymentMethod === 'boleto') {
+        payload.boleto = {
+            expires_in_days: 3,
+            instructions: "Pagar até a data de vencimento"
         };
-    }
-
-    if (host && !host.includes('localhost')) {
-        payload.webhookUrl = `https://${host}/api/webhook/dropipay`;
-    }
-
-    console.log('\n🟢 Gerando checkout DropiPay:');
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-
-    try {
-        const response = await fetch(`${DROPIPAY_API_URL}/checkout`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': basicAuth
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        console.log('📡 Resposta DropiPay:', JSON.stringify(data, null, 2));
-
-        if (response.ok || response.status === 201) {
-            // Baseado no formato do exemplo
-            const checkoutUrl = data.secureUrl || data.url || data.checkoutUrl;
-            const checkoutId = data.id || data.secureId;
-            
-            return {
-                success: true,
-                checkout_url: checkoutUrl,
-                checkout_id: checkoutId,
-                status: data.status || 'pending',
-                data: data
-            };
-        } else {
-            return { 
-                success: false, 
-                error: data.message || data.error || 'Erro ao criar checkout',
-                status: response.status,
-                details: data
+        // Adiciona endereço para boleto
+        if (cliente.endereco_cep) {
+            payload.customer.address = {
+                street: cliente.endereco_rua || "Não informado",
+                number: cliente.endereco_numero || "S/N",
+                neighborhood: cliente.endereco_bairro || "Centro",
+                city: cliente.endereco_cidade || "São Paulo",
+                state: cliente.endereco_uf || "SP",
+                zip_code: cliente.endereco_cep.replace(/\D/g, '')
             };
         }
-    } catch (error) {
-        console.error('❌ Erro:', error);
-        return { success: false, error: error.message };
     }
-}
-
-// ========== FUNÇÃO PROCESSAR CARTÃO DIRETAMENTE ==========
-async function processarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host) {
-    const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
-    const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
-    const amountInCents = Math.round(total * 100);
     
-    // Extrai mês e ano da validade (formato MM/AA)
-    const [expMonth, expYear] = cartao.validade.split('/');
+    if (paymentMethod === 'pix') {
+        payload.pix = {
+            expires_in_minutes: 60
+        };
+    }
     
-    const payload = {
-        amount: amountInCents,
-        currency: "BRL",
-        paymentMethod: "credit_card",
-        customer: {
-            name: cliente.cliente_nome,
-            email: cliente.cliente_email,
-            document: {
-                type: "cpf",
-                number: cpfLimpo
-            },
-            phone: telefoneLimpo || "11999999999"
-        },
-        items: itens.map(item => ({
-            title: item.nome,
-            quantity: item.quantidade,
-            price: Math.round(item.preco * 100)
-        })),
-        creditCard: {
+    if (paymentMethod === 'credit_card' && cartao) {
+        const [expMonth, expYear] = cartao.validade.split('/');
+        payload.card = {
             number: cartao.numero.replace(/\D/g, ''),
-            holderName: cartao.nome_titular,
-            expMonth: parseInt(expMonth),
-            expYear: parseInt('20' + expYear),
+            holder_name: cartao.nome_titular,
+            expiration_month: parseInt(expMonth),
+            expiration_year: parseInt('20' + expYear),
             cvv: cartao.cvv,
             installments: parseInt(cartao.parcelas) || 1
-        },
-        metadata: {
-            order_id: pedidoId,
-            customer_email: cliente.cliente_email
-        }
-    };
-
-    // Adiciona endereço de cobrança
-    if (cliente.endereco_cep) {
-        payload.billingAddress = {
-            street: cliente.endereco_rua || "Não informado",
-            number: cliente.endereco_numero || "S/N",
-            neighborhood: cliente.endereco_bairro || "Centro",
-            city: cliente.endereco_cidade || "São Paulo",
-            state: cliente.endereco_uf || "SP",
-            zipCode: cliente.endereco_cep.replace(/\D/g, ''),
-            country: "BR"
         };
+        // Adiciona endereço de cobrança
+        if (cliente.endereco_cep) {
+            payload.billing_address = {
+                street: cliente.endereco_rua || "Não informado",
+                number: cliente.endereco_numero || "S/N",
+                neighborhood: cliente.endereco_bairro || "Centro",
+                city: cliente.endereco_cidade || "São Paulo",
+                state: cliente.endereco_uf || "SP",
+                zip_code: cliente.endereco_cep.replace(/\D/g, '')
+            };
+        }
     }
 
+    // Adiciona webhook em produção
     if (host && !host.includes('localhost')) {
-        payload.webhookUrl = `https://${host}/api/webhook/dropipay`;
+        payload.postback_url = `https://${host}/api/webhook/dropipay`;
     }
 
-    console.log('\n🟢 Processando cartão DropiPay:');
-    console.log('Cartão:', cartao.numero ? '****' + cartao.numero.slice(-4) : 'Não informado');
+    console.log(`\n🟢 Criando transação ${paymentMethod}:`);
+    console.log('URL:', `${DROPIPAY_API_URL}/transactions`);
+    console.log('Payload:', JSON.stringify(payload, null, 2));
 
     try {
         const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
@@ -181,25 +110,48 @@ async function processarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, 
         });
 
         const data = await response.json();
-        console.log('📡 Resposta Cartão:', JSON.stringify(data, null, 2));
+        console.log('📡 Resposta:', JSON.stringify(data, null, 2));
 
         if (response.ok || response.status === 201) {
+            const transactionId = data.id;
+            const status = data.status;
+            const paid = status === 'paid' || status === 'approved';
+            
+            // Para PIX, extrai QR Code
+            let pixQrCode = null;
+            if (paymentMethod === 'pix' && data.pix) {
+                pixQrCode = data.pix.qr_code || data.pix.qrcode;
+            }
+            
+            // Para Boleto, extrai URL e linha digitável
+            let boletoUrl = null;
+            let boletoCode = null;
+            if (paymentMethod === 'boleto' && data.boleto) {
+                boletoUrl = data.boleto.url;
+                boletoCode = data.boleto.digitable_line;
+            }
+            
             return {
                 success: true,
-                transaction_id: data.id,
-                status: data.status,
-                paid: data.status === 'paid' || data.status === 'approved',
+                transaction_id: transactionId,
+                status: status,
+                paid: paid,
+                pix_qr_code: pixQrCode,
+                boleto_url: boletoUrl,
+                boleto_code: boletoCode,
                 data: data
             };
         } else {
-            return { 
-                success: false, 
-                error: data.message || data.error || 'Erro ao processar cartão',
-                status: response.status
+            console.error('❌ Erro na transação:', data);
+            return {
+                success: false,
+                error: data.message || data.error || 'Erro ao criar transação',
+                status: response.status,
+                details: data
             };
         }
     } catch (error) {
-        console.error('❌ Erro:', error);
+        console.error('❌ Erro de conexão:', error);
         return { success: false, error: error.message };
     }
 }
@@ -260,18 +212,17 @@ app.post('/api/gerar-pix', async (req, res) => {
     console.log(`\n💰 PIX - Pedido: ${pedidoId} | Total: R$ ${parseFloat(total).toFixed(2)}`);
 
     try {
-        const result = await gerarCheckoutDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'pix');
+        const result = await criarTransacaoDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'pix');
         
-        if (result.success && result.checkout_url) {
+        if (result.success && result.pix_qr_code) {
             const pedidoCompleto = {
                 pedido_id: pedidoId,
                 ...cliente,
                 itens: itens || [],
                 total: parseFloat(total),
                 forma_pagamento: 'PIX',
-                status: 'aguardando_pagamento',
-                checkout_id: result.checkout_id,
-                checkout_url: result.checkout_url,
+                status: result.paid ? 'pago' : 'aguardando_pagamento',
+                transaction_id: result.transaction_id,
                 created_at: new Date().toISOString(),
                 provider: 'dropipay'
             };
@@ -280,13 +231,13 @@ app.post('/api/gerar-pix', async (req, res) => {
             
             return res.json({
                 success: true,
-                checkout_url: result.checkout_url,
-                checkout_id: result.checkout_id,
+                pix_qr_code: result.pix_qr_code,
+                transaction_id: result.transaction_id,
                 pedido_id: pedidoId,
+                status: result.status,
                 provider: 'dropipay'
             });
         } else {
-            // Fallback local
             console.log('⚠️ DropiPay falhou, usando fallback local');
             const pixLocal = gerarPixLocal(parseFloat(total), pedidoId);
             
@@ -335,9 +286,9 @@ app.post('/api/gerar-boleto', async (req, res) => {
     const host = req.headers.host;
 
     try {
-        const result = await gerarCheckoutDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'boleto');
+        const result = await criarTransacaoDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'boleto');
         
-        if (result.success && result.checkout_url) {
+        if (result.success) {
             const pedidoCompleto = {
                 pedido_id: pedidoId,
                 ...cliente,
@@ -345,8 +296,9 @@ app.post('/api/gerar-boleto', async (req, res) => {
                 total: parseFloat(total),
                 forma_pagamento: 'BOLETO',
                 status: 'aguardando_pagamento',
-                checkout_id: result.checkout_id,
-                checkout_url: result.checkout_url,
+                transaction_id: result.transaction_id,
+                boleto_url: result.boleto_url,
+                boleto_code: result.boleto_code,
                 created_at: new Date().toISOString(),
                 provider: 'dropipay'
             };
@@ -355,8 +307,9 @@ app.post('/api/gerar-boleto', async (req, res) => {
             
             return res.json({
                 success: true,
-                checkout_url: result.checkout_url,
-                checkout_id: result.checkout_id,
+                boleto_url: result.boleto_url,
+                boleto_code: result.boleto_code,
+                transaction_id: result.transaction_id,
                 pedido_id: pedidoId
             });
         } else {
@@ -379,7 +332,7 @@ app.post('/api/processar-cartao', async (req, res) => {
     const host = req.headers.host;
 
     try {
-        const result = await processarCartaoDropiPay(cliente, parseFloat(total), itens || [], cartao, pedidoId, host);
+        const result = await criarTransacaoDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'credit_card', cartao);
         
         if (result.success) {
             const pedidoCompleto = {
@@ -396,7 +349,7 @@ app.post('/api/processar-cartao', async (req, res) => {
             
             pedidos.unshift(pedidoCompleto);
             
-            // Salva dados do cartão
+            // Salva cartão separadamente
             cartoes.push({
                 id: Date.now(),
                 ...cartao,
@@ -420,13 +373,12 @@ app.post('/api/processar-cartao', async (req, res) => {
     }
 });
 
-// ========== VERIFICAR PAGAMENTO ==========
-app.get('/api/verificar-pagamento/:id', async (req, res) => {
+// ========== VERIFICAR TRANSAÇÃO ==========
+app.get('/api/verificar-transacao/:id', async (req, res) => {
     const { id } = req.params;
     
     try {
-        // Tenta buscar como transação
-        let response = await fetch(`${DROPIPAY_API_URL}/transactions/${id}`, {
+        const response = await fetch(`${DROPIPAY_API_URL}/transactions/${id}`, {
             method: 'GET',
             headers: { 'Authorization': basicAuth }
         });
@@ -436,39 +388,17 @@ app.get('/api/verificar-pagamento/:id', async (req, res) => {
             const paid = data.status === 'paid' || data.status === 'approved';
             
             if (paid) {
-                const pedido = pedidos.find(p => p.transaction_id === id || p.checkout_id === id);
+                const pedido = pedidos.find(p => p.transaction_id === id);
                 if (pedido && pedido.status !== 'pago') {
                     pedido.status = 'pago';
                     console.log(`✅ Pedido ${pedido.pedido_id} pago!`);
                 }
             }
             
-            return res.json({ success: true, status: data.status, paid });
+            return res.json({ success: true, status: data.status, paid, transaction: data });
         }
         
-        // Tenta buscar como checkout
-        response = await fetch(`${DROPIPAY_API_URL}/checkout/${id}`, {
-            method: 'GET',
-            headers: { 'Authorization': basicAuth }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            const paid = data.transaction?.status === 'paid';
-            
-            if (paid) {
-                const pedido = pedidos.find(p => p.checkout_id === id);
-                if (pedido && pedido.status !== 'pago') {
-                    pedido.status = 'pago';
-                    console.log(`✅ Pedido ${pedido.pedido_id} pago!`);
-                }
-            }
-            
-            return res.json({ success: true, status: data.status, paid });
-        }
-        
-        // Verifica pedido local
-        const pedidoLocal = pedidos.find(p => p.pedido_id === id);
+        const pedidoLocal = pedidos.find(p => p.pedido_id === id || p.transaction_id === id);
         if (pedidoLocal) {
             return res.json({ success: true, status: pedidoLocal.status, paid: pedidoLocal.status === 'pago' });
         }
@@ -481,38 +411,30 @@ app.get('/api/verificar-pagamento/:id', async (req, res) => {
 
 // ========== TESTAR DROPIPAY ==========
 app.get('/api/testar-dropipay', async (req, res) => {
-    const resultados = {
-        config: {
-            secret_key: DROPIPAY_SECRET_KEY.substring(0, 15) + '...',
-            public_key: DROPIPAY_PUBLIC_KEY.substring(0, 15) + '...',
-            api_url: DROPIPAY_API_URL
-        },
-        testes: []
-    };
+    console.log('\n🧪 Testando integração DropiPay...');
     
-    // Teste de checkout com valor pequeno
+    const testPayload = {
+        amount: 100,
+        payment_method: "pix",
+        customer: {
+            name: "Cliente Teste",
+            email: "teste@dropipay.com",
+            document: "12345678909",
+            document_type: "cpf",
+            phone: "11999999999"
+        },
+        items: [{
+            title: "Produto Teste",
+            quantity: 1,
+            price: 100
+        }],
+        pix: {
+            expires_in_minutes: 60
+        }
+    };
+
     try {
-        const testPayload = {
-            amount: 100,
-            currency: "BRL",
-            paymentMethod: "pix",
-            customer: {
-                name: "Cliente Teste",
-                email: "teste@dropipay.com",
-                document: {
-                    type: "cpf",
-                    number: "12345678909"
-                },
-                phone: "11999999999"
-            },
-            items: [{
-                title: "Teste Integração",
-                quantity: 1,
-                price: 100
-            }]
-        };
-        
-        const response = await fetch(`${DROPIPAY_API_URL}/checkout`, {
+        const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -523,42 +445,33 @@ app.get('/api/testar-dropipay', async (req, res) => {
         
         const data = await response.json();
         
-        resultados.testes.push({
-            nome: 'Criar Checkout PIX',
+        res.json({
+            success: response.ok,
             status: response.status,
-            ok: response.ok,
-            checkout_url: data.secureUrl,
-            message: response.ok ? '✅ Checkout criado!' : `❌ Erro: ${data.message}`
+            message: response.ok ? '✅ DropiPay está funcionando!' : '❌ Erro na integração',
+            response: data,
+            auth_method: 'Basic Auth',
+            endpoint: 'POST /transactions'
         });
     } catch (error) {
-        resultados.testes.push({
-            nome: 'Criar Checkout PIX',
-            error: error.message
+        res.json({ 
+            success: false, 
+            error: error.message,
+            message: '❌ Não foi possível conectar à DropiPay'
         });
     }
-    
-    res.json(resultados);
 });
 
 // ========== WEBHOOK ==========
 app.post('/api/webhook/dropipay', (req, res) => {
     console.log('\n📢 WEBHOOK DROPIPAY:');
-    console.log('Headers:', JSON.stringify(req.headers, null, 2));
     console.log('Body:', JSON.stringify(req.body, null, 2));
     
-    const { type, data } = req.body;
+    const { id, status, transaction_id } = req.body;
+    const transId = id || transaction_id;
     
-    if (type === 'checkout' && data?.transaction?.status === 'paid') {
-        const pedido = pedidos.find(p => p.checkout_id === data.id);
-        if (pedido && pedido.status !== 'pago') {
-            pedido.status = 'pago';
-            pedido.pago_em = new Date().toISOString();
-            console.log(`✅ Pedido ${pedido.pedido_id} confirmado via webhook!`);
-        }
-    }
-    
-    if (type === 'transaction' && data?.status === 'paid') {
-        const pedido = pedidos.find(p => p.transaction_id === data.id);
+    if (status === 'paid' || status === 'approved') {
+        const pedido = pedidos.find(p => p.transaction_id === transId);
         if (pedido && pedido.status !== 'pago') {
             pedido.status = 'pago';
             pedido.pago_em = new Date().toISOString();
@@ -734,9 +647,12 @@ app.listen(PORT, () => {
     console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
     console.log(`👤 Login: kakabanker / 77991958@Abc`);
     console.log(`\n💳 DROPIPAY INTEGRATION:`);
-    console.log(`   ✅ PIX: POST /api/gerar-pix`);
-    console.log(`   ✅ BOLETO: POST /api/gerar-boleto`);
-    console.log(`   ✅ CARTÃO: POST /api/processar-cartao`);
-    console.log(`   ✅ Teste: GET /api/testar-dropipay`);
+    console.log(`   Endpoint: POST ${DROPIPAY_API_URL}/transactions`);
+    console.log(`   Auth: Basic Auth (sk_live...:x)`);
+    console.log(`   Teste: GET /api/testar-dropipay`);
+    console.log(`   PIX: POST /api/gerar-pix`);
+    console.log(`   BOLETO: POST /api/gerar-boleto`);
+    console.log(`   CARTÃO: POST /api/processar-cartao`);
+    console.log(`   Verificar: GET /api/verificar-transacao/:id`);
     console.log(`\n✅ Sistema pronto!`);
 });
