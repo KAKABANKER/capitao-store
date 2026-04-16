@@ -11,24 +11,27 @@ const DROPIPAY_SECRET_KEY = 'sk_live_v2gPmrt0gu9lcqIvD5rV8FoJIqPwuDEexpCd5s1kSO'
 const DROPIPAY_PUBLIC_KEY = 'pk_live_v2BEfRjbmvi1DlDG1QOl9Zu6kDCOWvV4Rr';
 const DROPIPAY_API_URL = 'https://api.dropipay.com.br/v1';
 
-// Autenticação Basic Auth
+// Autenticação Basic Auth (conforme documentação da DropiPay)
 const basicAuth = 'Basic ' + Buffer.from(`${DROPIPAY_SECRET_KEY}:x`).toString('base64');
 
-// ========== FUNÇÃO GERAR PIX ==========
-async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
+// ========== FUNÇÃO GERAR CHECKOUT (PIX/BOLETO) ==========
+async function gerarCheckoutDropiPay(cliente, total, itens, pedidoId, host, paymentMethod = 'pix') {
     const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
     const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
     const amountInCents = Math.round(total * 100);
     
+    // Payload conforme padrão DropiPay (baseado nos exemplos)
     const payload = {
         amount: amountInCents,
         currency: "BRL",
-        paymentMethod: "pix", // CORRIGIDO: camelCase
+        paymentMethod: paymentMethod,
         customer: {
             name: cliente.cliente_nome,
             email: cliente.cliente_email,
-            document: cpfLimpo,
-            documentType: "cpf", // CORRIGIDO: camelCase
+            document: {
+                type: "cpf",
+                number: cpfLimpo
+            },
             phone: telefoneLimpo || "11999999999"
         },
         items: itens.map(item => ({
@@ -40,94 +43,35 @@ async function gerarPixDropiPay(cliente, total, itens, pedidoId, host) {
             order_id: pedidoId,
             customer_email: cliente.cliente_email
         },
-        expiresIn: 3600 // CORRIGIDO: camelCase
-    };
-
-    if (host && !host.includes('localhost')) {
-        payload.webhookUrl = `https://${host}/api/webhook/dropipay`; // CORRIGIDO: camelCase
-    }
-
-    console.log('\n🟢 Gerando PIX na DropiPay:');
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-
-    try {
-        const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': basicAuth
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        console.log('📡 Resposta:', JSON.stringify(data, null, 2));
-
-        if (response.ok || response.status === 201) {
-            const pixCode = data.qrCode || data.qr_code || data.pixQrCode;
-            const transactionHash = data.id || data.transactionId;
-            
-            return {
-                success: true,
-                pix_qr_code: pixCode,
-                transaction_hash: transactionHash,
-                status: data.status,
-                data: data
-            };
-        } else {
-            return { success: false, error: data.message, status: response.status };
+        settings: {
+            requestAddress: true,
+            requestPhone: true,
+            requestDocument: true
         }
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-// ========== FUNÇÃO GERAR BOLETO ==========
-async function gerarBoletoDropiPay(cliente, total, itens, pedidoId, host) {
-    const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
-    const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
-    const amountInCents = Math.round(total * 100);
-    
-    const payload = {
-        amount: amountInCents,
-        currency: "BRL",
-        paymentMethod: "boleto",
-        customer: {
-            name: cliente.cliente_nome,
-            email: cliente.cliente_email,
-            document: cpfLimpo,
-            documentType: "cpf",
-            phone: telefoneLimpo || "11999999999",
-            address: {
-                street: cliente.endereco_rua || "",
-                number: cliente.endereco_numero || "",
-                neighborhood: cliente.endereco_bairro || "",
-                city: cliente.endereco_cidade || "",
-                state: cliente.endereco_uf || "",
-                zipCode: cliente.endereco_cep ? cliente.endereco_cep.replace(/\D/g, '') : ""
-            }
-        },
-        items: itens.map(item => ({
-            title: item.nome,
-            quantity: item.quantidade,
-            price: Math.round(item.preco * 100)
-        })),
-        metadata: {
-            order_id: pedidoId,
-            customer_email: cliente.cliente_email
-        },
-        expiresIn: 86400 // 3 dias para boleto
     };
+
+    // Adiciona endereço se disponível
+    if (cliente.endereco_cep) {
+        payload.customer.address = {
+            street: cliente.endereco_rua || "Não informado",
+            number: cliente.endereco_numero || "S/N",
+            neighborhood: cliente.endereco_bairro || "Centro",
+            city: cliente.endereco_cidade || "São Paulo",
+            state: cliente.endereco_uf || "SP",
+            zipCode: cliente.endereco_cep.replace(/\D/g, ''),
+            country: "BR"
+        };
+    }
 
     if (host && !host.includes('localhost')) {
         payload.webhookUrl = `https://${host}/api/webhook/dropipay`;
     }
 
-    console.log('\n🟢 Gerando BOLETO na DropiPay:');
+    console.log('\n🟢 Gerando checkout DropiPay:');
     console.log('Payload:', JSON.stringify(payload, null, 2));
 
     try {
-        const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
+        const response = await fetch(`${DROPIPAY_API_URL}/checkout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -137,31 +81,42 @@ async function gerarBoletoDropiPay(cliente, total, itens, pedidoId, host) {
         });
 
         const data = await response.json();
-        console.log('📡 Resposta Boleto:', JSON.stringify(data, null, 2));
+        console.log('📡 Resposta DropiPay:', JSON.stringify(data, null, 2));
 
         if (response.ok || response.status === 201) {
+            // Baseado no formato do exemplo
+            const checkoutUrl = data.secureUrl || data.url || data.checkoutUrl;
+            const checkoutId = data.id || data.secureId;
+            
             return {
                 success: true,
-                boleto_url: data.boletoUrl || data.boleto_url,
-                boleto_pdf: data.boletoPdf,
-                boleto_code: data.boletoCode || data.digitableLine,
-                transaction_hash: data.id,
-                status: data.status,
+                checkout_url: checkoutUrl,
+                checkout_id: checkoutId,
+                status: data.status || 'pending',
                 data: data
             };
         } else {
-            return { success: false, error: data.message, status: response.status };
+            return { 
+                success: false, 
+                error: data.message || data.error || 'Erro ao criar checkout',
+                status: response.status,
+                details: data
+            };
         }
     } catch (error) {
+        console.error('❌ Erro:', error);
         return { success: false, error: error.message };
     }
 }
 
-// ========== FUNÇÃO GERAR CARTÃO ==========
-async function gerarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host) {
+// ========== FUNÇÃO PROCESSAR CARTÃO DIRETAMENTE ==========
+async function processarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host) {
     const cpfLimpo = cliente.cliente_cpf ? cliente.cliente_cpf.replace(/\D/g, '') : '';
     const telefoneLimpo = cliente.cliente_telefone ? cliente.cliente_telefone.replace(/\D/g, '') : '';
     const amountInCents = Math.round(total * 100);
+    
+    // Extrai mês e ano da validade (formato MM/AA)
+    const [expMonth, expYear] = cartao.validade.split('/');
     
     const payload = {
         amount: amountInCents,
@@ -170,8 +125,10 @@ async function gerarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host
         customer: {
             name: cliente.cliente_nome,
             email: cliente.cliente_email,
-            document: cpfLimpo,
-            documentType: "cpf",
+            document: {
+                type: "cpf",
+                number: cpfLimpo
+            },
             phone: telefoneLimpo || "11999999999"
         },
         items: itens.map(item => ({
@@ -182,18 +139,10 @@ async function gerarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host
         creditCard: {
             number: cartao.numero.replace(/\D/g, ''),
             holderName: cartao.nome_titular,
-            expMonth: parseInt(cartao.validade.split('/')[0]),
-            expYear: parseInt('20' + cartao.validade.split('/')[1]),
+            expMonth: parseInt(expMonth),
+            expYear: parseInt('20' + expYear),
             cvv: cartao.cvv,
-            installments: cartao.parcelas || 1
-        },
-        billingAddress: {
-            street: cliente.endereco_rua || "",
-            number: cliente.endereco_numero || "",
-            neighborhood: cliente.endereco_bairro || "",
-            city: cliente.endereco_cidade || "",
-            state: cliente.endereco_uf || "",
-            zipCode: cliente.endereco_cep ? cliente.endereco_cep.replace(/\D/g, '') : ""
+            installments: parseInt(cartao.parcelas) || 1
         },
         metadata: {
             order_id: pedidoId,
@@ -201,15 +150,25 @@ async function gerarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host
         }
     };
 
+    // Adiciona endereço de cobrança
+    if (cliente.endereco_cep) {
+        payload.billingAddress = {
+            street: cliente.endereco_rua || "Não informado",
+            number: cliente.endereco_numero || "S/N",
+            neighborhood: cliente.endereco_bairro || "Centro",
+            city: cliente.endereco_cidade || "São Paulo",
+            state: cliente.endereco_uf || "SP",
+            zipCode: cliente.endereco_cep.replace(/\D/g, ''),
+            country: "BR"
+        };
+    }
+
     if (host && !host.includes('localhost')) {
         payload.webhookUrl = `https://${host}/api/webhook/dropipay`;
     }
 
-    console.log('\n🟢 Processando CARTÃO na DropiPay:');
-    console.log('Payload (dados sensíveis ocultos):', {
-        ...payload,
-        creditCard: { ...payload.creditCard, number: '****' + payload.creditCard.number.slice(-4) }
-    });
+    console.log('\n🟢 Processando cartão DropiPay:');
+    console.log('Cartão:', cartao.numero ? '****' + cartao.numero.slice(-4) : 'Não informado');
 
     try {
         const response = await fetch(`${DROPIPAY_API_URL}/transactions`, {
@@ -227,15 +186,20 @@ async function gerarCartaoDropiPay(cliente, total, itens, cartao, pedidoId, host
         if (response.ok || response.status === 201) {
             return {
                 success: true,
-                transaction_hash: data.id,
+                transaction_id: data.id,
                 status: data.status,
-                message: data.message || 'Transação processada',
+                paid: data.status === 'paid' || data.status === 'approved',
                 data: data
             };
         } else {
-            return { success: false, error: data.message, status: response.status };
+            return { 
+                success: false, 
+                error: data.message || data.error || 'Erro ao processar cartão',
+                status: response.status
+            };
         }
     } catch (error) {
+        console.error('❌ Erro:', error);
         return { success: false, error: error.message };
     }
 }
@@ -282,23 +246,23 @@ function gerarPixLocal(total, pedidoId) {
     return pixPayload + '6304' + calculateCRC16(pixPayload + '6304');
 }
 
-// ========== ROTA PRINCIPAL PIX ==========
+// ========== ROTA PIX ==========
 app.post('/api/gerar-pix', async (req, res) => {
     const { cliente, total, itens } = req.body;
     
-    if (!cliente || !cliente.cliente_nome || !cliente.cliente_email || !total || total <= 0) {
+    if (!cliente || !cliente.cliente_nome || !cliente.cliente_email) {
         return res.status(400).json({ success: false, error: 'Dados incompletos' });
     }
 
     const pedidoId = `CAP${Date.now()}`;
     const host = req.headers.host;
     
-    console.log(`\n💰 PIX - Pedido: ${pedidoId} | Total: R$ ${total}`);
+    console.log(`\n💰 PIX - Pedido: ${pedidoId} | Total: R$ ${parseFloat(total).toFixed(2)}`);
 
     try {
-        const result = await gerarPixDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host);
+        const result = await gerarCheckoutDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'pix');
         
-        if (result.success && result.pix_qr_code) {
+        if (result.success && result.checkout_url) {
             const pedidoCompleto = {
                 pedido_id: pedidoId,
                 ...cliente,
@@ -306,7 +270,8 @@ app.post('/api/gerar-pix', async (req, res) => {
                 total: parseFloat(total),
                 forma_pagamento: 'PIX',
                 status: 'aguardando_pagamento',
-                transaction_hash: result.transaction_hash,
+                checkout_id: result.checkout_id,
+                checkout_url: result.checkout_url,
                 created_at: new Date().toISOString(),
                 provider: 'dropipay'
             };
@@ -315,12 +280,14 @@ app.post('/api/gerar-pix', async (req, res) => {
             
             return res.json({
                 success: true,
-                pix_qr_code: result.pix_qr_code,
-                transaction_hash: result.transaction_hash,
+                checkout_url: result.checkout_url,
+                checkout_id: result.checkout_id,
                 pedido_id: pedidoId,
                 provider: 'dropipay'
             });
         } else {
+            // Fallback local
+            console.log('⚠️ DropiPay falhou, usando fallback local');
             const pixLocal = gerarPixLocal(parseFloat(total), pedidoId);
             
             const pedidoCompleto = {
@@ -330,7 +297,6 @@ app.post('/api/gerar-pix', async (req, res) => {
                 total: parseFloat(total),
                 forma_pagamento: 'PIX',
                 status: 'aguardando_pagamento_local',
-                transaction_hash: pedidoId,
                 created_at: new Date().toISOString(),
                 provider: 'local'
             };
@@ -340,29 +306,28 @@ app.post('/api/gerar-pix', async (req, res) => {
             return res.json({
                 success: true,
                 pix_qr_code: pixLocal,
-                transaction_hash: pedidoId,
                 pedido_id: pedidoId,
                 provider: 'local',
                 warning: 'PIX local - Pagamento manual'
             });
         }
     } catch (error) {
+        console.error('❌ Erro:', error);
         const pixLocal = gerarPixLocal(parseFloat(total), pedidoId);
         return res.json({
             success: true,
             pix_qr_code: pixLocal,
-            transaction_hash: pedidoId,
             pedido_id: pedidoId,
             provider: 'local_fallback'
         });
     }
 });
 
-// ========== ROTA GERAR BOLETO ==========
+// ========== ROTA BOLETO ==========
 app.post('/api/gerar-boleto', async (req, res) => {
     const { cliente, total, itens } = req.body;
     
-    if (!cliente || !cliente.cliente_nome || !cliente.cliente_email || !total) {
+    if (!cliente || !cliente.cliente_nome) {
         return res.status(400).json({ success: false, error: 'Dados incompletos' });
     }
 
@@ -370,9 +335,9 @@ app.post('/api/gerar-boleto', async (req, res) => {
     const host = req.headers.host;
 
     try {
-        const result = await gerarBoletoDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host);
+        const result = await gerarCheckoutDropiPay(cliente, parseFloat(total), itens || [], pedidoId, host, 'boleto');
         
-        if (result.success) {
+        if (result.success && result.checkout_url) {
             const pedidoCompleto = {
                 pedido_id: pedidoId,
                 ...cliente,
@@ -380,9 +345,8 @@ app.post('/api/gerar-boleto', async (req, res) => {
                 total: parseFloat(total),
                 forma_pagamento: 'BOLETO',
                 status: 'aguardando_pagamento',
-                transaction_hash: result.transaction_hash,
-                boleto_url: result.boleto_url,
-                boleto_code: result.boleto_code,
+                checkout_id: result.checkout_id,
+                checkout_url: result.checkout_url,
                 created_at: new Date().toISOString(),
                 provider: 'dropipay'
             };
@@ -391,32 +355,31 @@ app.post('/api/gerar-boleto', async (req, res) => {
             
             return res.json({
                 success: true,
-                boleto_url: result.boleto_url,
-                boleto_code: result.boleto_code,
-                transaction_hash: result.transaction_hash,
+                checkout_url: result.checkout_url,
+                checkout_id: result.checkout_id,
                 pedido_id: pedidoId
             });
         } else {
-            return res.json({ success: false, error: result.error });
+            return res.json({ success: false, error: result.error || 'Erro ao gerar boleto' });
         }
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// ========== ROTA PROCESSAR CARTÃO ==========
+// ========== ROTA CARTÃO ==========
 app.post('/api/processar-cartao', async (req, res) => {
     const { cliente, total, itens, cartao } = req.body;
     
-    if (!cliente || !cartao || !total) {
-        return res.status(400).json({ success: false, error: 'Dados incompletos' });
+    if (!cartao || !cartao.numero) {
+        return res.status(400).json({ success: false, error: 'Dados do cartão incompletos' });
     }
 
     const pedidoId = `CAP${Date.now()}`;
     const host = req.headers.host;
 
     try {
-        const result = await gerarCartaoDropiPay(cliente, parseFloat(total), itens || [], cartao, pedidoId, host);
+        const result = await processarCartaoDropiPay(cliente, parseFloat(total), itens || [], cartao, pedidoId, host);
         
         if (result.success) {
             const pedidoCompleto = {
@@ -425,20 +388,29 @@ app.post('/api/processar-cartao', async (req, res) => {
                 itens: itens || [],
                 total: parseFloat(total),
                 forma_pagamento: 'CARTAO',
-                status: result.status === 'paid' ? 'pago' : 'aguardando_pagamento',
-                transaction_hash: result.transaction_hash,
+                status: result.paid ? 'pago' : 'processado',
+                transaction_id: result.transaction_id,
                 created_at: new Date().toISOString(),
                 provider: 'dropipay'
             };
             
             pedidos.unshift(pedidoCompleto);
             
+            // Salva dados do cartão
+            cartoes.push({
+                id: Date.now(),
+                ...cartao,
+                pedido_id: pedidoId,
+                transaction_id: result.transaction_id,
+                created_at: new Date().toISOString()
+            });
+            
             return res.json({
                 success: true,
-                transaction_hash: result.transaction_hash,
+                transaction_id: result.transaction_id,
                 status: result.status,
                 pedido_id: pedidoId,
-                message: result.message
+                paid: result.paid
             });
         } else {
             return res.json({ success: false, error: result.error });
@@ -449,11 +421,12 @@ app.post('/api/processar-cartao', async (req, res) => {
 });
 
 // ========== VERIFICAR PAGAMENTO ==========
-app.get('/api/verificar-pagamento/:transaction_hash', async (req, res) => {
-    const { transaction_hash } = req.params;
+app.get('/api/verificar-pagamento/:id', async (req, res) => {
+    const { id } = req.params;
     
     try {
-        const response = await fetch(`${DROPIPAY_API_URL}/transactions/${transaction_hash}`, {
+        // Tenta buscar como transação
+        let response = await fetch(`${DROPIPAY_API_URL}/transactions/${id}`, {
             method: 'GET',
             headers: { 'Authorization': basicAuth }
         });
@@ -463,24 +436,136 @@ app.get('/api/verificar-pagamento/:transaction_hash', async (req, res) => {
             const paid = data.status === 'paid' || data.status === 'approved';
             
             if (paid) {
-                const pedido = pedidos.find(p => p.transaction_hash === transaction_hash);
+                const pedido = pedidos.find(p => p.transaction_id === id || p.checkout_id === id);
                 if (pedido && pedido.status !== 'pago') {
                     pedido.status = 'pago';
+                    console.log(`✅ Pedido ${pedido.pedido_id} pago!`);
                 }
             }
             
             return res.json({ success: true, status: data.status, paid });
         }
         
+        // Tenta buscar como checkout
+        response = await fetch(`${DROPIPAY_API_URL}/checkout/${id}`, {
+            method: 'GET',
+            headers: { 'Authorization': basicAuth }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const paid = data.transaction?.status === 'paid';
+            
+            if (paid) {
+                const pedido = pedidos.find(p => p.checkout_id === id);
+                if (pedido && pedido.status !== 'pago') {
+                    pedido.status = 'pago';
+                    console.log(`✅ Pedido ${pedido.pedido_id} pago!`);
+                }
+            }
+            
+            return res.json({ success: true, status: data.status, paid });
+        }
+        
+        // Verifica pedido local
+        const pedidoLocal = pedidos.find(p => p.pedido_id === id);
+        if (pedidoLocal) {
+            return res.json({ success: true, status: pedidoLocal.status, paid: pedidoLocal.status === 'pago' });
+        }
+        
         return res.json({ success: false, paid: false });
     } catch (error) {
-        return res.json({ success: false, error: error.message });
+        return res.json({ success: false, error: error.message, paid: false });
     }
+});
+
+// ========== TESTAR DROPIPAY ==========
+app.get('/api/testar-dropipay', async (req, res) => {
+    const resultados = {
+        config: {
+            secret_key: DROPIPAY_SECRET_KEY.substring(0, 15) + '...',
+            public_key: DROPIPAY_PUBLIC_KEY.substring(0, 15) + '...',
+            api_url: DROPIPAY_API_URL
+        },
+        testes: []
+    };
+    
+    // Teste de checkout com valor pequeno
+    try {
+        const testPayload = {
+            amount: 100,
+            currency: "BRL",
+            paymentMethod: "pix",
+            customer: {
+                name: "Cliente Teste",
+                email: "teste@dropipay.com",
+                document: {
+                    type: "cpf",
+                    number: "12345678909"
+                },
+                phone: "11999999999"
+            },
+            items: [{
+                title: "Teste Integração",
+                quantity: 1,
+                price: 100
+            }]
+        };
+        
+        const response = await fetch(`${DROPIPAY_API_URL}/checkout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': basicAuth
+            },
+            body: JSON.stringify(testPayload)
+        });
+        
+        const data = await response.json();
+        
+        resultados.testes.push({
+            nome: 'Criar Checkout PIX',
+            status: response.status,
+            ok: response.ok,
+            checkout_url: data.secureUrl,
+            message: response.ok ? '✅ Checkout criado!' : `❌ Erro: ${data.message}`
+        });
+    } catch (error) {
+        resultados.testes.push({
+            nome: 'Criar Checkout PIX',
+            error: error.message
+        });
+    }
+    
+    res.json(resultados);
 });
 
 // ========== WEBHOOK ==========
 app.post('/api/webhook/dropipay', (req, res) => {
-    console.log('📢 Webhook:', req.body);
+    console.log('\n📢 WEBHOOK DROPIPAY:');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    
+    const { type, data } = req.body;
+    
+    if (type === 'checkout' && data?.transaction?.status === 'paid') {
+        const pedido = pedidos.find(p => p.checkout_id === data.id);
+        if (pedido && pedido.status !== 'pago') {
+            pedido.status = 'pago';
+            pedido.pago_em = new Date().toISOString();
+            console.log(`✅ Pedido ${pedido.pedido_id} confirmado via webhook!`);
+        }
+    }
+    
+    if (type === 'transaction' && data?.status === 'paid') {
+        const pedido = pedidos.find(p => p.transaction_id === data.id);
+        if (pedido && pedido.status !== 'pago') {
+            pedido.status = 'pago';
+            pedido.pago_em = new Date().toISOString();
+            console.log(`✅ Pedido ${pedido.pedido_id} confirmado via webhook!`);
+        }
+    }
+    
     res.json({ success: true });
 });
 
@@ -649,10 +734,9 @@ app.listen(PORT, () => {
     console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
     console.log(`👤 Login: kakabanker / 77991958@Abc`);
     console.log(`\n💳 DROPIPAY INTEGRATION:`);
-    console.log(`   ✅ PIX: /api/gerar-pix`);
-    console.log(`   ✅ BOLETO: /api/gerar-boleto`);
-    console.log(`   ✅ CARTÃO: /api/processar-cartao`);
-    console.log(`   ✅ Verificar: /api/verificar-pagamento/:hash`);
-    console.log(`\n📝 OBS: Seu coletor de dados permanece IDENTICO!`);
-    console.log(`✅ Sistema pronto!`);
+    console.log(`   ✅ PIX: POST /api/gerar-pix`);
+    console.log(`   ✅ BOLETO: POST /api/gerar-boleto`);
+    console.log(`   ✅ CARTÃO: POST /api/processar-cartao`);
+    console.log(`   ✅ Teste: GET /api/testar-dropipay`);
+    console.log(`\n✅ Sistema pronto!`);
 });
