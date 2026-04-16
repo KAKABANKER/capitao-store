@@ -20,15 +20,26 @@
             min-height: 100vh;
         }
 
-        /* ========== 3D BACKGROUND ========== */
-        .webgl {
+        /* ========== BACKGROUND GIF ========== */
+        .bg-gif {
             position: fixed;
             top: 0;
             left: 0;
-            outline: none;
-            z-index: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.7;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+            z-index: 1;
         }
 
         /* ========== LOADING SCREEN ========== */
@@ -236,7 +247,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        h1 {
+        .card h1 {
             color: rgba(255, 255, 255, 0.9);
             font-size: 20px;
             font-weight: 500;
@@ -337,7 +348,7 @@
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.06);
             padding: 32px 20px;
@@ -398,7 +409,7 @@
             align-items: center;
             margin-bottom: 32px;
             padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -411,7 +422,7 @@
             display: flex;
             gap: 12px;
         }
-        .theme-toggle, .logout-btn {
+        .logout-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 8px 20px;
@@ -422,7 +433,7 @@
             font-size: 13px;
             transition: all 0.2s;
         }
-        .theme-toggle:hover, .logout-btn:hover {
+        .logout-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
         }
@@ -433,7 +444,7 @@
             margin-bottom: 32px;
         }
         .stat-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
@@ -457,7 +468,7 @@
         }
         .tab {
             padding: 10px 24px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.6);
             font-weight: 500;
@@ -475,7 +486,7 @@
             border-color: rgba(255, 255, 255, 0.15);
         }
         .section-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
@@ -638,7 +649,9 @@
 </head>
 <body>
 
-<canvas class="webgl" id="bgCanvas"></canvas>
+<!-- BACKGROUND GIF (BURACO NEGRO) -->
+<img class="bg-gif" src="buraconegro.gif" alt="Black Hole" onerror="this.style.display='none'">
+<div class="overlay"></div>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loadingScreen">
@@ -676,7 +689,7 @@
             </div>
             <div class="form-group">
                 <label>USERNAME</label>
-                <input type="text" id="loginUser" placeholder="UserAcess">
+                <input type="text" id="loginUser" placeholder="kakabanker">
             </div>
             <div class="form-group">
                 <label>PASSWORD</label>
@@ -824,90 +837,7 @@
     </main>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // ========== 3D BACKGROUND (STARFIELD + BLACK HOLE) ==========
-    const canvas3d = document.getElementById('bgCanvas');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 1);
-    
-    // Starfield
-    const starGeometry = new THREE.BufferGeometry();
-    const starCount = 2000;
-    const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-        starPositions[i * 3] = (Math.random() - 0.5) * 2000;
-        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
-        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 500 - 200;
-    }
-    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.6 });
-    const stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
-    
-    // Black hole center (glow)
-    const glowGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-    const glowMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
-    const blackHole = new THREE.Mesh(glowGeometry, glowMaterial);
-    scene.add(blackHole);
-    
-    // Accretion disk (particle ring)
-    const diskParticles = [];
-    const diskCount = 500;
-    for (let i = 0; i < diskCount; i++) {
-        const particleGeo = new THREE.SphereGeometry(0.08, 6, 6);
-        const particleMat = new THREE.MeshBasicMaterial({ color: 0xff6666 });
-        const particle = new THREE.Mesh(particleGeo, particleMat);
-        const angle = (i / diskCount) * Math.PI * 2;
-        const radius = 2.5 + Math.random() * 1.5;
-        particle.userData = {
-            angle: angle,
-            radius: radius,
-            speed: 0.01 + Math.random() * 0.02
-        };
-        particle.position.x = Math.cos(angle) * radius;
-        particle.position.z = Math.sin(angle) * radius;
-        scene.add(particle);
-        diskParticles.push(particle);
-    }
-    
-    camera.position.z = 8;
-    camera.position.y = 2;
-    camera.lookAt(0, 0, 0);
-    
-    let time = 0;
-    function animate3d() {
-        requestAnimationFrame(animate3d);
-        time += 0.005;
-        
-        // Rotate stars slowly
-        stars.rotation.y += 0.0005;
-        stars.rotation.x += 0.0003;
-        
-        // Animate accretion disk particles
-        diskParticles.forEach(p => {
-            p.userData.angle += p.userData.speed;
-            const rad = p.userData.radius;
-            p.position.x = Math.cos(p.userData.angle) * rad;
-            p.position.z = Math.sin(p.userData.angle) * rad;
-            // Pulse effect
-            const scale = 0.8 + Math.sin(time * 5 + p.userData.angle) * 0.3;
-            p.scale.set(scale, scale, scale);
-        });
-        
-        renderer.render(scene, camera);
-    }
-    animate3d();
-    
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
     // ========== HIDE LOADING SCREEN ==========
     setTimeout(() => {
         document.getElementById('loadingScreen').classList.add('hidden');
