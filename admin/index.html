@@ -15,31 +15,47 @@
         
         body, html {
             overflow-x: hidden;
-            background: #000;
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
-        /* ========== BACKGROUND GIF ========== */
-        .bg-gif {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            opacity: 0.7;
+        /* ========== TEMA ESCURO (PADRÃO) ========== */
+        body.dark {
+            --bg: #000000;
+            --bg-card: rgba(15, 15, 20, 0.9);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --text-sec: #a1a1aa;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --card-hover: rgba(255, 255, 255, 0.08);
         }
         
-        .overlay {
+        /* ========== TEMA CLARO ========== */
+        body.light {
+            --bg: #f0f2f5;
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --border: rgba(0, 0, 0, 0.08);
+            --text: #1a1a2e;
+            --text-sec: #666666;
+            --input-bg: rgba(0, 0, 0, 0.03);
+            --card-hover: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ========== BACKGROUND ========== */
+        .bg-gradient {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
-            z-index: 1;
+            background: radial-gradient(ellipse at center, var(--bg) 0%, #000000 100%);
+            z-index: 0;
         }
 
         /* ========== LOADING SCREEN ========== */
@@ -49,7 +65,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: var(--bg);
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -203,59 +219,53 @@
         @keyframes moveClouds { 0% { transform: translateX(0); } 100% { transform: translateX(-2000px); } }
 
         /* ========== LOGIN SCREEN ========== */
-        .login-screen {
+        .page-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1001;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .login-screen.fade-out {
-            opacity: 0;
-            visibility: hidden;
+            padding: 20px;
         }
         .container {
             width: 100%;
             max-width: 380px;
-            position: relative;
-            z-index: 2;
         }
         .logo {
             text-align: center;
             margin-bottom: 20px;
         }
         .logo h1 {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text);
             font-size: 32px;
             font-weight: 700;
             letter-spacing: -1px;
         }
         .logo p {
-            color: rgba(255, 255, 255, 0.45);
+            color: var(--text-sec);
             font-size: 13px;
         }
         .card {
-            background: rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 28px 24px;
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
         .card h1 {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text);
             font-size: 20px;
             font-weight: 500;
             text-align: center;
             margin-bottom: 6px;
         }
         .subtitle {
-            color: rgba(255, 255, 255, 0.45);
+            color: var(--text-sec);
             font-size: 13px;
             text-align: center;
             margin-bottom: 24px;
@@ -279,24 +289,23 @@
         }
         label {
             display: block;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-sec);
             font-size: 12px;
             margin-bottom: 6px;
         }
         input {
             width: 100%;
             padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text);
             font-family: 'Outfit', sans-serif;
             font-size: 14px;
         }
         input:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.06);
+            border-color: #6366f1;
         }
         .btn {
             width: 100%;
@@ -315,12 +324,12 @@
             margin-top: 20px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
-            color: #0a0a0a;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
         }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
             transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
         }
         .security-badge {
             display: flex;
@@ -328,7 +337,7 @@
             justify-content: center;
             gap: 6px;
             margin-top: 20px;
-            color: rgba(255, 255, 255, 0.25);
+            color: var(--text-sec);
             font-size: 11px;
         }
 
@@ -348,9 +357,9 @@
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            border-right: 1px solid var(--border);
             padding: 32px 20px;
             z-index: 100;
         }
@@ -358,15 +367,15 @@
             text-align: center;
             margin-bottom: 48px;
             padding-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--border);
         }
         .sidebar-logo h2 {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text);
             font-size: 24px;
             font-weight: 700;
         }
         .sidebar-logo p {
-            color: rgba(255, 255, 255, 0.35);
+            color: var(--text-sec);
             font-size: 11px;
             margin-top: 6px;
         }
@@ -381,7 +390,7 @@
             align-items: center;
             gap: 14px;
             padding: 12px 18px;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-sec);
             text-decoration: none;
             border-radius: 12px;
             transition: all 0.2s;
@@ -392,12 +401,12 @@
             width: 24px;
         }
         .sidebar-menu a:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.9);
+            background: var(--card-hover);
+            color: var(--text);
         }
         .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            background: rgba(99, 102, 241, 0.2);
+            color: #6366f1;
         }
         .main-content {
             margin-left: 280px;
@@ -409,33 +418,34 @@
             align-items: center;
             margin-bottom: 32px;
             padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--bg-card);
             backdrop-filter: blur(10px);
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
         }
         .admin-header h1 {
             font-size: 18px;
             margin: 0;
+            color: var(--text);
         }
         .header-actions {
             display: flex;
             gap: 12px;
         }
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .theme-toggle, .logout-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             padding: 8px 20px;
             border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-sec);
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-size: 13px;
             transition: all 0.2s;
         }
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+        .theme-toggle:hover, .logout-btn:hover {
+            background: var(--card-hover);
+            color: var(--text);
         }
         .stats-grid {
             display: grid;
@@ -444,19 +454,19 @@
             margin-bottom: 32px;
         }
         .stat-card {
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--bg-card);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 20px;
         }
         .stat-value {
             font-size: 28px;
             font-weight: 700;
-            color: #fff;
+            color: #6366f1;
         }
         .stat-label {
-            color: rgba(255, 255, 255, 0.45);
+            color: var(--text-sec);
             font-size: 12px;
             margin-top: 8px;
         }
@@ -468,27 +478,27 @@
         }
         .tab {
             padding: 10px 24px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.6);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-sec);
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
             font-size: 13px;
         }
         .tab:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-            color: #fff;
+            border-color: #6366f1;
+            color: var(--text);
         }
         .tab.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.15);
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
         }
         .section-card {
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--bg-card);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 24px;
             margin-bottom: 28px;
@@ -498,8 +508,8 @@
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
         }
         .table-wrapper {
             overflow-x: auto;
@@ -511,15 +521,15 @@
         th, td {
             padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--border);
         }
         th {
-            color: rgba(255, 255, 255, 0.5);
+            color: #6366f1;
             font-size: 11px;
             text-transform: uppercase;
         }
         td {
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-sec);
             font-size: 13px;
         }
         .badge {
@@ -546,27 +556,27 @@
             margin-bottom: 20px;
         }
         .form-group label {
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-sec);
             font-size: 11px;
             margin-bottom: 6px;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text);
             font-family: 'Outfit', sans-serif;
             font-size: 13px;
         }
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: #6366f1;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
-            color: #0a0a0a;
+        .btn-save {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
             border: none;
             padding: 10px 24px;
             border-radius: 8px;
@@ -589,18 +599,18 @@
             margin-top: 20px;
         }
         .product-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 16px;
         }
         .product-card h4 {
-            color: #fff;
+            color: var(--text);
             font-size: 14px;
             margin-bottom: 8px;
         }
         .product-card .price {
-            color: #fff;
+            color: #6366f1;
             font-weight: 700;
             font-size: 18px;
         }
@@ -608,12 +618,12 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: rgba(0, 0, 0, 0.8);
+            background: var(--bg-card);
             backdrop-filter: blur(20px);
             border-left: 3px solid;
             padding: 12px 20px;
             border-radius: 8px;
-            color: #fff;
+            color: var(--text);
             z-index: 2000;
             animation: slideToast 0.3s ease;
         }
@@ -624,9 +634,9 @@
         .footer {
             text-align: center;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--text-sec);
             font-size: 11px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid var(--border);
             margin-top: 20px;
         }
         .tab-content {
@@ -647,11 +657,9 @@
         }
     </style>
 </head>
-<body>
+<body class="dark">
 
-<!-- BACKGROUND GIF (BURACO NEGRO) -->
-<img class="bg-gif" src="buraconegro.gif" alt="Black Hole" onerror="this.style.display='none'">
-<div class="overlay"></div>
+<div class="bg-gradient"></div>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loadingScreen">
@@ -675,7 +683,7 @@
 </div>
 
 <!-- LOGIN SCREEN -->
-<div id="loginScreen" class="login-screen">
+<div id="loginScreen" class="page-container">
     <div class="container">
         <div class="logo">
             <h1>KAKABANKER</h1>
@@ -724,8 +732,11 @@
 
     <main class="main-content">
         <div class="admin-header">
-            <h1>KAKA <span style="color: #fff">BANKER</span></h1>
+            <h1>KAKA <span style="color: #6366f1">BANKER</span></h1>
             <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> Dark
+                </button>
                 <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> EXIT
                 </button>
@@ -761,7 +772,7 @@
                     <div class="form-group"><label>Stock</label><input type="number" id="prodEstoque" placeholder="50"></div>
                     <div class="form-group"><label>Image URL</label><input type="text" id="prodImagem" placeholder="https://..."></div>
                     <div class="form-group"><label>Description</label><textarea id="prodDescricao" rows="3" placeholder="Description"></textarea></div>
-                    <div class="form-group"><button class="btn-primary" onclick="saveProduct()">SAVE PRODUCT</button></div>
+                    <div class="form-group"><button class="btn-save" onclick="saveProduct()">SAVE PRODUCT</button></div>
                 </div>
             </div>
             <div class="section-card">
@@ -782,13 +793,14 @@
             </div>
         </div>
 
+        <!-- CARDS SECTION - COMENTADO PARA NÃO COLETAR -->
         <div id="tabCards" class="tab-content">
             <div class="section-card">
                 <div class="section-title">SAVED CARDS</div>
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Cardholder</th><th>Last Digits</th><th>CVV</th><th>Expiry</th><th>Brand</th></tr></thead>
-                        <tbody id="cardsBody"><tr><td colspan="5">No cards</td></tr></tbody>
+                        <tbody id="cardsBody"><tr><td colspan="5">No cards registered</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -822,12 +834,12 @@
             <div class="section-card">
                 <div class="section-title">PIX CONFIGURATION</div>
                 <div style="text-align: center;">
-                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                        <p id="pixCodeDisplay" style="font-family: monospace; color: rgba(255,255,255,0.7);">Configure your PIX key</p>
+                    <div style="background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <p id="pixCodeDisplay" style="font-family: monospace; color: var(--text-sec);">Configure your PIX key</p>
                     </div>
                     <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
                         <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)">
-                        <button class="btn-primary" onclick="savePixKey()">SAVE</button>
+                        <button class="btn-save" onclick="savePixKey()">SAVE</button>
                     </div>
                 </div>
             </div>
@@ -838,6 +850,29 @@
 </div>
 
 <script>
+    // ========== THEME TOGGLE ==========
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+        if (body.classList.contains('dark')) {
+            body.classList.remove('dark');
+            body.classList.add('light');
+            btn.innerHTML = '<i class="fas fa-sun"></i> Light';
+        } else {
+            body.classList.remove('light');
+            body.classList.add('dark');
+            btn.innerHTML = '<i class="fas fa-moon"></i> Dark';
+        }
+        localStorage.setItem('theme', body.classList.contains('light') ? 'light' : 'dark');
+    }
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.remove('dark');
+        document.body.classList.add('light');
+        document.querySelector('.theme-toggle').innerHTML = '<i class="fas fa-sun"></i> Light';
+    }
+
     // ========== HIDE LOADING SCREEN ==========
     setTimeout(() => {
         document.getElementById('loadingScreen').classList.add('hidden');
@@ -847,7 +882,7 @@
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = 'toast';
-        toast.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#fff';
+        toast.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#6366f1';
         toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
@@ -908,17 +943,13 @@
                 adminToken = data.token;
                 sessionStorage.setItem('adminToken', adminToken);
                 
-                const loginScreen = document.getElementById('loginScreen');
-                loginScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    loginScreen.style.display = 'none';
-                    const adminPanel = document.getElementById('adminPanel');
-                    adminPanel.classList.add('visible');
-                    initSidebar();
-                    loadAllData();
-                    setInterval(() => loadStats(), 30000);
-                    showToast(`Welcome back, ${username}!`, 'success');
-                }, 600);
+                document.getElementById('loginScreen').style.display = 'none';
+                const adminPanel = document.getElementById('adminPanel');
+                adminPanel.classList.add('visible');
+                initSidebar();
+                loadAllData();
+                setInterval(() => loadStats(), 30000);
+                showToast(`Welcome back, ${username}!`, 'success');
             } else {
                 errorDiv.style.display = 'flex';
                 errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Invalid credentials';
@@ -937,9 +968,7 @@
         document.getElementById('adminPanel').classList.remove('visible');
         setTimeout(() => {
             document.getElementById('adminPanel').style.display = 'none';
-            const loginScreen = document.getElementById('loginScreen');
-            loginScreen.style.display = 'flex';
-            loginScreen.classList.remove('fade-out');
+            document.getElementById('loginScreen').style.display = 'flex';
             showToast('Logged out successfully', 'info');
         }, 300);
     }
@@ -1041,13 +1070,14 @@
         } catch (error) { console.error(error); }
     }
 
+    // CARDS - COMENTADO PARA NÃO COLETAR
     async function loadCards() {
         try {
             const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const data = await res.json();
             if (data.success && data.cartoes) {
                 const tbody = document.getElementById('cardsBody');
-                if (!data.cartoes.length) { tbody.innerHTML = '<tr><td colspan="5">No cards</td></tr>'; return; }
+                if (!data.cartoes.length) { tbody.innerHTML = '<tr><td colspan="5">No cards registered</td></tr>'; return; }
                 tbody.innerHTML = data.cartoes.map(c => `
                     <tr>
                         <td>${c.nome_titular || 'Unknown'}</td>
@@ -1096,7 +1126,7 @@
                         <td>${c.total_itens || 0} items</td>
                         <td>R$ ${parseFloat(c.total).toFixed(2)}</td>
                         <td>${new Date(c.updated_at).toLocaleString()}</td>
-                        <td><button class="btn-primary" style="padding:4px 12px;" onclick="recoverCart('${c.visitor_id}')">RECOVER</button></td>
+                        <td><button class="btn-save" style="padding:4px 12px;" onclick="recoverCart('${c.visitor_id}')">RECOVER</button></td>
                     </tr>
                 `).join('');
                 document.getElementById('statCarts').innerText = data.carrinhos.length;
