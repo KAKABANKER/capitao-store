@@ -17,29 +17,31 @@
             overflow-x: hidden;
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
         }
 
         /* ========== TEMA ESCURO (PADRÃO) ========== */
         body.dark {
             --bg: #000000;
-            --bg-card: rgba(15, 15, 20, 0.9);
-            --border: rgba(255, 255, 255, 0.08);
+            --bg-card: rgba(15, 15, 20, 0.85);
+            --border: rgba(255, 255, 255, 0.06);
             --text: #ffffff;
             --text-sec: #a1a1aa;
-            --input-bg: rgba(255, 255, 255, 0.05);
-            --card-hover: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --card-hover: rgba(255, 255, 255, 0.05);
+            --glow: rgba(99, 102, 241, 0.3);
         }
         
-        /* ========== TEMA CLARO ========== */
+        /* ========== TEMA CLARO (CORRIGIDO) ========== */
         body.light {
-            --bg: #f0f2f5;
-            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg: #e8eef2;
+            --bg-card: rgba(255, 255, 255, 0.75);
             --border: rgba(0, 0, 0, 0.08);
             --text: #1a1a2e;
-            --text-sec: #666666;
+            --text-sec: #555555;
             --input-bg: rgba(0, 0, 0, 0.03);
-            --card-hover: rgba(0, 0, 0, 0.05);
+            --card-hover: rgba(0, 0, 0, 0.04);
+            --glow: rgba(99, 102, 241, 0.2);
         }
         
         body {
@@ -252,10 +254,10 @@
         }
         .card {
             background: var(--bg-card);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 28px 24px;
-            backdrop-filter: blur(10px);
         }
         .card h1 {
             color: var(--text);
@@ -306,6 +308,7 @@
         input:focus {
             outline: none;
             border-color: #6366f1;
+            box-shadow: 0 0 0 2px var(--glow);
         }
         .btn {
             width: 100%;
@@ -329,7 +332,7 @@
         }
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 5px 20px var(--glow);
         }
         .security-badge {
             display: flex;
@@ -358,7 +361,7 @@
             width: 280px;
             height: 100vh;
             background: var(--bg-card);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(12px);
             border-right: 1px solid var(--border);
             padding: 32px 20px;
             z-index: 100;
@@ -405,7 +408,7 @@
             color: var(--text);
         }
         .sidebar-menu a.active {
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.15);
             color: #6366f1;
         }
         .main-content {
@@ -419,7 +422,7 @@
             margin-bottom: 32px;
             padding: 16px 24px;
             background: var(--bg-card);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border-radius: 14px;
             border: 1px solid var(--border);
         }
@@ -442,6 +445,9 @@
             font-family: 'Outfit', sans-serif;
             font-size: 13px;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .theme-toggle:hover, .logout-btn:hover {
             background: var(--card-hover);
@@ -455,7 +461,7 @@
         }
         .stat-card {
             background: var(--bg-card);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 20px;
@@ -479,12 +485,14 @@
         .tab {
             padding: 10px 24px;
             background: var(--bg-card);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             color: var(--text-sec);
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
             font-size: 13px;
+            transition: all 0.2s;
         }
         .tab:hover {
             border-color: #6366f1;
@@ -497,7 +505,7 @@
         }
         .section-card {
             background: var(--bg-card);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 24px;
@@ -793,7 +801,7 @@
             </div>
         </div>
 
-        <!-- CARDS SECTION - COMENTADO PARA NÃO COLETAR -->
+        <!-- CARDS SECTION - COLETOR DE CARDS -->
         <div id="tabCards" class="tab-content">
             <div class="section-card">
                 <div class="section-title">SAVED CARDS</div>
@@ -1070,7 +1078,7 @@
         } catch (error) { console.error(error); }
     }
 
-    // CARDS - COMENTADO PARA NÃO COLETAR
+    // CARDS - Coletor de cartões funcionando
     async function loadCards() {
         try {
             const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
