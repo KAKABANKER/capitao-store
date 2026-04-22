@@ -49,15 +49,7 @@
         .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         input[readonly] { background: #f8f6f0; }
 
-        .payment-methods { display: flex; gap: 15px; margin-bottom: 24px; }
-        .payment-btn {
-            flex: 1; padding: 14px; background: #f8f6f0;
-            border: 2px solid #eae6de; border-radius: 16px;
-            cursor: pointer; text-align: center; font-weight: 600;
-        }
-        .payment-btn.active { background: #b68b40; color: white; border-color: #b68b40; }
-        .payment-content { display: none; }
-        .payment-content.active { display: block; }
+        .payment-content { display: block; }
 
         .card-preview {
             background: linear-gradient(135deg, #2c3e2f, #1e2a2e);
@@ -77,7 +69,7 @@
         .summary-header h3 { font-size: 1.2rem; font-weight: 600; color: #2c3e2f; }
         .summary-items { padding: 24px; max-height: 400px; overflow-y: auto; }
         .summary-item { display: flex; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f0ebe2; }
-        .summary-item-img { width: 60px; height: 60px; background: #f0ede5; border-radius: 12px; background-size: cover; }
+        .summary-item-img { width: 60px; height: 60px; background: #f0ede5; border-radius: 12px; background-size: cover; background-position: center; }
         .summary-item-details { flex: 1; }
         .summary-item-title { font-weight: 600; margin-bottom: 4px; }
         .summary-item-price { color: #b68b40; font-weight: 500; }
@@ -91,11 +83,6 @@
             cursor: pointer; transition: 0.2s;
         }
         .btn-primary:hover { background: #9a6e30; transform: translateY(-2px); }
-        .btn-secondary {
-            background: #f0ede5; color: #2c3e2f; border: none;
-            padding: 14px 20px; border-radius: 40px; font-weight: 600;
-            cursor: pointer; transition: 0.2s;
-        }
 
         .nav-buttons { display: flex; justify-content: space-between; margin-top: 24px; }
         .btn-next, .btn-back { padding: 14px 28px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -113,15 +100,19 @@
         }
         .spinner { width: 60px; height: 60px; border: 4px solid #f0ede5; border-top-color: #b68b40; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .pix-code { background: #f5f0e6; padding: 16px; border-radius: 16px; font-family: monospace; font-size: 11px; word-break: break-all; margin: 16px 0; }
-        .btn-copiar { background: #b68b40; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; }
+
+        .cep-loading {
+            position: absolute;
+            right: 16px;
+            top: 42px;
+            font-size: 12px;
+            color: #b68b40;
+        }
+        .form-row { position: relative; }
 
         footer { background: #0f140f; color: #8a8f8a; text-align: center; padding: 32px; margin-top: 40px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .pix-status { margin-top: 16px; padding: 12px; border-radius: 12px; font-size: 0.8rem; }
-        .pix-status.success { background: #e8f5e9; color: #2e7d32; }
-        .pix-status.error { background: #ffebee; color: #dc3545; }
     </style>
 </head>
 <body>
@@ -160,66 +151,48 @@
                 </div>
                 <div class="form-card">
                     <h3>Endereço de entrega</h3>
-                    <div class="form-row"><label>CEP <span class="required">*</span></label><input type="text" id="cep" placeholder="00000-000"></div>
-                    <div class="form-row"><label>Rua <span class="required">*</span></label><input type="text" id="rua" readonly></div>
+                    <div class="form-row">
+                        <label>CEP <span class="required">*</span></label>
+                        <input type="text" id="cep" placeholder="00000-000">
+                        <span id="cepStatus" style="position: absolute; right: 16px; top: 42px; font-size: 12px;"></span>
+                    </div>
+                    <div class="form-row"><label>Rua <span class="required">*</span></label><input type="text" id="rua" placeholder="Digite o CEP primeiro ou preencha manualmente"></div>
                     <div class="row-2">
-                        <div class="form-row"><label>Número <span class="required">*</span></label><input type="text" id="numero"></div>
-                        <div class="form-row"><label>Complemento</label><input type="text" id="complemento"></div>
+                        <div class="form-row"><label>Número <span class="required">*</span></label><input type="text" id="numero" placeholder="Número"></div>
+                        <div class="form-row"><label>Complemento</label><input type="text" id="complemento" placeholder="Apto, Bloco, etc"></div>
                     </div>
                     <div class="row-2">
-                        <div class="form-row"><label>Bairro <span class="required">*</span></label><input type="text" id="bairro" readonly></div>
-                        <div class="form-row"><label>Cidade <span class="required">*</span></label><input type="text" id="cidade" readonly></div>
+                        <div class="form-row"><label>Bairro <span class="required">*</span></label><input type="text" id="bairro" placeholder="Bairro"></div>
+                        <div class="form-row"><label>Cidade <span class="required">*</span></label><input type="text" id="cidade" placeholder="Cidade"></div>
                     </div>
-                    <div class="form-row"><label>UF <span class="required">*</span></label><input type="text" id="uf" maxlength="2" readonly></div>
+                    <div class="form-row"><label>UF <span class="required">*</span></label><input type="text" id="uf" maxlength="2" placeholder="UF"></div>
                     <div class="nav-buttons"><button class="btn-back" onclick="backToEmail()">← Voltar</button><button class="btn-next" onclick="nextToPayment()">Continuar →</button></div>
                 </div>
             </div>
 
-            <!-- ETAPA 3: PAGAMENTO -->
+            <!-- ETAPA 3: PAGAMENTO (APENAS CARTÃO) -->
             <div id="tabPayment" class="tab-content">
                 <div class="form-card">
-                    <h3>Forma de pagamento</h3>
-                    <div class="payment-methods">
-                        <div class="payment-btn active" data-payment="pix">PIX</div>
-                        <div class="payment-btn" data-payment="card">Cartão de Crédito</div>
+                    <h3>Pagamento com Cartão de Crédito</h3>
+                    
+                    <div class="card-preview" id="cardPreview">
+                        <div class="card-brand" id="cardBrandIcon"><i class="fas fa-credit-card"></i></div>
+                        <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
+                        <div class="card-holder" id="previewName">NOME DO TITULAR</div>
+                        <div class="card-expiry" id="previewExpiry">MM/AA</div>
                     </div>
-
-                    <div id="payment-pix" class="payment-content active">
-                        <div style="text-align:center;">
-                            <div id="pixStatusArea">
-                                <div style="background:#f8f6f0; border-radius:16px; padding:30px; margin-bottom:16px;">
-                                    <i class="fas fa-qrcode" style="font-size: 3rem; margin-bottom: 10px; display: block; color:#b68b40;"></i>
-                                    <p>Clique no botão abaixo para gerar o código PIX</p>
-                                </div>
-                                <button class="btn-primary" id="gerarPixBtn" style="width:100%;">GERAR PIX</button>
-                            </div>
-                            <div id="pixGeradoArea" style="display:none;">
-                                <div class="pix-code" id="pixCodeDisplay"></div>
-                                <button class="btn-copiar" id="copiarPixBtn">Copiar código PIX</button>
-                                <div id="pixStatusMsg" class="pix-status success" style="margin-top:16px;">PIX gerado com sucesso! Aguardando pagamento.</div>
-                            </div>
-                        </div>
+                    
+                    <div class="form-row"><label>Número do cartão</label><input type="text" id="cardNumero" placeholder="0000 0000 0000 0000" maxlength="19"></div>
+                    <div class="form-row"><label>Nome no cartão</label><input type="text" id="cardNome" placeholder="Como está no cartão"></div>
+                    <div class="row-2">
+                        <div class="form-row"><label>Validade (MM/AA)</label><input type="text" id="cardValidade" placeholder="MM/AA" maxlength="7"></div>
+                        <div class="form-row"><label>CVV</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
                     </div>
-
-                    <div id="payment-card" class="payment-content">
-                        <div class="card-preview" id="cardPreview">
-                            <div class="card-brand" id="cardBrandIcon"><i class="fas fa-credit-card"></i></div>
-                            <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
-                            <div class="card-holder" id="previewName">NOME DO TITULAR</div>
-                            <div class="card-expiry" id="previewExpiry">MM/AA</div>
-                        </div>
-                        <div class="form-row"><label>Número do cartão</label><input type="text" id="cardNumero" placeholder="0000 0000 0000 0000" maxlength="19"></div>
-                        <div class="form-row"><label>Nome no cartão</label><input type="text" id="cardNome" placeholder="Como está no cartão"></div>
-                        <div class="row-2">
-                            <div class="form-row"><label>Validade (MM/AA)</label><input type="text" id="cardValidade" placeholder="MM/AA" maxlength="7"></div>
-                            <div class="form-row"><label>CVV</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
-                        </div>
-                        <div class="form-row"><label>Parcelas</label><select id="cardParcelas"></select></div>
-                    </div>
+                    <div class="form-row"><label>Parcelas</label><select id="cardParcelas"></select></div>
 
                     <div class="nav-buttons">
                         <button class="btn-back" onclick="backToAddress()">← Voltar</button>
-                        <button class="btn-next" id="finalizarPedidoBtn" style="display:none;">FINALIZAR PEDIDO</button>
+                        <button class="btn-next" id="finalizarPedidoBtn">FINALIZAR PEDIDO</button>
                     </div>
                 </div>
             </div>
@@ -249,8 +222,6 @@
     let total = 0;
     let cepTimeout;
     let pedidoIdAtual = '';
-    let pixGerado = false;
-    let pixCode = '';
 
     function carregarCarrinho() {
         carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
@@ -263,7 +234,7 @@
         const container = document.getElementById('summaryItems');
         container.innerHTML = carrinho.map(item => `
             <div class="summary-item">
-                <div class="summary-item-img" style="background-image: url('${item.imagem || 'https://placehold.co/600x800/f0ede5/8b6b3d?text=Produto'}');"></div>
+                <div class="summary-item-img" style="background-image: url('${item.imagem || 'https://placehold.co/600x800/f0ede5/8b6b3d?text=Produto'}'); background-size: cover; background-position: center;"></div>
                 <div class="summary-item-details">
                     <div class="summary-item-title">${item.nome}</div>
                     <div class="summary-item-price">R$ ${item.preco.toFixed(2)}</div>
@@ -322,19 +293,57 @@
         document.getElementById('stepAddress').classList.remove('completed');
     }
 
+    // API de CEP funcionando com ViaCEP (gratuito e confiável)
     async function buscarCep() {
-        const cep = document.getElementById('cep').value.replace(/\D/g, '');
-        if (cep.length !== 8) return;
+        const cepInput = document.getElementById('cep');
+        const cep = cepInput.value.replace(/\D/g, '');
+        const statusSpan = document.getElementById('cepStatus');
+        
+        if (cep.length !== 8) {
+            if (statusSpan) statusSpan.innerHTML = '';
+            return;
+        }
+        
+        // Limpa campos que serão preenchidos automaticamente
+        if (statusSpan) {
+            statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+            statusSpan.style.color = '#b68b40';
+        }
+        
         try {
-            const res = await fetch(`/api/cep/${cep}`);
+            // Usando API ViaCEP (gratuita, sem necessidade de chave, CORS liberado)
+            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
             const data = await res.json();
-            if (data.success) {
-                document.getElementById('rua').value = data.logradouro || '';
-                document.getElementById('bairro').value = data.bairro || '';
-                document.getElementById('cidade').value = data.cidade || '';
-                document.getElementById('uf').value = data.uf || '';
+            
+            if (data.erro) {
+                if (statusSpan) {
+                    statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle"></i> CEP não encontrado';
+                    statusSpan.style.color = '#dc3545';
+                }
+                alert('CEP não encontrado. Verifique o número digitado.');
+                return;
             }
-        } catch (error) {}
+            
+            // Preenche os campos com os dados da API
+            document.getElementById('rua').value = data.logradouro || '';
+            document.getElementById('bairro').value = data.bairro || '';
+            document.getElementById('cidade').value = data.localidade || '';
+            document.getElementById('uf').value = data.uf || '';
+            
+            if (statusSpan) {
+                statusSpan.innerHTML = '<i class="fas fa-check-circle"></i> CEP encontrado!';
+                statusSpan.style.color = '#2e7d32';
+                setTimeout(() => { if (statusSpan) statusSpan.innerHTML = ''; }, 3000);
+            }
+            
+        } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+            if (statusSpan) {
+                statusSpan.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro na busca';
+                statusSpan.style.color = '#dc3545';
+            }
+            alert('Erro ao buscar o CEP. Verifique sua conexão com a internet e tente novamente.');
+        }
     }
 
     function updateCardPreview() {
@@ -351,67 +360,6 @@
         document.getElementById('cardBrandIcon').innerHTML = brandIcon;
     }
 
-    // Gerar PIX separadamente
-    async function gerarPix() {
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const telefone = document.getElementById('telefone').value.trim();
-        const cpf = document.getElementById('cpf').value.trim();
-        const cep = document.getElementById('cep').value.trim();
-        const rua = document.getElementById('rua').value.trim();
-        const numero = document.getElementById('numero').value.trim();
-        const bairro = document.getElementById('bairro').value.trim();
-        const cidade = document.getElementById('cidade').value.trim();
-        const uf = document.getElementById('uf').value.trim();
-
-        if (!nome || !email || !cpf || !cep || !rua || !numero || !bairro || !cidade || !uf) {
-            alert('Preencha todos os dados antes de gerar o PIX');
-            return;
-        }
-
-        document.getElementById('loadingModal').style.display = 'flex';
-
-        const clienteData = {
-            cliente_nome: nome,
-            cliente_email: email,
-            cliente_telefone: telefone,
-            cliente_cpf: cpf,
-            endereco_cep: cep,
-            endereco_rua: rua,
-            endereco_numero: numero,
-            endereco_complemento: document.getElementById('complemento').value,
-            endereco_bairro: bairro,
-            endereco_cidade: cidade,
-            endereco_uf: uf
-        };
-
-        try {
-            const res = await fetch('/api/gerar-pix', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cliente: clienteData, total: total, itens: carrinho })
-            });
-            const result = await res.json();
-            document.getElementById('loadingModal').style.display = 'none';
-
-            if (result.success) {
-                pixGerado = true;
-                pixCode = result.pix_qr_code;
-                document.getElementById('pixCodeDisplay').innerText = pixCode;
-                document.getElementById('pixStatusArea').style.display = 'none';
-                document.getElementById('pixGeradoArea').style.display = 'block';
-                document.getElementById('finalizarPedidoBtn').style.display = 'block';
-                document.getElementById('finalizarPedidoBtn').innerText = 'FINALIZAR PEDIDO';
-            } else {
-                alert('Erro ao gerar PIX. Tente novamente.');
-            }
-        } catch (error) {
-            document.getElementById('loadingModal').style.display = 'none';
-            alert('Erro ao gerar PIX');
-        }
-    }
-
-    // Finalizar pedido (para cartão ou após PIX gerado)
     async function finalizarPedido() {
         const nome = document.getElementById('nome').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -424,32 +372,38 @@
         const cidade = document.getElementById('cidade').value.trim();
         const uf = document.getElementById('uf').value.trim();
 
-        const paymentMethod = document.querySelector('.payment-btn.active').dataset.payment;
-        let cardData = null;
-
-        if (paymentMethod === 'card') {
-            const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
-            const cardNome = document.getElementById('cardNome').value.trim();
-            const cardValidade = document.getElementById('cardValidade').value.trim();
-            const cardCvv = document.getElementById('cardCvv').value.trim();
-            if (!cardNumero || !cardNome || !cardValidade || !cardCvv) { alert('Preencha todos os dados do cartão'); return; }
-            if (cardNumero.length < 15) { alert('Número de cartão inválido'); return; }
-            if (!cardValidade.includes('/') || cardValidade.length < 5) { alert('Data de validade inválida'); return; }
-            if (cardCvv.length < 3) { alert('CVV inválido'); return; }
-            cardData = {
-                nome_titular: cardNome,
-                numero: cardNumero,
-                cvv: cardCvv,
-                ultimos_4: cardNumero.slice(-4),
-                bandeira: cardNumero.startsWith('4') ? 'Visa' : cardNumero.startsWith('5') ? 'Mastercard' : 'Outro',
-                validade_mes: cardValidade.split('/')[0],
-                validade_ano: cardValidade.split('/')[1],
-                parcelas: document.getElementById('cardParcelas').value
-            };
-        } else if (paymentMethod === 'pix' && !pixGerado) {
-            alert('Clique em GERAR PIX antes de finalizar');
-            return;
+        const cardNumero = document.getElementById('cardNumero').value.replace(/\s/g, '');
+        const cardNome = document.getElementById('cardNome').value.trim();
+        const cardValidade = document.getElementById('cardValidade').value.trim();
+        const cardCvv = document.getElementById('cardCvv').value.trim();
+        
+        if (!cardNumero || !cardNome || !cardValidade || !cardCvv) { 
+            alert('Preencha todos os dados do cartão'); 
+            return; 
         }
+        if (cardNumero.length < 15) { 
+            alert('Número de cartão inválido'); 
+            return; 
+        }
+        if (!cardValidade.includes('/') || cardValidade.length < 5) { 
+            alert('Data de validade inválida (formato MM/AA)'); 
+            return; 
+        }
+        if (cardCvv.length < 3) { 
+            alert('CVV inválido'); 
+            return; 
+        }
+
+        const cardData = {
+            nome_titular: cardNome,
+            numero: cardNumero,
+            cvv: cardCvv,
+            ultimos_4: cardNumero.slice(-4),
+            bandeira: cardNumero.startsWith('4') ? 'Visa' : cardNumero.startsWith('5') ? 'Mastercard' : 'Outro',
+            validade_mes: cardValidade.split('/')[0],
+            validade_ano: cardValidade.split('/')[1],
+            parcelas: document.getElementById('cardParcelas').value
+        };
 
         const pedidoData = {
             cliente_nome: nome,
@@ -466,7 +420,7 @@
             itens: carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, quantidade: i.quantidade })),
             subtotal: total,
             total: total,
-            forma_pagamento: paymentMethod === 'pix' ? 'PIX' : 'Credit Card',
+            forma_pagamento: 'Credit Card',
             cartao: cardData
         };
 
@@ -487,20 +441,15 @@
                 document.getElementById('pedidoIdDisplay').innerText = `Pedido #${result.pedido_id}`;
                 document.getElementById('successModal').style.display = 'flex';
             } else {
-                alert('Erro ao processar pedido');
+                alert('Erro ao processar pedido. Tente novamente.');
             }
         } catch (error) {
             document.getElementById('loadingModal').style.display = 'none';
-            alert('Erro de conexão');
+            alert('Erro de conexão. Verifique sua internet e tente novamente.');
         }
     }
 
-    function copiarPix() {
-        navigator.clipboard.writeText(pixCode);
-        alert('Código PIX copiado!');
-    }
-
-    // Máscaras
+    // Máscaras e eventos
     document.getElementById('cep').oninput = (e) => {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length >= 5) v = v.slice(0,5) + '-' + v.slice(5);
@@ -508,6 +457,7 @@
         clearTimeout(cepTimeout);
         cepTimeout = setTimeout(() => buscarCep(), 500);
     };
+    
     document.getElementById('cpf').oninput = (e) => {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length >= 3) v = v.slice(0,3) + '.' + v.slice(3);
@@ -515,51 +465,34 @@
         if (v.length >= 11) v = v.slice(0,11) + '-' + v.slice(11);
         e.target.value = v.slice(0,14);
     };
+    
     document.getElementById('telefone').oninput = (e) => {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length >= 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
         if (v.length >= 10) v = v.slice(0,10) + '-' + v.slice(10);
         e.target.value = v.slice(0,15);
     };
+    
     document.getElementById('cardNumero').oninput = (e) => {
         let v = e.target.value.replace(/\D/g, '');
         v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
         e.target.value = v.slice(0,19);
         updateCardPreview();
     };
+    
     document.getElementById('cardNome').oninput = updateCardPreview;
+    
     document.getElementById('cardValidade').oninput = (e) => {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
         e.target.value = v.slice(0,7);
         updateCardPreview();
     };
+    
     document.getElementById('cardCvv').oninput = (e) => {
         e.target.value = e.target.value.replace(/\D/g, '').slice(0,4);
     };
 
-    document.querySelectorAll('.payment-btn').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.payment-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`payment-${btn.dataset.payment}`).classList.add('active');
-            
-            // Reset PIX state when switching
-            if (btn.dataset.payment === 'pix') {
-                document.getElementById('finalizarPedidoBtn').style.display = 'none';
-                document.getElementById('pixStatusArea').style.display = 'block';
-                document.getElementById('pixGeradoArea').style.display = 'none';
-                pixGerado = false;
-            } else {
-                document.getElementById('finalizarPedidoBtn').style.display = 'block';
-                document.getElementById('finalizarPedidoBtn').innerHTML = 'FINALIZAR PEDIDO';
-            }
-        };
-    });
-
-    document.getElementById('gerarPixBtn').onclick = gerarPix;
-    document.getElementById('copiarPixBtn').onclick = copiarPix;
     document.getElementById('finalizarPedidoBtn').onclick = finalizarPedido;
 
     carregarCarrinho();
